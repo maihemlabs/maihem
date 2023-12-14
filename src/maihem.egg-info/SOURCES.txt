@@ -1,0 +1,12 @@
+LICENSE
+MANIFEST.in
+README.md
+pyproject.toml
+setup.cfg
+src/maihem/__init__.py
+src/maihem/generator.py
+src/maihem.egg-info/PKG-INFO
+src/maihem.egg-info/SOURCES.txt
+src/maihem.egg-info/dependency_links.txt
+src/maihem.egg-info/requires.txt
+src/maihem.egg-info/top_level.txt
