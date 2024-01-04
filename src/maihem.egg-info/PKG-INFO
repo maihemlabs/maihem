@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: maihem
-Version: 1.0.0
+Version: 1.0.2
 Summary: LLM evaluations and synthetic data generation with the MAIHEM models
 Author: MAIHEM
 License: MIT License
@@ -50,32 +50,52 @@ pip install maihem
 Get a free API key by subscribing to our product here: [www.maihem.ai](https://maihem.ai).
 
 ### Setting API key
-Before using the maihem package, you need to set your maihem API key as an environment variable. You can add it to your local bash script, or directly in your python code.
+Before using the maihem package, you need to set your maihem API key as an environment variable. You can add it directly in your python code, or to your local bash script.
 
-#### In local bash script
-For Linux, open the *.bashrc* file in your home directory (for MacOs *.bash_profile*) and add the following line
-```
-export MAIHEM_API_KEY = '<your_maihem_api_key>'
-```
+#### Alternative 1: In python code
+In the beggining of your code add the following lines with your corresponding API key:
 
-Run the following command in the terminal to apply the changes
-
-For Linux
-```
-source ~/.bashrc
-```
-
-For Mac
-```
-source ~/.bash_profile
-```
-
-#### In python code
 ```
 import os
 
 os.environ['MAIHEM_API_KEY'] = '<your_maihem_api_key>'
 ```
+
+#### Alternative 2: In local bash script
+
+**For Linux**:
+
+Open the *.bashrc* file in your home directory with a text editor
+```
+vim ~/.bashrc
+```
+add the following line to the file with your corresponding API key:
+```
+export MAIHEM_API_KEY = '<your_maihem_api_key>'
+```
+
+Run the following command in the terminal to apply the changes
+```
+source ~/.bashrc
+```
+
+**For Mac**:
+
+Open the *.bash_profile* file in your home directory with a text editor
+```
+vim ~/.bash_profile
+```
+add the following line to the file with your corresponding API key:
+```
+export MAIHEM_API_KEY = '<your_maihem_api_key>'
+```
+
+Run the following command in the terminal to apply the changes
+```
+source ~/.bash_profile
+```
+
+
 
 ## Generate synthetic data
 
@@ -87,11 +107,18 @@ See [run_examply.py](./run_example.py) for an example python script for persona 
 import os
 import maihem as mh
 
+
 os.environ['MAIHEM_API_KEY'] = 'a923c14d881247a7bad58b93d9595494'
+
+# Parameter dictionary for intent
+intent = {
+    'intent': "unblock credit card",
+    'context': "credit card got blocked when traveling abroad",
+    'category': "retail banking"
+}
 
 # Parameter dictionary for persona
 persona = {
-    'intent': "credit card got blocked",
     'mood': "angry",
     'age': "30-40",
     'gender': "male",
@@ -103,9 +130,8 @@ persona = {
     'children': "2",
     'employment': "employed",
     'housing': "rent",
-    'occupation': "banker",
+    'occupation': "data scientist",
     'location': "New York",
-    'sector_name': "retail banking",
     'customer_name': "John Doe",
   }
 
@@ -113,8 +139,6 @@ persona = {
 dg = mh.DataGenerator()
 
 # Generate list of prompts for defined persona
-data = dg.generate_prompts(persona, model_temperature=0.8, n_calls=3, n_prompts_per_call=2)
+data = dg.generate_prompts(intent, persona, model_temperature=0.8, n_calls=3, n_prompts_per_call=2)
 print(data)
 ```
-
-
