@@ -17,7 +17,7 @@ class DataGenerator():
     def _get_api_key(self):
         if os.getenv('MAIHEM_API_KEY') is not None:
             self.api_key = os.getenv('MAIHEM_API_KEY')
-            # self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
+            self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
 
         else:
             warnings.warn("MAIHEM_API_KEY not found in environment variables, please set manually with the set_api_key() function", 
@@ -28,7 +28,7 @@ class DataGenerator():
         Set API key manually or read from OS environment variable
         """
         self.api_key = key
-        # self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
+        self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
 
     def generate_prompts(self, intent_params:dict, persona_params: dict, model_temperature: float, 
                          n_calls: int, n_prompts_per_call: int) -> list:
