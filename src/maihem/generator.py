@@ -13,10 +13,11 @@ class DataGenerator():
         self._get_api_key()
         self.URL_API = "https://maihem-api-access.azure-api.net/checks"
 
+
     def _get_api_key(self):
         if os.getenv('MAIHEM_API_KEY') is not None:
             self.api_key = os.getenv('MAIHEM_API_KEY')
-            self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
+            # self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
 
         else:
             warnings.warn("MAIHEM_API_KEY not found in environment variables, please set manually with the set_api_key() function", 
@@ -27,9 +28,9 @@ class DataGenerator():
         Set API key manually or read from OS environment variable
         """
         self.api_key = key
-        self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
+        # self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
 
-    def generate_prompts(self, persona_params: dict, model_temperature: float, 
+    def generate_prompts(self, intent_params:dict, persona_params: dict, model_temperature: float, 
                          n_calls: int, n_prompts_per_call: int) -> list:
         """
         Generate data using persona parameters and model generator parameters
@@ -42,9 +43,10 @@ class DataGenerator():
             'n_prompts_per_call': str(n_prompts_per_call)
         }
 
-        self._check_params(persona_params, generator_params)
+        self._check_params(intent_params, persona_params, generator_params)
 
         item ={
+            "intent": intent_params,
             "persona": persona_params,
             "generator": generator_params
         }
@@ -67,10 +69,17 @@ class DataGenerator():
             print(response)
             warnings.warn("No data was returned, check input parameters", NoResponseData)
 
-    def _check_params(self, persona_params: dict, generator_params: dict):
+    def _check_params(self, intent_params:dict, persona_params: dict, generator_params: dict):
         """
         Check if parameters are valid
         """
+        assert 'intent' in intent_params.keys(), "<intent> must be provided"
+        assert type(intent_params['intent']) == str, "<intent> must be a string"
+        assert 'context' in intent_params.keys(), "<context> must be provided"
+        assert type(intent_params['context']) == str, "<context> must be a string"
+        assert 'category' in intent_params.keys(), "<category> must be provided"
+        assert type(intent_params['category']) == str, "<category> must be a string"
+
         assert type(persona_params) == dict, "persona_params must be a dictionary"
         assert type(generator_params) == dict, "generator_params must be a dictionary"
 
