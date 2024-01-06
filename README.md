@@ -62,9 +62,14 @@ source ~/.bash_profile
 
 ## Generate synthetic data
 
+Our synthetic data generator can create the following types of data:
+
+- [Persona prompts](#persona-prompts)
+- [Conversation prompts](#conversation-prompts)
+
 ### Persona prompts
 
-See [run_examply.py](./run_example.py) for an example python script for persona prompt generation. The example code is also below
+See [persona_prompt_generator.py](./examples/persona_prompt_generator.py) for an example python script for persona prompt generation. The example code is also below
 
 ```
 import os
@@ -105,3 +110,8 @@ dg = mh.DataGenerator()
 data = dg.generate_prompts(intent, persona, model_temperature=0.8, n_calls=3, n_prompts_per_call=2)
 print(data)
 ```
+
+### Persona conversations
+
+
+asd
