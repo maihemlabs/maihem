@@ -4,7 +4,7 @@ README.md
 pyproject.toml
 setup.cfg
 src/maihem/__init__.py
-src/maihem/generator.py
+src/maihem/functions.py
 src/maihem.egg-info/PKG-INFO
 src/maihem.egg-info/SOURCES.txt
 src/maihem.egg-info/dependency_links.txt

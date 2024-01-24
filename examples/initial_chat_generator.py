@@ -13,26 +13,27 @@ intent = {
 }
 
 # Parameter dictionary for persona
+# Input any parameters as free text in dictionary
 persona = {
     'mood': "angry",
     'age': "30-40",
     'gender': "male",
     'ethnicity': "white",
-    'disability': "none",
     'income': "high",
     'education': "college degree",
     'marital_status': "married",
-    'children': "2",
-    'employment': "employed",
-    'housing': "rent",
     'occupation': "data scientist",
     'location': "New York",
     'customer_name': "John Doe",
   }
 
 # Create data generator object
-dg = mh.DataGenerator()
+dg = mh.PromptGenerator()
 
 # Generate list of prompts for defined persona
-data = dg.generate_prompts(intent, persona, model_temperature=0.8, n_calls=3, n_prompts_per_call=2)
+data = dg.generate_prompts(intent, persona, 
+          model_temperature=0.8, # variability of generated text
+          n_prompts=5            # number of prompts to generate
+          )
+
 print(data)
