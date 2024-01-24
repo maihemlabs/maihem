@@ -1,4 +1,3 @@
-from .generator import DataGenerator
-
-# Version 
-__version__ = "1.0.0"
+from .functions import PromptGenerator
+from .functions import ConversationGenerator
+from .functions import Evaluator
