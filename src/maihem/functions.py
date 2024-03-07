@@ -1,8 +1,11 @@
-import requests
 import os
+import pandas as pd
+import requests
 import warnings
-from datetime import datetime
-import random
+import sys
+import threading
+import time
+from typing import List
 
 
 class APIKeyWarning(UserWarning):
@@ -10,6 +13,10 @@ class APIKeyWarning(UserWarning):
 
 
 class NoResponseData(UserWarning):
+    pass
+
+
+class ExceptionAPI(Exception):
     pass
 
 
@@ -23,238 +30,215 @@ class CallAPI():
         if self.local_run:
             self.URL_API = "http://localhost"
         else:
-            self.URL_API = "https://maihem-api-access.azure-api.net/demo"
+            self.URL_API = "https://maihem-api-access.azure-api.net/service"
         self.api_key = None
         self._get_api_key()
         
     def _get_api_key(self):
         if os.getenv('MAIHEM_API_KEY') is not None:
             self.api_key = os.getenv('MAIHEM_API_KEY')
-            if not self.local_run:
-                self.headers['Ocp-Apim-Subscription-Key'] = self.api_key
+            self.headers['Authorization'] = "Bearer " + self.api_key
         else:
-            warnings.warn("MAIHEM_API_KEY not found in environment variables, please set manually with the set_api_key() function", 
-                          APIKeyWarning)
+            raise ExceptionAPI("""MAIHEM_API_KEY not found in environment variables, please pass it with this code: 'os.environ['MAIHEM_API_KEY'] = "<your_maihem_api_key>"'""")
     
-    def _call_api(self, item, endpoint, error_msg="No data was returned, check incorrect input parameters"):
+    def _call_api(self, payload, endpoint, error_msg="No data was returned, check incorrect input parameters"):
         try:
-            response = requests.post(self.URL_API + endpoint, headers=self.headers, json=item)
-            response.raise_for_status()
+            response = requests.post(self.URL_API + endpoint, headers=self.headers, json=payload)
         except requests.exceptions.HTTPError as err:
             raise SystemExit(err)
+        
+        if response.status_code == 401:
+            raise ExceptionAPI("Invalid or missing API key")
 
-        try: 
-            msg_max = "Maximum number of conversation steps reached"
-            if response.json()['info'] == msg_max:
-                warnings.warn(msg_max, NoResponseData)
-                return msg_max
-            return response.json()['data']
-        except:
-            print(response)
-            warnings.warn(error_msg, NoResponseData)
-
-    def _check_params(self, intent_params:dict, persona_params: dict, generator_params: dict, async_call=False):
-        """
-        Check if parameters are valid
-        """
-        assert 'intent' in intent_params.keys(), "<intent> must be provided"
-        assert type(intent_params['intent']) == str, "<intent> must be a string"
-        assert 'context' in intent_params.keys(), "<context> must be provided"
-        assert type(intent_params['context']) == str, "<context> must be a string"
-        assert 'category' in intent_params.keys(), "<category> must be provided"
-        assert type(intent_params['category']) == str, "<category> must be a string"
-
-        assert type(persona_params) == dict, "persona_params must be a dictionary"
-        assert type(generator_params) == dict, "generator_params must be a dictionary"
-
-        for param in persona_params.keys():
-            assert type(persona_params[param]) == str, "persona parameter must be a string"
-
-        if async_call:
-            assert 'n_calls' in generator_params.keys(), "n_calls must be provided"
-            assert 'n_prompts_per_call' in generator_params.keys(), "n_prompts_per_call must be provided"
-        assert type(generator_params['model_temperature']) == float, "model_temperature must be a number"
-        assert 0 <= generator_params['model_temperature'] <= 2 , "model_temperature must be between 0 and 2"
+        if "info" in response.json():
+            print(response.json()['info'])
+            return response.json()
+        else:
+            raise ExceptionAPI(response.json()['detail'])
 
 
-class PromptGenerator(CallAPI):
+def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic: str=None, language: str=None):
+    """
+    Create a test with a set of AI personas
 
-    def generate_prompts(self, intent_params:dict, persona_params: dict, model_temperature: float, n_prompts: int) -> list:
-        generator_params = {
-            'data_to_generate': "Prompt",
-            'model_temperature': model_temperature,
-            'n_calls': 2,
-            'n_prompts_per_call': str(int(n_prompts/2 + 1)),
-        }
-        return self._generate_data(intent_params, persona_params, generator_params)
+    No return value
 
-    def generate_full_conversations(self, intent_params:dict, persona_params: dict, model_temperature: float, n_convs: int, conv_max_steps: int) -> list:
-        generator_params = {
-            'data_to_generate': "ConversationFull",
-            'model_temperature': model_temperature,
-            'n_calls': n_convs,
-            'n_prompts_per_call': 1,
-            'conv_max_steps': conv_max_steps
-        }
-        return self._generate_data(intent_params, persona_params, generator_params)
+    Parameters
+    ----------
+    test_name : str
+        Name of the test to be created, e.g. "testA"
+    chatbot_role : str
+        Role of the chatbot, must match one of the supported chatbot use cases. See the list of available roles in the documentation https://docs.maihem.ai/usecases
+    industry : str
+        Industry of the chatbot (e.g., finance, retail, healthcare, etc.)
+    n : int
+        Number of AI personas to create
+    topic : str, optional
+        Topic that the AI personas will focus on during the test, if not provided, a set of random topics will be selected
+    language : str, optional
+        Language of the chatbot, default is English
 
-    def _generate_data(self, intent_params:dict, persona_params: dict, generator_params: dict) -> list:
-        """
-        Generate data using intent, persona and generator model parameters 
-        """
-        self._check_params(intent_params, persona_params, generator_params)
-        item = {
-            "intent": intent_params,
-            "persona": persona_params,
-            "generator": generator_params
-        }
+    Returns
+    -------
+    None
 
-        data = self._call_api(item, '/prompt_generator', error_msg="No data was returned, check incorrect input parameters")
-        if generator_params['data_to_generate'] == "Prompt":
-            data_converted = self._convert_response_prompts(data, generator_params)
-        elif generator_params['data_to_generate'] == "ConversationFull":
-            data_converted = self._convert_response_convs(data, generator_params)
+    """
+    print("Creating test and AI personas...")
+    # Create API object
+    api = CallAPI()
 
-        return data_converted
-    
-    def generate_queries(self, columns: list, n_prompts: int, column_synonyms=False) -> list:
-        return self._generate_queries(columns, n_prompts, query=None, column_synonyms=column_synonyms, )
-    
-    def variate_query(self, columns: list, n_prompts: int, query: str) -> list:
-        return self._generate_queries(columns, n_prompts, query=query)
-    
-    def _generate_queries(self, columns: list, n_prompts: int, query: str=None, column_synonyms=False) -> list:
-        """
-        Generate data using intent, persona and generator model parameters 
-        """
-        intent = {
-            "columns": str(columns),
-            "column_synonyms": str(column_synonyms)
-        }
-        if query is not None:
-            intent['query'] = query
-
-        generator = {
-            'data_to_generate': "NL_queries",
-            'type': 'human',
-            'model': 'azure',
-            'model_temperature': 0.7,
-            'n_calls': 2,
-            'n_prompts_per_call': str(int(n_prompts/2 + 1)),
-        }
-
-        item = {
-            "intent": intent,
-            "generator": generator
-        }
-
-        data = self._call_api(item, '/prompt_generator', error_msg="No data was returned, check incorrect input parameters")
-        data_converted = self._convert_response_prompts(data, generator)
-
-        return data_converted
-
-    def _convert_response_prompts(self, data: dict, generator_params: dict) -> list:
-        """
-        Convert response from API to a dictionary
-        """
-        l = []
-        for call in data:
-            call_list = call.split("\n")
-            for c in call_list:
-                t = c[3:].replace("\n", "")
-                if t != "": 
-                    l.append(t)
-        return l
-    
-    def _convert_response_convs(self, data: dict, generator_params: dict) -> list:
-        """
-        Convert response from API to a dictionary
-        """
-        return data
-
-            
-class ConversationGenerator(CallAPI):
-
-    def __init__(self, type_chat="human", local_run=False):
-        super().__init__(local_run=local_run)
-        self.id_conv = None
-        self.type_chat = type_chat
-
-    def initialize(self, intent_params:dict, persona_params: dict, model_temperature: float, conv_max_steps: int, max_n_words: int) -> None:
-        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S-%f")
-        random_num = random.randint(0, 1000000)
-        self.id_conv = f"{timestamp}_{random_num}_{self.api_key}"
-        """
-        Initialize or reset conversation generator object
-        """
-        self.intent_params = intent_params
-        self.persona_params = persona_params
-        self.generator_params = {
-            'data_to_generate': "InitializeConversation",
-            'type': self.type_chat,
-            'model_temperature': model_temperature,
-            'max_conv_steps': conv_max_steps,
-            "max_n_words": max_n_words,
-            'n_calls': 1,
-            'n_prompts_per_call': str(1),
-        }
-        self._check_params(self.intent_params, self.persona_params, self.generator_params)
-        message = {
-            "message": "", 
-            "id_conv": self.id_conv
-        }
-
-        item = {
-            "intent": self.intent_params,
-            "persona": self.persona_params,
-            "generator": self.generator_params,
-            "message": message
-        }
-
-        return self._call_api(item, '/conversation_generator', error_msg="Conversation could not be initialized, check incorrect input parameters or API key")
-
-    def chat(self, input_message: str) -> str:
-        """
-        Chat with the conversation generator
-        """
-        self.generator_params['data_to_generate'] = "ContinueConversation"
-        message = {
-            "message": input_message, 
-            "id_conv": self.id_conv
-        }
-        item = {
-            "generator": self.generator_params,
-            "message": message}
-
-        return self._call_api(item, '/conversation_generator', error_msg="Conversation could not be continued, check incorrect input message")
+    payload = {
+        "test_name": test_name,
+        "chatbot_role": chatbot_role,
+        "industry": industry,
+        "n": n,
+        "topic": topic,
+        "language": language
+    }
+    response = api._call_api(payload, "/create_test_simulated")
+    print(response['response']) 
     
 
-class Evaluator(CallAPI):
+def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, message: str) -> str:
+    """
+    Chat in a conversation with a single AI persona
 
-    def __init__(self, local_run=False, model="azure", temperature=0.0):
-        super().__init__(local_run=local_run)
-        self.model = model
-        self.temperature = temperature
+    Returns the message from the AI persona
 
-    def evaluate(self, conversation: str, metrics: dict, intent: dict) -> list:
-        """
-        Evaluate a conversation using inputted custom metrics
-        """
-        item = {
-            'evaluator': {
-                "conversation": conversation,
-                "metrics": metrics,
-                "model": self.model,
-                "model_temperature": self.temperature
+    Parameters
+    ----------
+    test_name : str
+        Name of the test to be created, e.g. "testA"
+    test_run_name : str
+        Name of the test run, e.g. "testA_run1"
+    persona_id : int
+        ID of the AI persona to chat with, must be between 0 and n-1, where n is the number of AI personas created in the test
+    message : str
+        The chatbot message to send to the AI persona
+
+    Returns
+    -------
+    str
+    """
+    # Create API object
+    api = CallAPI()
+
+    payload = {
+        "test_name": test_name,
+        "test_run_name": test_run_name,
+        "persona_id": persona_id,
+        "message": message
+    }
+
+    response = api._call_api(payload, "/chat_with_persona")
+    print(response['response'])
+    return response['response']
+
+
+def log_conversations(test_name: str, chatbot_role: str, conversations: List[dict]):
+    """
+    Log a list of historical conversations for evaluation
+
+    No return value
+
+    Parameters
+    ----------
+    test_name : str
+        Name of the test to be evaluated, e.g. "testA"
+    chatbot_role : str
+        Role of the chatbot, must match one of the supported chatbot use cases. See the list of available roles in the documentation https://docs.maihem.ai/usecases
+    conversations : List[dict]
+        List of conversations to log. Each conversation should be a dictionary with the following format:
+        {
+            "turn_1": {
+                "chatbot": "<chatbot_message_1>",
+                "persona": "<persona_message_1>"
             },
-            'intent': intent
+            "turn_2": {
+                "chatbot": "<chatbot_message_2>",
+                "persona": "<persona_message_2>"
+            },
+            ...
         }
 
-        scores_str = self._call_api(item, '/evaluation', error_msg="Conversation could not be evaluated, check incorrect input parameters")
-        scores_list = scores_str.strip('][').split(', ')[0:-1]
-        scores_list_n = [float(i) for i in scores_list]
+    Returns
+    -------
+    None
+    """
+    def check_conversations(conversations: List[dict]):
+        """Check if conversations are valid"""
+        for conv in conversations:
+            assert type(conv) == dict, "Conversations must be a list of dictionaries"
+            for turn in conv:
+                assert turn[:5] == "turn_", "Conversation turns must start with 'turn_'"
+                assert type(conv[turn]) == dict, "Conversation turns must be dictionaries"
+                assert "chatbot" in conv[turn], "Chatbot key not found in conversation"
+                assert "persona" in conv[turn], "Persona key not found in conversation"
+                assert type(conv[turn]["chatbot"]) == str, "Chatbot message must be a string"
+                assert type(conv[turn]["persona"]) == str, "Persona message must be a string"
 
-        return scores_list_n
+    check_conversations(conversations)
+
+    # Create API object
+    api = CallAPI()
+
+    payload = {
+        "test_name": test_name,
+        "chatbot_role": chatbot_role,
+        "conversations": conversations
+    }
+
+    response = api._call_api(payload, "/log_conversations")
+    print(response['response'])
 
 
+def evaluate(test_name: str, test_run_name: str, metrics_chatbot: dict, metrics_persona: dict) -> pd.DataFrame:
+    """
+    Evaluate a test run with a set of custom metrics
 
+    Returns a DataFrame with the evaluation scores for the defined metrics
+
+    Parameters
+    ----------
+    test_name : str
+        Name of the test to be evaluated, e.g. "testA"
+    test_run_name : str
+        Name of the test run to be evaluated, e.g. "testA_run1"
+    metrics_chatbot : dict
+        Dictionary with the custom metrics to evaluate the chatbot's messages (e.g. helpfulness). The keys are the metric names and the values are the descriptions of the metrics
+    metrics_persona : dict
+        Dictionary with the custom metrics to evaluate the persona's messages (e.g. their sentiment). The keys are the metric names and the values are the descriptions of the metrics
+
+    Returns
+    -------
+    DataFrame
+    """
+    print(f"Evaluating test run '{test_run_name}' of test '{test_name}'...")
+
+    def check_metrics(metrics_chatbot: dict, metrics_persona: dict):
+        """Check if metrics are valid"""
+        assert len(metrics_chatbot) > 0, "At least a metric should be defined for the chatbot"
+        assert len(metrics_persona) > 0, "At least a metric should be defined for the persona"
+
+        for metric in metrics_chatbot:
+            assert type(metric) == str, "Metric name must be a string in metrics_chatbot"
+            assert type(metrics_chatbot[metric]) == str, "Metric description must be a string in metrics_chatbot"
+
+        for metric in metrics_persona:
+            assert type(metric) == str, "Metric name must be a string in metrics_persona"
+            assert type(metrics_persona[metric]) == str, "Metric description must be a string in metrics_persona"
+
+    check_metrics(metrics_chatbot, metrics_persona)
+
+    # Create API object
+    api = CallAPI()
+
+    payload = {
+        "test_name": test_name,
+        "test_run_name": test_run_name,
+        "metrics_chatbot": metrics_chatbot,
+        "metrics_persona": metrics_persona
+    }
+
+    response = api._call_api(payload, "/eval_test_run")
+    return pd.DataFrame.from_dict(response['eval'])
