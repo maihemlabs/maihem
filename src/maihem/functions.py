@@ -1,10 +1,6 @@
 import os
 import pandas as pd
 import requests
-import warnings
-import sys
-import threading
-import time
 from typing import List
 
 
@@ -49,12 +45,24 @@ class CallAPI():
         
         if response.status_code == 401:
             raise ExceptionAPI("Invalid or missing API key")
+        
+        try:
+            json_response = response.json()
+        except ValueError: # If no response received, try one more time
+            try:
+                response = requests.post(self.URL_API + endpoint, headers=self.headers, json=payload)
+            except requests.exceptions.HTTPError as err:
+                raise SystemExit(err)
+            try:
+                json_response = response.json()
+            except ValueError:
+                raise NoResponseData("No response was received")
 
-        if "info" in response.json():
-            print(response.json()['info'])
-            return response.json()
+        if "info" in json_response:
+            print(json_response['info'])    
+            return json_response
         else:
-            raise ExceptionAPI(response.json()['detail'])
+            raise ExceptionAPI(json_response['detail'])
 
 
 def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic: str=None, language: str=None):
@@ -82,8 +90,9 @@ def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic:
     -------
     None
 
-    """
-    print("Creating test and AI personas...")
+    """    
+    print("Creating test and AI personas... It might take a few minutes")
+
     # Create API object
     api = CallAPI()
 
@@ -99,7 +108,7 @@ def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic:
     print(response['response']) 
     
 
-def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, message: str) -> str:
+def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, message: str, num_turns_max=None) -> str:
     """
     Chat in a conversation with a single AI persona
 
@@ -127,7 +136,8 @@ def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, messa
         "test_name": test_name,
         "test_run_name": test_run_name,
         "persona_id": persona_id,
-        "message": message
+        "message": message,
+        "num_turns_max": num_turns_max
     }
 
     response = api._call_api(payload, "/chat_with_persona")
