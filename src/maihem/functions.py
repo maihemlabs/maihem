@@ -65,7 +65,7 @@ class CallAPI():
             raise ExceptionAPI(json_response['detail'])
 
 
-def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic: str=None, language: str=None):
+def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic: str=None, intents: List[str]=None, language: str=None):
     """
     Create a test with a set of AI personas
 
@@ -102,6 +102,7 @@ def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic:
         "industry": industry,
         "n": n,
         "topic": topic,
+        "intents": intents,
         "language": language
     }
     response = api._call_api(payload, "/create_test_simulated")
