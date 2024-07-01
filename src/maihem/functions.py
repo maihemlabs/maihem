@@ -37,7 +37,7 @@ class CallAPI():
         else:
             raise ExceptionAPI("""MAIHEM_API_KEY not found in environment variables, please pass it with this code: 'os.environ['MAIHEM_API_KEY'] = "<your_maihem_api_key>"'""")
     
-    def _call_api(self, payload, endpoint, error_msg="No data was returned, check incorrect input parameters"):
+    def _call_api(self, payload, endpoint):
         try:
             response = requests.post(self.URL_API + endpoint, headers=self.headers, json=payload)
         except requests.exceptions.HTTPError as err:
@@ -65,7 +65,18 @@ class CallAPI():
             raise ExceptionAPI(json_response['detail'])
 
 
-def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic: str=None, intents: List[str]=None, language: str=None):
+def create_test(
+        test_name: str,
+        chatbot_role: str,
+        industry: str,
+        n: int,
+        topic: str = None,
+        intents: List[str] = None,
+        behavior_instructions: List[str] = None,
+        language:  str = None,
+        demographics: dict = None,
+        writing_styles: List[str] = None
+    ) -> None:
     """
     Create a test with a set of AI personas
 
@@ -83,8 +94,27 @@ def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic:
         Number of AI personas to create
     topic : str, optional
         Topic that the AI personas will focus on during the test, if not provided, a set of random topics will be selected
+    intents : List[str], optional
+        List of intents (goals) for the AI personas to sample from, if not provided, a set of random intents will be selected
+    behavior_instructions : List[str], optional
+        List of behavior instructions to sample from to guide the behavior of AI personas, if not provided, a set of random instructions will be selected
     language : str, optional
         Language of the chatbot, default is English
+    demographics : dict, optional
+        Dictionary with the demographics of the AI personas,
+            example = {
+                "regions": ["US", "UK", "CA"],
+                "age_range": [18, 65],
+                "female_ratio": 0.5,
+                "non-binary_ratio": 0.1,
+                "openness_range": [0.0, 1.0],
+                "conscientiousness_range": [0.0, 1.0],
+                "extraversion_range": [0.0, 1.0],
+                "agreeableness_range": [0.0, 1.0],
+                "neuroticism_range": [0.0, 1.0]
+            },
+    writing_styles : List[str], optional
+        List of writing styles to sample from to guide the writing style of AI personas, if not provided, a set of random writing styles will be selected
 
     Returns
     -------
@@ -103,13 +133,16 @@ def create_test(test_name: str, chatbot_role: str, industry: str, n: int, topic:
         "n": n,
         "topic": topic,
         "intents": intents,
-        "language": language
+        "behavior_instructions": behavior_instructions,
+        "language": language,
+        "demographics": demographics,
+        "writing_styles": writing_styles
     }
     response = api._call_api(payload, "/create_test_simulated")
     print(response['response']) 
     
 
-def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, message: str, num_turns_max=None) -> str:
+def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, message: str=None, num_turns_max=None) -> str:
     """
     Chat in a conversation with a single AI persona
 
@@ -125,6 +158,8 @@ def chat_with_persona(test_name: str, test_run_name: str, persona_id: int, messa
         ID of the AI persona to chat with, must be between 0 and n-1, where n is the number of AI personas created in the test
     message : str
         The chatbot message to send to the AI persona
+    num_turns_max : int, optional
+        Maximum number of turns to end the conversation 
 
     Returns
     -------
@@ -203,7 +238,7 @@ def log_conversations(test_name: str, chatbot_role: str, conversations: List[dic
     print(response['response'])
 
 
-def evaluate(test_name: str, test_run_name: str, metrics_chatbot: dict, metrics_persona: dict) -> pd.DataFrame:
+def evaluate(test_name: str, test_run_name: str, metrics_chatbot: dict, metrics_persona: dict, eval_type: str = None) -> pd.DataFrame:
     """
     Evaluate a test run with a set of custom metrics
 
@@ -219,6 +254,8 @@ def evaluate(test_name: str, test_run_name: str, metrics_chatbot: dict, metrics_
         Dictionary with the custom metrics to evaluate the chatbot's messages (e.g. helpfulness). The keys are the metric names and the values are the descriptions of the metrics
     metrics_persona : dict
         Dictionary with the custom metrics to evaluate the persona's messages (e.g. their sentiment). The keys are the metric names and the values are the descriptions of the metrics
+    eval_type : str, optional
+        Type of evaluation to perform, must be one of "scores" or "flagged"
 
     Returns
     -------
@@ -248,8 +285,88 @@ def evaluate(test_name: str, test_run_name: str, metrics_chatbot: dict, metrics_
         "test_name": test_name,
         "test_run_name": test_run_name,
         "metrics_chatbot": metrics_chatbot,
-        "metrics_persona": metrics_persona
+        "metrics_persona": metrics_persona,
+        "eval_type": eval_type
     }
 
-    response = api._call_api(payload, "/eval_test_run")
+    response = api._call_api(payload, "/eval_metrics")
+    return pd.DataFrame.from_dict(response['eval'])
+
+
+def survey(test_name: str,  survey_type: str, questions: List[dict], test_run_name: str = None) -> pd.DataFrame:
+    """
+    Survey AI personas to collect feedback
+
+    Returns a DataFrame with the survey results
+
+    Parameters
+    ----------
+    test_name : str
+        Name of the test with the AI personas to survey, e.g. "testA"
+    type : str
+        Type of survey to perform, must be one of "pre-survey" or "post-survey"
+    questions : List[dict]
+        List of survey questions to ask the AI personas in the following format
+            questions = [
+                {
+                    "question": "Did you like the interaction with the chatbot?",
+                    "possible_values": ["Strong Yes", "Strong No", "Neutral", "Some things were good, some things were bad"]
+                },
+                {
+                    "question": "What could be better in a conversation?",
+                    "possible_values": []  # If no possible values are provided, the AI persona can answer freely
+                },
+            ]
+
+    test_run_name : str, optional
+        Name of the test run to survey AI persona after having a conversation with them, e.g. "testA_run1"
+
+    Returns
+    -------
+    DataFrame
+    """
+    print(f"Surveying AI personas in test '{test_name}'...")
+
+    # Create API object
+    api = CallAPI()
+
+    payload = {
+        "test_name": test_name,
+        "test_run_name": test_run_name,
+        "type": survey_type,
+        "questions": questions
+    }
+
+    response = api._call_api(payload, "/survey")
+    return pd.DataFrame.from_dict(response['eval'])
+
+
+def ideal_conversation(test_name: str, test_run_name: str) -> pd.DataFrame:
+    """
+    Generate labeled conversations with the ideal responses from the chatbot that the AI persona would prefer
+
+    Returns a DataFrame with the labeled ideal conversations
+
+    Parameters
+    ----------
+    test_name : str
+        Name of the test, e.g. "testA"
+    test_run_name : str
+        Name of the test run, e.g. "testA_run1"
+
+    Returns
+    -------
+    DataFrame
+    """
+    print(f"Generating ideal conversations for test '{test_name}'...")
+
+    # Create API object
+    api = CallAPI()
+
+    payload = {
+        "test_name": test_name,
+        "test_run_name": test_run_name,
+    }
+
+    response = api._call_api(payload, "/ideal_conversation")
     return pd.DataFrame.from_dict(response['eval'])
