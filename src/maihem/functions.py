@@ -62,7 +62,10 @@ class CallAPI():
             print(json_response['info'])    
             return json_response
         else:
-            raise ExceptionAPI(json_response['detail'])
+            if "detail" in json_response:
+                raise ExceptionAPI(json_response['detail'])
+            else:
+                raise ExceptionAPI(json_response)
 
 
 def create_test(
