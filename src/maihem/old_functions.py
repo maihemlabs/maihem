@@ -4,18 +4,6 @@ import requests
 from typing import List
 
 
-class APIKeyWarning(UserWarning):
-    pass
-
-
-class NoResponseData(UserWarning):
-    pass
-
-
-class ExceptionAPI(Exception):
-    pass
-
-
 class CallAPI():
     """
     Class to generate synthetic data using the MAIHEM API
