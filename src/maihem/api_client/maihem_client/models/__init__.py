@@ -14,11 +14,13 @@ from .api_schema_test_metrics_config import APISchemaTestMetricsConfig
 from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
 from .conversation_nested import ConversationNested
-from .conversation_nested_message_base import ConversationNestedMessageBase
-from .conversation_nested_sentence_base import ConversationNestedSentenceBase
+from .conversation_nested_message import ConversationNestedMessage
+from .conversation_nested_sentence import ConversationNestedSentence
+from .conversation_nested_test_result_metric import ConversationNestedTestResultMetric
 from .conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
+from .conversation_nested_token_cost import ConversationNestedTokenCost
 from .conversation_nested_token_cost_base import ConversationNestedTokenCostBase
-from .conversation_nested_turn_base import ConversationNestedTurnBase
+from .conversation_nested_turn import ConversationNestedTurn
 from .http_validation_error import HTTPValidationError
 from .idp_user import IDPUser
 from .org import Org
@@ -42,11 +44,13 @@ __all__ = (
     "APISchemaTestRun",
     "APISchemaTestRunWithConversationsNested",
     "ConversationNested",
-    "ConversationNestedMessageBase",
-    "ConversationNestedSentenceBase",
+    "ConversationNestedMessage",
+    "ConversationNestedSentence",
+    "ConversationNestedTestResultMetric",
     "ConversationNestedTestResultMetricBase",
+    "ConversationNestedTokenCost",
     "ConversationNestedTokenCostBase",
-    "ConversationNestedTurnBase",
+    "ConversationNestedTurn",
     "HTTPValidationError",
     "IDPUser",
     "Org",

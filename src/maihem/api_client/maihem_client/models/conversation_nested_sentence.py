@@ -1,39 +1,45 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+import datetime
+from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+from dateutil.parser import isoparse
 
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
+    from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
 
 
-T = TypeVar("T", bound="ConversationNestedSentenceBase")
+T = TypeVar("T", bound="ConversationNestedSentence")
 
 
 @_attrs_define
-class ConversationNestedSentenceBase:
+class ConversationNestedSentence:
     """
     Attributes:
+        id (str):
+        created_at (datetime.datetime):
+        updated_at (datetime.datetime):
         content (str):
-        id (Union[None, Unset, str]):
-        test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetricBase']]):
+        test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetric']]):
     """
 
+    id: str
+    created_at: datetime.datetime
+    updated_at: datetime.datetime
     content: str
-    id: Union[None, Unset, str] = UNSET
-    test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetricBase"]] = UNSET
+    test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetric"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        content = self.content
+        id = self.id
 
-        id: Union[None, Unset, str]
-        if isinstance(self.id, Unset):
-            id = UNSET
-        else:
-            id = self.id
+        created_at = self.created_at.isoformat()
+
+        updated_at = self.updated_at.isoformat()
+
+        content = self.content
 
         test_result_metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.test_result_metrics, Unset):
@@ -46,11 +52,12 @@ class ConversationNestedSentenceBase:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "id": id,
+                "created_at": created_at,
+                "updated_at": updated_at,
                 "content": content,
             }
         )
-        if id is not UNSET:
-            field_dict["id"] = id
         if test_result_metrics is not UNSET:
             field_dict["test_result_metrics"] = test_result_metrics
 
@@ -58,35 +65,34 @@ class ConversationNestedSentenceBase:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
+        from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
 
         d = src_dict.copy()
+        id = d.pop("id")
+
+        created_at = isoparse(d.pop("created_at"))
+
+        updated_at = isoparse(d.pop("updated_at"))
+
         content = d.pop("content")
-
-        def _parse_id(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        id = _parse_id(d.pop("id", UNSET))
 
         test_result_metrics = []
         _test_result_metrics = d.pop("test_result_metrics", UNSET)
         for test_result_metrics_item_data in _test_result_metrics or []:
-            test_result_metrics_item = ConversationNestedTestResultMetricBase.from_dict(test_result_metrics_item_data)
+            test_result_metrics_item = ConversationNestedTestResultMetric.from_dict(test_result_metrics_item_data)
 
             test_result_metrics.append(test_result_metrics_item)
 
-        conversation_nested_sentence_base = cls(
-            content=content,
+        conversation_nested_sentence = cls(
             id=id,
+            created_at=created_at,
+            updated_at=updated_at,
+            content=content,
             test_result_metrics=test_result_metrics,
         )
 
-        conversation_nested_sentence_base.additional_properties = d
-        return conversation_nested_sentence_base
+        conversation_nested_sentence.additional_properties = d
+        return conversation_nested_sentence
 
     @property
     def additional_keys(self) -> List[str]:
