@@ -22,12 +22,12 @@ class AgentTarget(BaseModel):
     chat_function: Optional[Callable] = None
 
     def set_chat_function(self, chat_function: Callable) -> None:
-        self.test_chat_function()
+        self.test_chat_function(chat_function)
         self.chat_function = chat_function
 
-    def test_chat_function(self) -> None:
+    def test_chat_function(self, chat_function: Callable) -> None:
         try:
-            message, end_code = self.chat_function(
+            message, end_code = chat_function(
                 str(datetime.now()), "Testing target agent function...", None
             )
             assert isinstance(message, str), "Response message must be a string"

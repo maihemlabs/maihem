@@ -17,8 +17,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
-dependencies = ["requests", "pandas", "pycountry-24.6.1"]
-requires-python = ">=3.5"
+dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs"]
+requires-python = ">=3.9"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
