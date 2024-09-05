@@ -4,7 +4,7 @@ from typing import Optional, Tuple, List, Callable
 
 
 from src.maihem import Maihem, MaihemAsync
-from src.maihem.agents import AgentTarget  # , AgentTargetAsync, AgentMaihem
+from maihem.schemas.agents import AgentTarget  # , AgentTargetAsync, AgentMaihem
 
 
 m = MaihemAsync()
