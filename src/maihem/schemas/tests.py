@@ -37,6 +37,7 @@ class Test(BaseModel):
     name: Optional[str] = None
     agent_target_id: str
     initiating_agent: AgentType = AgentType.MAIHEM
+    agent_maihem_behavior_prompt: Optional[str] = None
     metrics: List[str]
     conversations_per_metric: Optional[int] = 5
 
