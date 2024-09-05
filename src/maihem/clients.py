@@ -2,7 +2,7 @@ from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget, AgentType
-from maihem.schemas.tests import Test, TestRun, TestRunResults
+from maihem.schemas.tests import Test, TestRun, TestRunWithConversationsNested
 from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
@@ -16,9 +16,6 @@ from maihem.api_client.maihem_client.models.api_schema_test_create_request_metri
 from maihem.api_client.maihem_client.models.api_schema_test_run import APISchemaTestRun
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
-)
-from maihem.api_client.maihem_client.models.conversation_nested_turn import (
-    ConversationNestedTurn,
 )
 from maihem.api_client.maihem_client.models.conversation_nested_message import (
     ConversationNestedMessage,
@@ -59,7 +56,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_results(test_run_identifier: str) -> TestRunResults:
+    def get_test_run_results(test_run_identifier: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
@@ -210,12 +207,104 @@ class MaihemSync(Client):
             print(e.json())
             raise
 
+        for conversation_id in test_run.conversation_ids:
+            self._run_conversation(
+                test_run.id, conversation_id, test=test, target_agent=target_agent
+            )
+
         return test_run
 
-    def get_test_run_results(test_run_identifier: str) -> TestRunResults:
+    def get_test_run(test_run_identifier: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def _create_conversation_turn(
+    def get_test_run_with_conversations(
+        self, test_run_id: str
+    ) -> TestRunWithConversationsNested:
+        resp = None
+
+        try:
+            resp = self._maihem_api_client.get_test_run_with_conversations(test_run_id)
+        except Exception as e:
+            raise errors.TestRunGetError(str(e))
+
+        test_run = None
+
+        try:
+            test_run = TestRunWithConversationsNested.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        if not test_run:
+            raise errors.NotFoundError(
+                f"Test run with identifier {test_run_id} not found"
+            )
+
+        return test_run
+
+    def _run_conversation(
+        self,
+        test_run_id: str,
+        conversation_id: str,
+        test: Test,
+        target_agent: AgentTarget,
+    ):
+        # this is awful - fix
+        is_first_turn = True
+
+        turn_resp = self._run_conversation_turn(
+            test_run_id=test_run_id,
+            conversation_id=conversation_id,
+            test=test,
+            target_agent=target_agent,
+            is_first_turn=is_first_turn,
+        )
+
+        is_first_turn = False
+
+        return turn_resp
+
+    def _run_conversation_turn(
+        self,
+        test_run_id: str,
+        conversation_id: str,
+        test: Test,
+        target_agent: AgentTarget,
+        is_first_turn: bool = False,
+    ) -> ConversationTurnCreateResponse:
+
+        agent_maithem_message = None
+        if test.initiating_agent == AgentType.MAIHEM and is_first_turn:
+            turn_resp = self._generate_conversation_turn(
+                test_run_id=test_run_id,
+                conversation_id=conversation_id,
+                target_agent_message=None,
+                contexts=[],
+            )
+
+            agent_maithem_message = self._get_conversation_message_from_conversation(
+                turn_id=turn_resp.turn_id,
+                agent_type=AgentType.MAIHEM,
+                conversation=turn_resp.conversation,
+            )
+
+        target_agent_message, contexts = self._send_target_agent_message(
+            target_agent,
+            conversation_id,
+            agent_maihem_message=(
+                agent_maithem_message.content if agent_maithem_message else None
+            ),
+        )
+
+        turn_resp = self._generate_conversation_turn(
+            test_run_id=test_run_id,
+            conversation_id=conversation_id,
+            target_agent_message=target_agent_message,
+            contexts=contexts,
+        )
+
+        return turn_resp
+
+    def _generate_conversation_turn(
         self,
         test_run_id: str,
         conversation_id: str,
@@ -298,7 +387,4 @@ class MaihemAsync(Client):
         dynamic_mode: Literal["static", "dynamic"],
         concurrent_conversations: int,
     ) -> TestRun:
-        raise NotImplementedError("Method not implemented")
-
-    def get_test_run_results(test_run_identifier: str) -> TestRunResults:
         raise NotImplementedError("Method not implemented")

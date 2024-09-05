@@ -2,6 +2,9 @@ from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from maihem.schemas.agents import AgentType
+from maihem.api_client.maihem_client.models.conversation_nested import (
+    ConversationNested,
+)
 from enum import Enum
 
 
@@ -39,10 +42,12 @@ class Test(BaseModel):
     initiating_agent: AgentType = AgentType.MAIHEM
     agent_maihem_behavior_prompt: Optional[str] = None
     metrics_config: Dict[str, int] = {}
-    conversations_per_metric: Optional[int] = 5
 
 
 class TestRun(BaseModel):
+    id: str
+    created_at: datetime
+    updated_at: datetime
     test_id: str
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
@@ -52,6 +57,8 @@ class TestRun(BaseModel):
     links: Optional[APISchemaLinks] = None
 
 
-class TestRunResults:
-    def __init__(self):
-        pass
+class TestRunWithConversationsNested(TestRun):
+    conversations: List[ConversationNested] = []
+
+    class Config:
+        arbitrary_types_allowed = True

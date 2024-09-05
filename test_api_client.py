@@ -81,19 +81,28 @@ test = maihem_client.get_test("test-v-11")
 # )
 # print(turn)
 
-turn_id, conversation = maihem_client._create_conversation_turn(
+# turn_id, conversation = maihem_client._create_conversation_turn(
+#     test_run_id="tr_01j71mccpzetdr81qh9r5fdf42",
+#     conversation_id="c_01j71mcwgfe1ntnf40f99q3w0s",
+#     target_agent_message="",
+#     contexts=["here is some demo context"],
+# )
+
+# maihem_message = maihem_client._get_conversation_message_from_conversation(
+#     turn_id=turn_id, agent_type="maihem", conversation=conversation
+# )
+
+# message, contexts = target_agent._send_message(
+#     "c_01j71mcwgfe1ntnf40f99q3w0s", maihem_message.content
+# )
+
+# print(message)
+
+result = maihem_client._run_conversation(
     test_run_id="tr_01j71mccpzetdr81qh9r5fdf42",
-    conversation_id="c_01j71mcwgfe1ntnf40f99q3w0s",
-    target_agent_message="",
-    contexts=["here is some demo context"],
+    conversation_id="c_01j71mcwgbek7v4t2psp0hahnv",
+    test=test,
+    target_agent=target_agent,
 )
 
-maihem_message = maihem_client._get_conversation_message_from_conversation(
-    turn_id=turn_id, agent_type="maihem", conversation=conversation
-)
-
-message, contexts = target_agent._send_message(
-    "c_01j71mcwgfe1ntnf40f99q3w0s", maihem_message.content
-)
-
-print(message)
+print(result)
