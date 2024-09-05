@@ -8,3 +8,7 @@ class NoResponseData(UserWarning):
 
 class ExceptionAPI(Exception):
     pass
+
+
+class ExceptionChatFunction(Exception):
+    pass
