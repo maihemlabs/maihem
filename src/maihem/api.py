@@ -17,6 +17,9 @@ from maihem.api_client.maihem_client.models.api_schema_test import (
 from maihem.api_client.maihem_client.models.api_schema_test_run import (
     APISchemaTestRun,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_run_with_conversations_nested import (
+    APISchemaTestRunWithConversationsNested,
+)
 from maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
     APISchemaAgentTargetGetResponse,
 )
@@ -36,6 +39,7 @@ from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_
 )
 from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run,
+    test_runs_get_test_run_with_conversations,
     test_runs_create_conversation_turn,
 )
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
@@ -187,7 +191,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             return response.content.decode("utf-8")
         return response.parsed
 
-    def get_test_result(self, test_run_id: str) -> APISchemaTestRun:
+    def get_test_run(self, test_run_id: str) -> APISchemaTestRun:
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
                 response: Response[APISchemaTestRun] = (
@@ -200,6 +204,25 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             print({"error": str(e)})
             raise
 
-        if response.status_code != 201:
+        if response.status_code != 200:
+            return response.content.decode("utf-8")
+        return response.parsed
+
+    def get_test_run_with_conversations(
+        self, test_run_id: str
+    ) -> APISchemaTestRunWithConversationsNested:
+        try:
+            with MaihemHTTPClient(base_url=self.base_url) as client:
+                response: Response[APISchemaTestRunWithConversationsNested] = (
+                    test_runs_get_test_run_with_conversations.sync_detailed(
+                        client=client, x_api_key=self.token, test_run_id=test_run_id
+                    )
+                )
+
+        except Exception as e:
+            print({"error": str(e)})
+            raise
+
+        if response.status_code != 200:
             return response.content.decode("utf-8")
         return response.parsed
