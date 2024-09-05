@@ -17,7 +17,7 @@ class APISchemaAgentTargetGetResponse:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        identifer (str):
+        identifier (str):
         role (str):
         name (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
@@ -30,7 +30,7 @@ class APISchemaAgentTargetGetResponse:
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    identifer: str
+    identifier: str
     role: str
     name: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
@@ -47,7 +47,7 @@ class APISchemaAgentTargetGetResponse:
 
         updated_at = self.updated_at.isoformat()
 
-        identifer = self.identifer
+        identifier = self.identifier
 
         role = self.role
 
@@ -94,7 +94,7 @@ class APISchemaAgentTargetGetResponse:
                 "id": id,
                 "created_at": created_at,
                 "updated_at": updated_at,
-                "identifer": identifer,
+                "identifier": identifier,
                 "role": role,
             }
         )
@@ -122,7 +122,7 @@ class APISchemaAgentTargetGetResponse:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        identifer = d.pop("identifer")
+        identifier = d.pop("identifier")
 
         role = d.pop("role")
 
@@ -184,7 +184,7 @@ class APISchemaAgentTargetGetResponse:
             id=id,
             created_at=created_at,
             updated_at=updated_at,
-            identifer=identifer,
+            identifier=identifier,
             role=role,
             name=name,
             description=description,

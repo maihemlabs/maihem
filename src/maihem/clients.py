@@ -1,27 +1,27 @@
-from typing import Dict, Literal
+from typing import Dict, Literal, Optional
+from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget
 from maihem.schemas.tests import Test, TestRun, TestRunResults
+from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
+    APISchemaAgentTargetCreateRequest,
+)
+import maihem.errors as errors
+from maihem.api import MaihemHTTPClientSync
 
 
 class Client:
-
-    def __init__(self) -> None:
-        pass
-
     def create_target_agent(
         self,
         identifier: str,
         role: str,
-        company: str,
         industry: str,
         description: str,
-        workflow: Dict = None,
-        rag_params: Dict = None,
     ) -> AgentTarget:
-        raise NotImplementedError("Method not implemented")
+        pass
 
     def get_target_agent(self, identifier: str) -> AgentTarget:
+        # Add implementation here
         raise NotImplementedError("Method not implemented")
 
     def create_test(
@@ -48,22 +48,43 @@ class Client:
         raise NotImplementedError("Method not implemented")
 
 
-class Maihem(Client):
+class MaihemSync(Client):
+    _maihem_api_client = MaihemHTTPClientSync
+    _base_url = "http://localhost:8000"
 
-    def __init__(self) -> None:
-        self.type = "sync"
+    def __init__(self, api_key: str) -> None:
+        self._maihem_api_client = MaihemHTTPClientSync(self._base_url, api_key)
 
     def create_target_agent(
         self,
         identifier: str,
         role: str,
-        company: str,
         industry: str,
         description: str,
-        workflow: Dict = None,
-        rag_params: Dict = None,
+        name: Optional[str] = None,
     ) -> AgentTarget:
-        raise NotImplementedError("Method not implemented")
+        resp = None
+        try:
+            resp = self._maihem_api_client.create_agent_target(
+                req=APISchemaAgentTargetCreateRequest(
+                    identifier=identifier,
+                    name=name,
+                    role=role,
+                    industry=industry,
+                    description=description,
+                )
+            )
+        except Exception as e:
+            raise errors.AgentTargetCreateError(str(e))
+
+        agent_target = None
+
+        try:
+            agent_target = AgentTarget.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        return agent_target
 
     def get_target_agent(self, identifier: str) -> AgentTarget:
         raise NotImplementedError("Method not implemented")
@@ -104,8 +125,6 @@ class MaihemAsync(Client):
         company: str,
         industry: str,
         description: str,
-        workflow: Dict = None,
-        rag_params: Dict = None,
     ) -> AgentTarget:
         raise NotImplementedError("Method not implemented")
 

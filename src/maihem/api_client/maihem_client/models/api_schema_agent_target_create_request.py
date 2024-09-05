@@ -12,7 +12,7 @@ T = TypeVar("T", bound="APISchemaAgentTargetCreateRequest")
 class APISchemaAgentTargetCreateRequest:
     """
     Attributes:
-        identifer (str):
+        identifier (str):
         role (str):
         name (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
@@ -22,7 +22,7 @@ class APISchemaAgentTargetCreateRequest:
         url (Union[None, Unset, str]):
     """
 
-    identifer: str
+    identifier: str
     role: str
     name: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
@@ -33,7 +33,7 @@ class APISchemaAgentTargetCreateRequest:
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        identifer = self.identifer
+        identifier = self.identifier
 
         role = self.role
 
@@ -77,7 +77,7 @@ class APISchemaAgentTargetCreateRequest:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "identifer": identifer,
+                "identifier": identifier,
                 "role": role,
             }
         )
@@ -99,7 +99,7 @@ class APISchemaAgentTargetCreateRequest:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        identifer = d.pop("identifer")
+        identifier = d.pop("identifier")
 
         role = d.pop("role")
 
@@ -158,7 +158,7 @@ class APISchemaAgentTargetCreateRequest:
         url = _parse_url(d.pop("url", UNSET))
 
         api_schema_agent_target_create_request = cls(
-            identifer=identifer,
+            identifier=identifier,
             role=role,
             name=name,
             description=description,
