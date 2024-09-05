@@ -11,6 +11,9 @@ from src.maihem.api_client.maihem_client.models.api_schema_agent_target_create_r
 from src.maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
 )
+from src.maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
+    APISchemaTestCreateRequestMetricsConfig,
+)
 from src.maihem.api_client.maihem_client.models.api_schema_test_create_response import (
     APISchemaTestCreateResponse,
 )
@@ -53,7 +56,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
     ) -> APISchemaAgentTargetCreateResponse:
-        request = APISchemaAgentTargetCreateRequest(**req.to_dict())
+        request = APISchemaAgentTargetCreateRequest(req.to_dict())
 
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -95,7 +98,15 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def create_test(
         self, req: APISchemaTestCreateRequest
     ) -> APISchemaTestCreateResponse:
-        request = APISchemaTestCreateRequest(**req.dict())
+
+        request = APISchemaTestCreateRequest(
+            identifier=req.identifier,
+            agent_target_id=req.agent_target_id,
+            metrics_config=req.metrics_config,
+            name=req.name,
+            initiating_agent=req.initiating_agent,
+            agent_maihem_behavior_prompt=req.agent_maihem_behavior_prompt,
+        )
 
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -109,8 +120,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         except Exception as e:
             return {"error": str(e)}
 
-        if response.status_code != 201:
-            return response.content.decode("utf-8")
+        if response.status_code != 200:
+            raise Exception(response.content.decode("utf-8"))
         return response.parsed
 
     def create_test_run(self, test_id: str) -> APISchemaTestRun:

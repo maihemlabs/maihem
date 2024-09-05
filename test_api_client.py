@@ -28,4 +28,14 @@ print(m.whoami())
 
 target_agent = maihem_client.get_target_agent("agent-v-5")
 
-print(target_agent)
+test = maihem_client.create_test(
+    identifier="test-v-5",
+    name="Test V5",
+    target_agent=target_agent,
+    initiating_agent="maihem",
+    agent_maihem_behavior_prompt="Example prompt",
+    conversation_turns_max=10,
+    metrics_config={"qa_rag_hallucination": 2},
+)
+
+print(test)

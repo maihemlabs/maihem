@@ -9,6 +9,9 @@ from maihem.api_client.maihem_client.models.api_schema_agent_target_create_reque
 from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
+    APISchemaTestCreateRequestMetricsConfig,
+)
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 
@@ -60,7 +63,7 @@ class MaihemSync(Client):
 
     def create_target_agent(
         self,
-        agent_identifier: str,
+        identifier: str,
         role: str,
         industry: str,
         description: str,
@@ -70,7 +73,7 @@ class MaihemSync(Client):
         try:
             resp = self._maihem_api_client.create_agent_target(
                 req=APISchemaAgentTargetCreateRequest(
-                    identifier=agent_identifier,
+                    identifier=identifier,
                     name=name,
                     role=role,
                     industry=industry,
@@ -114,21 +117,24 @@ class MaihemSync(Client):
 
     def create_test(
         self,
-        test_identifier: str,
+        identifier: str,
         target_agent: AgentTarget,
         initiating_agent: Literal["maihem", "target"],
-        test_name: Optional[str] = None,
+        name: Optional[str] = None,
         agent_maihem_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
         resp = None
         try:
+            metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
+                metrics_config
+            )
             resp = self._maihem_api_client.create_test(
                 req=APISchemaTestCreateRequest(
-                    test_identifier=test_identifier,
+                    identifier=identifier,
                     agent_target_id=target_agent.id,
-                    name=test_name,
+                    name=name,
                     initiating_agent=initiating_agent,
                     agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
                     metrics_config=metrics_config,
@@ -140,7 +146,7 @@ class MaihemSync(Client):
         agent_target = None
 
         try:
-            agent_target = AgentTarget.model_validate(resp.to_dict())
+            agent_target = AgentTarget.model_validate(resp)
         except ValidationError as e:
             print(e.json())
 
