@@ -22,7 +22,6 @@ class APISchemaAgentTargetGetResponse:
         name (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
         industry (Union[None, Unset, str]):
-        behaviour_prompt (Union[None, Unset, str]):
         language (Union[None, Unset, str]):  Default: 'en'.
         url (Union[None, Unset, str]):
     """
@@ -35,7 +34,6 @@ class APISchemaAgentTargetGetResponse:
     name: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
     industry: Union[None, Unset, str] = UNSET
-    behaviour_prompt: Union[None, Unset, str] = UNSET
     language: Union[None, Unset, str] = "en"
     url: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -69,12 +67,6 @@ class APISchemaAgentTargetGetResponse:
         else:
             industry = self.industry
 
-        behaviour_prompt: Union[None, Unset, str]
-        if isinstance(self.behaviour_prompt, Unset):
-            behaviour_prompt = UNSET
-        else:
-            behaviour_prompt = self.behaviour_prompt
-
         language: Union[None, Unset, str]
         if isinstance(self.language, Unset):
             language = UNSET
@@ -104,8 +96,6 @@ class APISchemaAgentTargetGetResponse:
             field_dict["description"] = description
         if industry is not UNSET:
             field_dict["industry"] = industry
-        if behaviour_prompt is not UNSET:
-            field_dict["behaviour_prompt"] = behaviour_prompt
         if language is not UNSET:
             field_dict["language"] = language
         if url is not UNSET:
@@ -153,15 +143,6 @@ class APISchemaAgentTargetGetResponse:
 
         industry = _parse_industry(d.pop("industry", UNSET))
 
-        def _parse_behaviour_prompt(data: object) -> Union[None, Unset, str]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, str], data)
-
-        behaviour_prompt = _parse_behaviour_prompt(d.pop("behaviour_prompt", UNSET))
-
         def _parse_language(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -189,7 +170,6 @@ class APISchemaAgentTargetGetResponse:
             name=name,
             description=description,
             industry=industry,
-            behaviour_prompt=behaviour_prompt,
             language=language,
             url=url,
         )
