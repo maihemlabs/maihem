@@ -18,12 +18,14 @@ maihem_client = MaihemSync(
 
 print(m.whoami())
 
-target_agent = maihem_client.create_target_agent(
-    identifier="agent-v-4",
-    name="Agent V4",
-    industry="Technology",
-    description="A helpful customer support agent",
-    role="customer_support",
-)
+# target_agent = maihem_client.create_target_agent(
+#    identifier="agent-v-4",
+#    name="Agent V4",
+#    industry="Technology",
+#    description="A helpful customer support agent",
+#    role="customer_support",
+# )
+
+target_agent = maihem_client.get_target_agent("agent-v-4")
 
 print(target_agent)

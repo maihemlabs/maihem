@@ -87,7 +87,27 @@ class MaihemSync(Client):
         return agent_target
 
     def get_target_agent(self, identifier: str) -> AgentTarget:
-        raise NotImplementedError("Method not implemented")
+        resp = None
+        try:
+            resp = self._maihem_api_client.get_agent_target_by_identifier(
+                identifier=identifier
+            )
+        except Exception as e:
+            raise errors.AgentTargetGetError(str(e))
+
+        agent_target = None
+
+        try:
+            agent_target = AgentTarget.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        if not agent_target:
+            raise errors.NotFoundError(
+                f"Agent target with identifier {identifier} not found"
+            )
+
+        return agent_target
 
     def create_test(
         self,

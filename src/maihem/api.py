@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, List
 
 from src.maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
 from src.maihem.api_client.maihem_client.types import Response
@@ -17,11 +17,17 @@ from src.maihem.api_client.maihem_client.models.api_schema_test_create_response 
 from src.maihem.api_client.maihem_client.models.api_schema_test_run import (
     APISchemaTestRun,
 )
+from src.maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
+    APISchemaAgentTargetGetResponse,
+)
 from src.maihem.api_client.maihem_client.api.tests import tests_create_test
 from src.maihem.api_client.maihem_client.api.tests import tests_create_test_run
 from src.maihem.api_client.maihem_client.api.test_runs import test_runs_get_test_run
 from src.maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from src.maihem.api_client.maihem_client.api.agents import agents_create_agent_target
+from src.maihem.api_client.maihem_client.api.agents import (
+    agents_get_agent_targets,
+)
 
 
 class MaihemHTTPClientBase:
@@ -64,6 +70,27 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         if response.status_code != 201:
             raise Exception(response.content.decode("utf-8"))
         return response.parsed
+
+    def get_agent_target_by_identifier(
+        self, identifier: str
+    ) -> APISchemaAgentTargetGetResponse:
+        try:
+            with MaihemHTTPClient(base_url=self.base_url) as client:
+                response: Response[List[APISchemaAgentTargetGetResponse]] = (
+                    agents_get_agent_targets.sync_detailed(
+                        client=client,
+                        x_api_key=self.token,
+                        identifier=identifier,
+                    )
+                )
+        except Exception as e:
+            print({"error": str(e)})
+            raise
+
+        if response.status_code != 200:
+            raise Exception(response.content.decode("utf-8"))
+
+        return response.parsed[0]
 
     def create_test(
         self, req: APISchemaTestCreateRequest
