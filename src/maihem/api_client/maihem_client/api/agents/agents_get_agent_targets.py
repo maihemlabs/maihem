@@ -12,15 +12,23 @@ from ...types import UNSET, Response, Unset
 
 def _get_kwargs(
     *,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
         headers["x-api-key"] = x_api_key
 
+    params: Dict[str, Any] = {}
+
+    params["identifier"] = identifier
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: Dict[str, Any] = {
         "method": "get",
         "url": "/agents/target",
+        "params": params,
     }
 
     _kwargs["headers"] = headers
@@ -63,6 +71,7 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, List["APISchemaAgentTargetGetResponse"]]]:
     """Get all target agents
@@ -70,6 +79,7 @@ def sync_detailed(
      Gets a list of all configured target agents
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -81,6 +91,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
+        identifier=identifier,
         x_api_key=x_api_key,
     )
 
@@ -94,6 +105,7 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, List["APISchemaAgentTargetGetResponse"]]]:
     """Get all target agents
@@ -101,6 +113,7 @@ def sync(
      Gets a list of all configured target agents
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -113,6 +126,7 @@ def sync(
 
     return sync_detailed(
         client=client,
+        identifier=identifier,
         x_api_key=x_api_key,
     ).parsed
 
@@ -120,6 +134,7 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[HTTPValidationError, List["APISchemaAgentTargetGetResponse"]]]:
     """Get all target agents
@@ -127,6 +142,7 @@ async def asyncio_detailed(
      Gets a list of all configured target agents
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -138,6 +154,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
+        identifier=identifier,
         x_api_key=x_api_key,
     )
 
@@ -149,6 +166,7 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[HTTPValidationError, List["APISchemaAgentTargetGetResponse"]]]:
     """Get all target agents
@@ -156,6 +174,7 @@ async def asyncio(
      Gets a list of all configured target agents
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -169,6 +188,7 @@ async def asyncio(
     return (
         await asyncio_detailed(
             client=client,
+            identifier=identifier,
             x_api_key=x_api_key,
         )
     ).parsed
