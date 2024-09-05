@@ -55,21 +55,21 @@ def chat_function_colin(
 target_agent = maihem_client.get_target_agent("agent-v-6")
 
 target_agent.set_chat_function(chat_function=chat_function_colin)
-#
+
 # test = maihem_client.create_test(
-#    identifier="test-v-9",
-#    name="Test V9",
-#    target_agent=target_agent,
-#    initiating_agent="maihem",
-#    agent_maihem_behavior_prompt="Example prompt",
-#    conversation_turns_max=10,
-#    metrics_config={"qa_rag_hallucination": 2},
+#     identifier="test-v-11",
+#     name="Test V11",
+#     target_agent=target_agent,
+#     initiating_agent="maihem",
+#     agent_maihem_behavior_prompt="Example prompt",
+#     conversation_turns_max=10,
+#     metrics_config={"qa_cx_helpfulness": 2},
 # )
 
-test = maihem_client.get_test("test-v-9")
+test = maihem_client.get_test("test-v-11")
 
 # test_run = maihem_client.run_test(
-#    test=test, target_agent=target_agent, concurrent_conversations=1
+#     test=test, target_agent=target_agent, concurrent_conversations=1
 # )
 
 # print(test_run)
@@ -81,18 +81,20 @@ test = maihem_client.get_test("test-v-9")
 # )
 # print(turn)
 
-# message, contexts = target_agent._send_message(
-#     "c_01j71a5ncceb3axknxbqy57kdq", "Hey there!"
-# )
-
-# print(message)
-
 turn_id, conversation = maihem_client._create_conversation_turn(
-    test_run_id="tr_01j71a5nb8fb890wkgpsat46k1",
-    conversation_id="c_01j71a5ncceb3axknxbqy57kdq",
+    test_run_id="tr_01j71mccpzetdr81qh9r5fdf42",
+    conversation_id="c_01j71mcwgfe1ntnf40f99q3w0s",
     target_agent_message="",
     contexts=["here is some demo context"],
 )
 
-print(turn_id)
-print(conversation)
+maihem_message = maihem_client._get_conversation_message_from_conversation(
+    turn_id=turn_id, agent_type="maihem", conversation=conversation
+)
+
+message, contexts = target_agent._send_message(
+    "c_01j71mcwgfe1ntnf40f99q3w0s", maihem_message.content
+)
+
+
+print(message)

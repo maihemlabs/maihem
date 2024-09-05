@@ -11,7 +11,7 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
-    from ..models.conversation_nested_turn_base import ConversationNestedTurnBase
+    from ..models.conversation_nested_turn import ConversationNestedTurn
 
 
 T = TypeVar("T", bound="ConversationNested")
@@ -29,7 +29,7 @@ class ConversationNested:
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
         test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetricBase']]):
-        conversation_turns (Union[Unset, List['ConversationNestedTurnBase']]):
+        conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
     """
 
     id: str
@@ -40,7 +40,7 @@ class ConversationNested:
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
     test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetricBase"]] = UNSET
-    conversation_turns: Union[Unset, List["ConversationNestedTurnBase"]] = UNSET
+    conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -109,7 +109,7 @@ class ConversationNested:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
-        from ..models.conversation_nested_turn_base import ConversationNestedTurnBase
+        from ..models.conversation_nested_turn import ConversationNestedTurn
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -166,7 +166,7 @@ class ConversationNested:
         conversation_turns = []
         _conversation_turns = d.pop("conversation_turns", UNSET)
         for conversation_turns_item_data in _conversation_turns or []:
-            conversation_turns_item = ConversationNestedTurnBase.from_dict(conversation_turns_item_data)
+            conversation_turns_item = ConversationNestedTurn.from_dict(conversation_turns_item_data)
 
             conversation_turns.append(conversation_turns_item)
 

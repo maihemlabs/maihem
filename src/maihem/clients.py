@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Optional, List
+from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget, AgentType
@@ -17,8 +17,11 @@ from maihem.api_client.maihem_client.models.api_schema_test_run import APISchema
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
 )
-from maihem.api_client.maihem_client.models.conversation_nested_turn_base import (
-    ConversationNestedTurnBase,
+from maihem.api_client.maihem_client.models.conversation_nested_turn import (
+    ConversationNestedTurn,
+)
+from maihem.api_client.maihem_client.models.conversation_nested_message import (
+    ConversationNestedMessage,
 )
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
@@ -231,14 +234,32 @@ class MaihemSync(Client):
             conversation=resp.conversation,
         )
 
-    def _get_conversation_turn_from_conversation(
+    def _get_conversation_message_from_conversation(
         self,
         turn_id: str,
+        agent_type: AgentType,
         conversation: ConversationNested,
-    ) -> ConversationNestedTurnBase:
+    ) -> ConversationNestedMessage:
         for turn in conversation.conversation_turns:
+
             if turn.id == turn_id:
-                return turn
+                for message in turn.conversation_messages:
+                    if message.agent_type == agent_type:
+                        return message
+
+        return None
+
+    def _send_target_agent_message(
+        self,
+        target_agent: AgentTarget,
+        conversation_id: str,
+        agent_maihem_message: str,
+    ) -> Tuple[str, List[str]]:
+        target_agent_message, contexts = target_agent._send_message(
+            conversation_id, agent_maihem_message
+        )
+
+        return target_agent_message, contexts
 
 
 class MaihemAsync(Client):
