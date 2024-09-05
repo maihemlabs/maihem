@@ -6,10 +6,10 @@ from .api_schema_agent_target_create_response import APISchemaAgentTargetCreateR
 from .api_schema_agent_target_get_response import APISchemaAgentTargetGetResponse
 from .api_schema_conversation_turn_create_request import APISchemaConversationTurnCreateRequest
 from .api_schema_links import APISchemaLinks
+from .api_schema_test import APISchemaTest
 from .api_schema_test_create_request import APISchemaTestCreateRequest
 from .api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
-from .api_schema_test_create_response import APISchemaTestCreateResponse
-from .api_schema_test_create_response_metrics_config import APISchemaTestCreateResponseMetricsConfig
+from .api_schema_test_metrics_config import APISchemaTestMetricsConfig
 from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
 from .conversation_nested import ConversationNested
@@ -22,8 +22,6 @@ from .http_validation_error import HTTPValidationError
 from .idp_user import IDPUser
 from .org import Org
 from .org_base import OrgBase
-from .test_get_response import TestGetResponse
-from .test_metric_with_conversation_count import TestMetricWithConversationCount
 from .test_result_enum import TestResultEnum
 from .test_status_enum import TestStatusEnum
 from .validation_error import ValidationError
@@ -35,10 +33,10 @@ __all__ = (
     "APISchemaAgentTargetGetResponse",
     "APISchemaConversationTurnCreateRequest",
     "APISchemaLinks",
+    "APISchemaTest",
     "APISchemaTestCreateRequest",
     "APISchemaTestCreateRequestMetricsConfig",
-    "APISchemaTestCreateResponse",
-    "APISchemaTestCreateResponseMetricsConfig",
+    "APISchemaTestMetricsConfig",
     "APISchemaTestRun",
     "APISchemaTestRunWithConversationsNested",
     "ConversationNested",
@@ -51,8 +49,6 @@ __all__ = (
     "IDPUser",
     "Org",
     "OrgBase",
-    "TestGetResponse",
-    "TestMetricWithConversationCount",
     "TestResultEnum",
     "TestStatusEnum",
     "ValidationError",

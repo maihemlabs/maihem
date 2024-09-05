@@ -11,11 +11,8 @@ from maihem.api_client.maihem_client.models.api_schema_agent_target_create_respo
 from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
 )
-from maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
-    APISchemaTestCreateRequestMetricsConfig,
-)
-from maihem.api_client.maihem_client.models.api_schema_test_create_response import (
-    APISchemaTestCreateResponse,
+from maihem.api_client.maihem_client.models.api_schema_test import (
+    APISchemaTest,
 )
 from maihem.api_client.maihem_client.models.api_schema_test_run import (
     APISchemaTestRun,
@@ -24,7 +21,10 @@ from maihem.api_client.maihem_client.models.api_schema_agent_target_get_response
     APISchemaAgentTargetGetResponse,
 )
 from maihem.api_client.maihem_client.api.tests import tests_create_test
-from maihem.api_client.maihem_client.api.tests import tests_create_test_run
+from maihem.api_client.maihem_client.api.tests import (
+    tests_create_test_run,
+    tests_get_tests,
+)
 from maihem.api_client.maihem_client.api.test_runs import test_runs_get_test_run
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
@@ -93,17 +93,13 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return response.parsed[0]
 
-    def create_test(
-        self, req: APISchemaTestCreateRequest
-    ) -> APISchemaTestCreateResponse:
+    def create_test(self, req: APISchemaTestCreateRequest) -> APISchemaTest:
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
-                response: Response[APISchemaTestCreateResponse] = (
-                    tests_create_test.sync_detailed(
-                        client=client,
-                        x_api_key=self.token,
-                        body=req,
-                    )
+                response: Response[APISchemaTest] = tests_create_test.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    body=req,
                 )
         except Exception as e:
             print({"error": str(e)})
@@ -112,6 +108,23 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         if response.status_code != 201:
             raise Exception(response.content.decode("utf-8"))
         return response.parsed
+
+    def get_test_by_identifier(self, identifier: str) -> APISchemaTest:
+        try:
+            with MaihemHTTPClient(base_url=self.base_url) as client:
+                response: Response[List[APISchemaTest]] = tests_get_tests.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    identifier=identifier,
+                )
+        except Exception as e:
+            print({"error": str(e)})
+            raise
+
+        if response.status_code != 200:
+            raise Exception(response.content.decode("utf-8"))
+
+        return response.parsed[0]
 
     def create_test_run(self, test_id: str) -> APISchemaTestRun:
         try:

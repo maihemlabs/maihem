@@ -12,6 +12,7 @@ from maihem.api_client.maihem_client.models.api_schema_test_create_request impor
 from maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
     APISchemaTestCreateRequestMetricsConfig,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_run import APISchemaTestRun
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 
@@ -162,15 +163,46 @@ class MaihemSync(Client):
 
         return test
 
+    def get_test(self, identifier: str) -> Test:
+        resp = None
+        try:
+            resp = self._maihem_api_client.get_test_by_identifier(identifier=identifier)
+        except Exception as e:
+            raise errors.TestGetError(str(e))
+
+        test = None
+
+        try:
+            test = Test.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        if not test:
+            raise errors.NotFoundError(f"Test with identifier {identifier} not found")
+
+        return test
+
     def run_test(
-        self,
-        identifier: str,
-        test_identifier: str,
-        agent_target: AgentTarget,
-        # dynamic_mode: Literal["static", "dynamic"],
-        concurrent_conversations: int,
+        self, test: Test, agent_target: AgentTarget, concurrent_conversations: int = 1
     ) -> TestRun:
-        raise NotImplementedError("Method not implemented")
+        resp = None
+
+        try:
+            resp = self._maihem_api_client.create_test_run(
+                test_id=test.id,
+            )
+        except Exception as e:
+            raise errors.TestRunError(str(e))
+
+        test_run = None
+
+        try:
+            test_run = TestRun.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+            raise
+
+        return test_run
 
     def get_test_run_results(test_run_identifier: str) -> TestRunResults:
         raise NotImplementedError("Method not implemented")

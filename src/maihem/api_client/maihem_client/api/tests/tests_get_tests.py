@@ -5,22 +5,30 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.api_schema_test import APISchemaTest
 from ...models.http_validation_error import HTTPValidationError
-from ...models.test_get_response import TestGetResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
         headers["x-api-key"] = x_api_key
 
+    params: Dict[str, Any] = {}
+
+    params["identifier"] = identifier
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: Dict[str, Any] = {
         "method": "get",
         "url": "/tests",
+        "params": params,
     }
 
     _kwargs["headers"] = headers
@@ -29,12 +37,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Optional[Union[HTTPValidationError, List["APISchemaTest"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = TestGetResponse.from_dict(response_200_item_data)
+            response_200_item = APISchemaTest.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -51,7 +59,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Response[Union[HTTPValidationError, List["APISchemaTest"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -63,13 +71,15 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Response[Union[HTTPValidationError, List["APISchemaTest"]]]:
     """Get all tests
 
-     List all test configurations for your organization
+     Gets a list of all tests
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -77,10 +87,11 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, List['TestGetResponse']]]
+        Response[Union[HTTPValidationError, List['APISchemaTest']]]
     """
 
     kwargs = _get_kwargs(
+        identifier=identifier,
         x_api_key=x_api_key,
     )
 
@@ -94,13 +105,15 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Optional[Union[HTTPValidationError, List["APISchemaTest"]]]:
     """Get all tests
 
-     List all test configurations for your organization
+     Gets a list of all tests
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -108,11 +121,12 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, List['TestGetResponse']]
+        Union[HTTPValidationError, List['APISchemaTest']]
     """
 
     return sync_detailed(
         client=client,
+        identifier=identifier,
         x_api_key=x_api_key,
     ).parsed
 
@@ -120,13 +134,15 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Response[Union[HTTPValidationError, List["APISchemaTest"]]]:
     """Get all tests
 
-     List all test configurations for your organization
+     Gets a list of all tests
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -134,10 +150,11 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, List['TestGetResponse']]]
+        Response[Union[HTTPValidationError, List['APISchemaTest']]]
     """
 
     kwargs = _get_kwargs(
+        identifier=identifier,
         x_api_key=x_api_key,
     )
 
@@ -149,13 +166,15 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
+    identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[HTTPValidationError, List["TestGetResponse"]]]:
+) -> Optional[Union[HTTPValidationError, List["APISchemaTest"]]]:
     """Get all tests
 
-     List all test configurations for your organization
+     Gets a list of all tests
 
     Args:
+        identifier (Union[Unset, str]):
         x_api_key (Union[None, Unset, str]):
 
     Raises:
@@ -163,12 +182,13 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, List['TestGetResponse']]
+        Union[HTTPValidationError, List['APISchemaTest']]
     """
 
     return (
         await asyncio_detailed(
             client=client,
+            identifier=identifier,
             x_api_key=x_api_key,
         )
     ).parsed
