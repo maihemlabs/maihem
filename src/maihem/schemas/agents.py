@@ -27,7 +27,6 @@ class AgentTarget(BaseModel):
     def test_chat_function(self, chat_function: Callable) -> None:
         print("Testing target agent chat function...")
         try:
-<<<<<<< HEAD
             message, end_code, contexts = chat_function(
                 str(datetime.now()), "Testing target agent function...", None
             )
@@ -35,16 +34,16 @@ class AgentTarget(BaseModel):
             assert isinstance(end_code, str), "End conversation flag must be a string"
             assert isinstance(contexts, list), "Contexts must be a list"
             for context in contexts:
-                assert isinstance(context, str), "Each context in the list must be a string"
-=======
+                assert isinstance(
+                    context, str
+                ), "Each context in the list must be a string"
             message, contexts = chat_function(
                 str(datetime.now()), "Testing target agent function..."
             )
             assert isinstance(message, str), "Response message must be a string"
->>>>>>> 6e0376a (Colin callable + callable updates)
         except Exception as e:
             raise ChatFunctionError(f"Chat function test failed: {e}") from e
-        
+
         print("Target agent chat function passed test")
 
     def _send_message(
