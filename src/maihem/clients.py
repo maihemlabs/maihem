@@ -43,10 +43,8 @@ class Client:
 
     def run_test(
         self,
-        identifier: str,
         test_identifier: str,
         agent_target: AgentTarget,
-        # dynamic_mode: Literal["static", "dynamic"],
         concurrent_conversations: int,
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
@@ -183,7 +181,7 @@ class MaihemSync(Client):
         return test
 
     def run_test(
-        self, test: Test, agent_target: AgentTarget, concurrent_conversations: int = 1
+        self, test: Test, target_agent: AgentTarget, concurrent_conversations: int = 1
     ) -> TestRun:
         resp = None
 

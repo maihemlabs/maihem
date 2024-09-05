@@ -26,7 +26,7 @@ print(m.whoami())
 #    role="customer_support",
 # )
 
-# target_agent = maihem_client.get_target_agent("agent-v-6")
+target_agent = maihem_client.get_target_agent("agent-v-6")
 #
 # test = maihem_client.create_test(
 #    identifier="test-v-9",
@@ -39,3 +39,9 @@ print(m.whoami())
 # )
 
 test = maihem_client.get_test("test-v-9")
+
+test_run = maihem_client.run_test(
+    test=test, target_agent=target_agent, concurrent_conversations=1
+)
+
+print(test_run)
