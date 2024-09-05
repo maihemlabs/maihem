@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Type, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="APISchemaTestCreateResponseMetricsConfig")
+T = TypeVar("T", bound="APISchemaTestMetricsConfig")
 
 
 @_attrs_define
-class APISchemaTestCreateResponseMetricsConfig:
+class APISchemaTestMetricsConfig:
     """ """
 
     additional_properties: Dict[str, int] = _attrs_field(init=False, factory=dict)
@@ -21,10 +21,10 @@ class APISchemaTestCreateResponseMetricsConfig:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        api_schema_test_create_response_metrics_config = cls()
+        api_schema_test_metrics_config = cls()
 
-        api_schema_test_create_response_metrics_config.additional_properties = d
-        return api_schema_test_create_response_metrics_config
+        api_schema_test_metrics_config.additional_properties = d
+        return api_schema_test_metrics_config
 
     @property
     def additional_keys(self) -> List[str]:

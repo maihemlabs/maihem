@@ -18,6 +18,16 @@ class TestCreateError(Exception):
         super().__init__(message)
 
 
+class TestGetError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
+class TestRunError(Exception):
+    def __init__(self, message: str) -> None:
+        super().__init__(message)
+
+
 class NotFoundError(Exception):
     def __init__(self, message: str) -> None:
         super().__init__(message)

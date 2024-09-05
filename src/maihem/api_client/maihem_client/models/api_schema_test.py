@@ -9,14 +9,14 @@ from ..models.agent_type import AgentType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.test_metric_with_conversation_count import TestMetricWithConversationCount
+    from ..models.api_schema_test_metrics_config import APISchemaTestMetricsConfig
 
 
-T = TypeVar("T", bound="TestGetResponse")
+T = TypeVar("T", bound="APISchemaTest")
 
 
 @_attrs_define
-class TestGetResponse:
+class APISchemaTest:
     """
     Attributes:
         id (str):
@@ -24,11 +24,10 @@ class TestGetResponse:
         updated_at (datetime.datetime):
         identifier (str):
         agent_target_id (str):
-        initiating_agent (AgentType):
+        metrics_config (APISchemaTestMetricsConfig):
         name (Union[None, Unset, str]):
-        metrics (Union[Unset, List['TestMetricWithConversationCount']]):
-        last_run_at (Union[None, Unset, datetime.datetime]):
-        last_run_id (Union[None, Unset, str]):
+        initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
+        agent_maihem_behavior_prompt (Union[None, Unset, str]):
     """
 
     id: str
@@ -36,11 +35,10 @@ class TestGetResponse:
     updated_at: datetime.datetime
     identifier: str
     agent_target_id: str
-    initiating_agent: AgentType
+    metrics_config: "APISchemaTestMetricsConfig"
     name: Union[None, Unset, str] = UNSET
-    metrics: Union[Unset, List["TestMetricWithConversationCount"]] = UNSET
-    last_run_at: Union[None, Unset, datetime.datetime] = UNSET
-    last_run_id: Union[None, Unset, str] = UNSET
+    initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
+    agent_maihem_behavior_prompt: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -54,7 +52,7 @@ class TestGetResponse:
 
         agent_target_id = self.agent_target_id
 
-        initiating_agent = self.initiating_agent.value
+        metrics_config = self.metrics_config.to_dict()
 
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
@@ -62,26 +60,15 @@ class TestGetResponse:
         else:
             name = self.name
 
-        metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.metrics, Unset):
-            metrics = []
-            for metrics_item_data in self.metrics:
-                metrics_item = metrics_item_data.to_dict()
-                metrics.append(metrics_item)
+        initiating_agent: Union[Unset, str] = UNSET
+        if not isinstance(self.initiating_agent, Unset):
+            initiating_agent = self.initiating_agent.value
 
-        last_run_at: Union[None, Unset, str]
-        if isinstance(self.last_run_at, Unset):
-            last_run_at = UNSET
-        elif isinstance(self.last_run_at, datetime.datetime):
-            last_run_at = self.last_run_at.isoformat()
+        agent_maihem_behavior_prompt: Union[None, Unset, str]
+        if isinstance(self.agent_maihem_behavior_prompt, Unset):
+            agent_maihem_behavior_prompt = UNSET
         else:
-            last_run_at = self.last_run_at
-
-        last_run_id: Union[None, Unset, str]
-        if isinstance(self.last_run_id, Unset):
-            last_run_id = UNSET
-        else:
-            last_run_id = self.last_run_id
+            agent_maihem_behavior_prompt = self.agent_maihem_behavior_prompt
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -92,23 +79,21 @@ class TestGetResponse:
                 "updated_at": updated_at,
                 "identifier": identifier,
                 "agent_target_id": agent_target_id,
-                "initiating_agent": initiating_agent,
+                "metrics_config": metrics_config,
             }
         )
         if name is not UNSET:
             field_dict["name"] = name
-        if metrics is not UNSET:
-            field_dict["metrics"] = metrics
-        if last_run_at is not UNSET:
-            field_dict["last_run_at"] = last_run_at
-        if last_run_id is not UNSET:
-            field_dict["last_run_id"] = last_run_id
+        if initiating_agent is not UNSET:
+            field_dict["initiating_agent"] = initiating_agent
+        if agent_maihem_behavior_prompt is not UNSET:
+            field_dict["agent_maihem_behavior_prompt"] = agent_maihem_behavior_prompt
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.test_metric_with_conversation_count import TestMetricWithConversationCount
+        from ..models.api_schema_test_metrics_config import APISchemaTestMetricsConfig
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -121,7 +106,7 @@ class TestGetResponse:
 
         agent_target_id = d.pop("agent_target_id")
 
-        initiating_agent = AgentType(d.pop("initiating_agent"))
+        metrics_config = APISchemaTestMetricsConfig.from_dict(d.pop("metrics_config"))
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -132,54 +117,36 @@ class TestGetResponse:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        metrics = []
-        _metrics = d.pop("metrics", UNSET)
-        for metrics_item_data in _metrics or []:
-            metrics_item = TestMetricWithConversationCount.from_dict(metrics_item_data)
+        _initiating_agent = d.pop("initiating_agent", UNSET)
+        initiating_agent: Union[Unset, AgentType]
+        if isinstance(_initiating_agent, Unset):
+            initiating_agent = UNSET
+        else:
+            initiating_agent = AgentType(_initiating_agent)
 
-            metrics.append(metrics_item)
-
-        def _parse_last_run_at(data: object) -> Union[None, Unset, datetime.datetime]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            try:
-                if not isinstance(data, str):
-                    raise TypeError()
-                last_run_at_type_0 = isoparse(data)
-
-                return last_run_at_type_0
-            except:  # noqa: E722
-                pass
-            return cast(Union[None, Unset, datetime.datetime], data)
-
-        last_run_at = _parse_last_run_at(d.pop("last_run_at", UNSET))
-
-        def _parse_last_run_id(data: object) -> Union[None, Unset, str]:
+        def _parse_agent_maihem_behavior_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        last_run_id = _parse_last_run_id(d.pop("last_run_id", UNSET))
+        agent_maihem_behavior_prompt = _parse_agent_maihem_behavior_prompt(d.pop("agent_maihem_behavior_prompt", UNSET))
 
-        test_get_response = cls(
+        api_schema_test = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
             identifier=identifier,
             agent_target_id=agent_target_id,
-            initiating_agent=initiating_agent,
+            metrics_config=metrics_config,
             name=name,
-            metrics=metrics,
-            last_run_at=last_run_at,
-            last_run_id=last_run_id,
+            initiating_agent=initiating_agent,
+            agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
         )
 
-        test_get_response.additional_properties = d
-        return test_get_response
+        api_schema_test.additional_properties = d
+        return api_schema_test
 
     @property
     def additional_keys(self) -> List[str]:
