@@ -56,15 +56,13 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
     ) -> APISchemaAgentTargetCreateResponse:
-        request = APISchemaAgentTargetCreateRequest(req.to_dict())
-
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
                 response: Response[APISchemaAgentTargetCreateResponse] = (
                     agents_create_agent_target.sync_detailed(
                         client=client,
                         x_api_key=self.token,
-                        body=request,
+                        body=req,
                     )
                 )
         except Exception as e:
@@ -98,29 +96,20 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def create_test(
         self, req: APISchemaTestCreateRequest
     ) -> APISchemaTestCreateResponse:
-
-        request = APISchemaTestCreateRequest(
-            identifier=req.identifier,
-            agent_target_id=req.agent_target_id,
-            metrics_config=req.metrics_config,
-            name=req.name,
-            initiating_agent=req.initiating_agent,
-            agent_maihem_behavior_prompt=req.agent_maihem_behavior_prompt,
-        )
-
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
                 response: Response[APISchemaTestCreateResponse] = (
                     tests_create_test.sync_detailed(
                         client=client,
                         x_api_key=self.token,
-                        body=request,
+                        body=req,
                     )
                 )
         except Exception as e:
-            return {"error": str(e)}
+            print({"error": str(e)})
+            raise
 
-        if response.status_code != 200:
+        if response.status_code != 201:
             raise Exception(response.content.decode("utf-8"))
         return response.parsed
 
@@ -134,7 +123,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 )
 
         except Exception as e:
-            return {"error": str(e)}
+            print({"error": str(e)})
+            raise
 
         if response.status_code != 201:
             return response.content.decode("utf-8")
@@ -150,7 +140,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 )
 
         except Exception as e:
-            return {"error": str(e)}
+            print({"error": str(e)})
+            raise
 
         if response.status_code != 201:
             return response.content.decode("utf-8")
