@@ -26,14 +26,20 @@ class AgentTarget(BaseModel):
         self.chat_function = chat_function
 
     def test_chat_function(self, chat_function: Callable) -> None:
+        print("Testing target agent chat function...")
         try:
-            message, end_code = chat_function(
+            message, end_code, contexts = chat_function(
                 str(datetime.now()), "Testing target agent function...", None
             )
             assert isinstance(message, str), "Response message must be a string"
             assert isinstance(end_code, str), "End conversation flag must be a string"
+            assert isinstance(contexts, list), "Contexts must be a list"
+            for context in contexts:
+                assert isinstance(context, str), "Each context in the list must be a string"
         except Exception as e:
             raise ChatFunctionError(f"Chat function test failed: {e}") from e
+        
+        print("Target agent chat function passed test")
 
 
 class AgentType(str, Enum):

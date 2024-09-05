@@ -123,7 +123,7 @@ class MaihemSync(Client):
         target_agent: AgentTarget,
         initiating_agent: AgentType = AgentType.MAIHEM,
         name: Optional[str] = None,
-        agent_maihem_behavior_prompt: str = None,
+        maihem_agent_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
@@ -147,7 +147,7 @@ class MaihemSync(Client):
                     agent_target_id=target_agent.id,
                     name=name,
                     initiating_agent=initiating_agent,
-                    agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
+                    agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
                     metrics_config=metrics_config,
                 )
             )
