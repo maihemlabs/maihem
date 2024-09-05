@@ -1,8 +1,11 @@
 import sys
 import os
+import requests
+import json
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
+from typing import Tuple, List, Optional
 from maihem.api import MaihemHTTPClientSync
 from maihem.clients import MaihemSync
 
@@ -19,6 +22,28 @@ maihem_client = MaihemSync(
 print(m.whoami())
 
 
+def chat_function_colin(
+    conversation_id: str,
+    agent_maihem_message: str,
+) -> Tuple[str, bool, List[str]]:
+
+    url = "http://localhost:8002/chat"
+
+    payload = json.dumps(
+        {
+            "conversation_id": conversation_id,
+            "message": agent_maihem_message,
+        }
+    )
+    headers = {"Content-Type": "application/json"}
+
+    response = requests.request("POST", url, headers=headers, data=payload)
+
+    response_dict = response.json()
+
+    return response_dict["message"], response_dict["contexts"]
+
+
 # target_agent = maihem_client.create_target_agent(
 #    identifier="agent-v-6",
 #    name="Agent V6",
@@ -29,7 +54,7 @@ print(m.whoami())
 
 target_agent = maihem_client.get_target_agent("agent-v-6")
 
-target_agent.set_chat_function()
+target_agent.set_chat_function(chat_function=chat_function_colin)
 #
 # test = maihem_client.create_test(
 #    identifier="test-v-9",
@@ -49,9 +74,15 @@ test = maihem_client.get_test("test-v-9")
 
 # print(test_run)
 
-turn = maihem_client._create_conversation_turn(
-    test_run_id="tr_01j71a5nb8fb890wkgpsat46k1",
-    conversation_id="c_01j71a5ncceb3axknxbqy57kdq",
-    message=None,
+# turn = maihem_client._create_conversation_turn(
+#     test_run_id="tr_01j71a5nb8fb890wkgpsat46k1",
+#     conversation_id="c_01j71a5ncceb3axknxbqy57kdq",
+#     message=None,
+# )
+# print(turn)
+
+message, contexts = target_agent._send_message(
+    "c_01j71a5ncceb3axknxbqy57kdq", "Hey there!"
 )
-print(turn)
+
+print(message)
