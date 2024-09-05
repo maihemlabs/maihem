@@ -19,18 +19,18 @@ maihem_client = MaihemSync(
 print(m.whoami())
 
 # target_agent = maihem_client.create_target_agent(
-#    agent_identifier="agent-v-5",
-#    name="Agent V5",
+#    identifier="agent-v-6",
+#    name="Agent V6",
 #    industry="Technology",
 #    description="A helpful customer support agent",
 #    role="customer_support",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-v-5")
+target_agent = maihem_client.get_target_agent("agent-v-6")
 
 test = maihem_client.create_test(
-    identifier="test-v-5",
-    name="Test V5",
+    identifier="test-v-9",
+    name="Test V9",
     target_agent=target_agent,
     initiating_agent="maihem",
     agent_maihem_behavior_prompt="Example prompt",
@@ -38,4 +38,4 @@ test = maihem_client.create_test(
     metrics_config={"qa_rag_hallucination": 2},
 )
 
-print(test)
+print(target_agent)

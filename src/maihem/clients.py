@@ -1,7 +1,7 @@
 from typing import Dict, Literal, Optional
 from pydantic import ValidationError
 
-from maihem.schemas.agents import AgentTarget
+from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import Test, TestRun, TestRunResults
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
@@ -119,17 +119,26 @@ class MaihemSync(Client):
         self,
         identifier: str,
         target_agent: AgentTarget,
-        initiating_agent: Literal["maihem", "target"],
+        initiating_agent: AgentType = AgentType.MAIHEM,
         name: Optional[str] = None,
         agent_maihem_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
         resp = None
+
+        if isinstance(initiating_agent, str):
+            try:
+                initiating_agent = AgentType[initiating_agent.upper()]
+            except KeyError as e:
+                raise ValueError(
+                    f"Invalid initiating_agent value: {initiating_agent}"
+                ) from e
+
         try:
-            # metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
-            #    metrics_config
-            # )
+            metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
+                metrics_config
+            )
             resp = self._maihem_api_client.create_test(
                 req=APISchemaTestCreateRequest(
                     identifier=identifier,
@@ -143,14 +152,15 @@ class MaihemSync(Client):
         except Exception as e:
             raise errors.TestCreateError(str(e))
 
-        agent_target = None
+        test = None
 
         try:
-            agent_target = AgentTarget.model_validate(resp)
+            test = Test.model_validate(resp.to_dict())
         except ValidationError as e:
             print(e.json())
+            raise
 
-        return agent_target
+        return test
 
     def run_test(
         self,

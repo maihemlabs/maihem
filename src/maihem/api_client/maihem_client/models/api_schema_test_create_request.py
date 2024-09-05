@@ -7,7 +7,9 @@ from ..models.agent_type import AgentType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
+    from ..models.api_schema_test_create_request_metrics_config import (
+        APISchemaTestCreateRequestMetricsConfig,
+    )
 
 
 T = TypeVar("T", bound="APISchemaTestCreateRequest")
@@ -76,14 +78,18 @@ class APISchemaTestCreateRequest:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
+        from ..models.api_schema_test_create_request_metrics_config import (
+            APISchemaTestCreateRequestMetricsConfig,
+        )
 
         d = src_dict.copy()
         identifier = d.pop("identifier")
 
         agent_target_id = d.pop("agent_target_id")
 
-        metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(d.pop("metrics_config"))
+        metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
+            d.pop("metrics_config")
+        )
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -101,14 +107,18 @@ class APISchemaTestCreateRequest:
         else:
             initiating_agent = AgentType(_initiating_agent)
 
-        def _parse_agent_maihem_behavior_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_agent_maihem_behavior_prompt(
+            data: object,
+        ) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        agent_maihem_behavior_prompt = _parse_agent_maihem_behavior_prompt(d.pop("agent_maihem_behavior_prompt", UNSET))
+        agent_maihem_behavior_prompt = _parse_agent_maihem_behavior_prompt(
+            d.pop("agent_maihem_behavior_prompt", UNSET)
+        )
 
         api_schema_test_create_request = cls(
             identifier=identifier,

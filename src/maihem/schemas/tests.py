@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import List, Optional, Dict
 from pydantic import BaseModel
 from datetime import datetime
 from maihem.schemas.agents import AgentType
@@ -38,7 +38,7 @@ class Test(BaseModel):
     agent_target_id: str
     initiating_agent: AgentType = AgentType.MAIHEM
     agent_maihem_behavior_prompt: Optional[str] = None
-    metrics: List[str]
+    metrics_config: Dict[str, int] = {}
     conversations_per_metric: Optional[int] = 5
 
 
