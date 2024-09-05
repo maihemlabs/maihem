@@ -3,6 +3,7 @@ from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import Test, TestRun, TestRunResults
+from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
 )
@@ -15,6 +16,9 @@ from maihem.api_client.maihem_client.models.api_schema_test_create_request_metri
 from maihem.api_client.maihem_client.models.api_schema_test_run import APISchemaTestRun
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
+)
+from maihem.api_client.maihem_client.models.conversation_nested_turn_base import (
+    ConversationNestedTurnBase,
 )
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
@@ -212,17 +216,29 @@ class MaihemSync(Client):
         self,
         test_run_id: str,
         conversation_id: str,
-        message: Optional[str] = None,
+        target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
-    ) -> ConversationNested:
-        conversation = self._maihem_api_client.create_conversation_turns(
+    ) -> ConversationTurnCreateResponse:
+        resp = self._maihem_api_client.create_conversation_turns(
             test_run_id=test_run_id,
             conversation_id=conversation_id,
-            message=message,
+            target_agent_message=target_agent_message,
             contexts=contexts,
         )
 
-        return conversation
+        return ConversationTurnCreateResponse(
+            turn_id=resp.turn_id,
+            conversation=resp.conversation,
+        )
+
+    def _get_conversation_turn_from_conversation(
+        self,
+        turn_id: str,
+        conversation: ConversationNested,
+    ) -> ConversationNestedTurnBase:
+        for turn in conversation.conversation_turns:
+            if turn.id == turn_id:
+                return turn
 
 
 class MaihemAsync(Client):

@@ -31,6 +31,9 @@ from maihem.api_client.maihem_client.models.conversation_nested import (
 from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request import (
     APISchemaConversationTurnCreateRequest,
 )
+from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_response import (
+    APISchemaConversationTurnCreateResponse,
+)
 from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run,
     test_runs_create_conversation_turn,
@@ -156,23 +159,25 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         self,
         test_run_id: str,
         conversation_id: str,
-        message: Optional[str] = None,
+        target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
-    ) -> ConversationNested:
+    ) -> APISchemaConversationTurnCreateResponse:
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
                 req: APISchemaConversationTurnCreateRequest = (
                     APISchemaConversationTurnCreateRequest(
-                        message=message, contexts=contexts
+                        message=target_agent_message, contexts=contexts
                     )
                 )
 
-                response: Response = test_runs_create_conversation_turn.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    test_run_id=test_run_id,
-                    conversation_id=conversation_id,
-                    body=req,
+                response: Response[APISchemaConversationTurnCreateResponse] = (
+                    test_runs_create_conversation_turn.sync_detailed(
+                        client=client,
+                        x_api_key=self.token,
+                        test_run_id=test_run_id,
+                        conversation_id=conversation_id,
+                        body=req,
+                    )
                 )
         except Exception as e:
             print({"error": str(e)})

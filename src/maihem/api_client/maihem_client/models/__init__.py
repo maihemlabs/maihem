@@ -5,6 +5,7 @@ from .api_schema_agent_target_create_request import APISchemaAgentTargetCreateRe
 from .api_schema_agent_target_create_response import APISchemaAgentTargetCreateResponse
 from .api_schema_agent_target_get_response import APISchemaAgentTargetGetResponse
 from .api_schema_conversation_turn_create_request import APISchemaConversationTurnCreateRequest
+from .api_schema_conversation_turn_create_response import APISchemaConversationTurnCreateResponse
 from .api_schema_links import APISchemaLinks
 from .api_schema_test import APISchemaTest
 from .api_schema_test_create_request import APISchemaTestCreateRequest
@@ -32,6 +33,7 @@ __all__ = (
     "APISchemaAgentTargetCreateResponse",
     "APISchemaAgentTargetGetResponse",
     "APISchemaConversationTurnCreateRequest",
+    "APISchemaConversationTurnCreateResponse",
     "APISchemaLinks",
     "APISchemaTest",
     "APISchemaTestCreateRequest",
