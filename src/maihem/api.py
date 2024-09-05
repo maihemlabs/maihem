@@ -47,7 +47,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
     ) -> APISchemaAgentTargetCreateResponse:
-        request = APISchemaAgentTargetCreateRequest(**req.dict())
+        request = APISchemaAgentTargetCreateRequest(**req.to_dict())
 
         try:
             with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -62,7 +62,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             return {"error": str(e)}
 
         if response.status_code != 201:
-            return response.content.decode("utf-8")
+            raise Exception(response.content.decode("utf-8"))
         return response.parsed
 
     def create_test(
