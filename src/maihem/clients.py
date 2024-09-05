@@ -127,9 +127,9 @@ class MaihemSync(Client):
     ) -> Test:
         resp = None
         try:
-            metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
-                metrics_config
-            )
+            # metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
+            #    metrics_config
+            # )
             resp = self._maihem_api_client.create_test(
                 req=APISchemaTestCreateRequest(
                     identifier=identifier,
