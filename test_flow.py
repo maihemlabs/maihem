@@ -22,7 +22,7 @@ def chat_function(
     Callable chat function to wrap your target agent to be tested.
 
     params:
-    - conversation_id: in range(0,n), conversation ID to keep track of different conversations. If entire test is serialized in same conversation, only id_conversation = 0 will be passed.
+    - conversation_id: can take a unique conversation ID to keep track of different conversations. If entire test is serialized in same conversation, the same conversation ID will be passed.
     - agent_maihem_msg: last message from maihem agent
     - agent_maihem_end_code: end code from maihem agent
     - contexts: list of contexts from RAG
@@ -54,7 +54,7 @@ async def async_chat_function(
     Callable function to wrap your target agent to be tested.
 
     params:
-    - conversation_id: in range(0,n), conversation ID to keep track of different conversations. If entire test is serialized in same conversation, only id_conversation = 0 will be passed.
+    - conversation_id: can take a unique conversation ID to keep track of different conversations. If entire test is serialized in same conversation, the same conversation ID will be passed.
     - agent_maihem_msg: last message from maihem agent
     - agent_maihem_end_code: end code from maihem agent
 
