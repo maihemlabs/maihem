@@ -6,6 +6,9 @@ from maihem.schemas.tests import Test, TestRun, TestRunResults
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
+    APISchemaTestCreateRequest,
+)
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 
@@ -57,7 +60,7 @@ class MaihemSync(Client):
 
     def create_target_agent(
         self,
-        identifier: str,
+        agent_identifier: str,
         role: str,
         industry: str,
         description: str,
@@ -67,7 +70,7 @@ class MaihemSync(Client):
         try:
             resp = self._maihem_api_client.create_agent_target(
                 req=APISchemaAgentTargetCreateRequest(
-                    identifier=identifier,
+                    identifier=agent_identifier,
                     name=name,
                     role=role,
                     industry=industry,
@@ -112,12 +115,36 @@ class MaihemSync(Client):
     def create_test(
         self,
         test_identifier: str,
+        target_agent: AgentTarget,
         initiating_agent: Literal["maihem", "target"],
+        test_name: Optional[str] = None,
         agent_maihem_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
-        raise NotImplementedError("Method not implemented")
+        resp = None
+        try:
+            resp = self._maihem_api_client.create_test(
+                req=APISchemaTestCreateRequest(
+                    test_identifier=test_identifier,
+                    agent_target_id=target_agent.id,
+                    name=test_name,
+                    initiating_agent=initiating_agent,
+                    agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
+                    metrics_config=metrics_config,
+                )
+            )
+        except Exception as e:
+            raise errors.TestCreateError(str(e))
+
+        agent_target = None
+
+        try:
+            agent_target = AgentTarget.model_validate(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        return agent_target
 
     def run_test(
         self,

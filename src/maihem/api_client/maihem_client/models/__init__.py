@@ -7,7 +7,9 @@ from .api_schema_agent_target_get_response import APISchemaAgentTargetGetRespons
 from .api_schema_conversation_turn_create_request import APISchemaConversationTurnCreateRequest
 from .api_schema_links import APISchemaLinks
 from .api_schema_test_create_request import APISchemaTestCreateRequest
+from .api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
 from .api_schema_test_create_response import APISchemaTestCreateResponse
+from .api_schema_test_create_response_metrics_config import APISchemaTestCreateResponseMetricsConfig
 from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
 from .conversation_nested import ConversationNested
@@ -34,7 +36,9 @@ __all__ = (
     "APISchemaConversationTurnCreateRequest",
     "APISchemaLinks",
     "APISchemaTestCreateRequest",
+    "APISchemaTestCreateRequestMetricsConfig",
     "APISchemaTestCreateResponse",
+    "APISchemaTestCreateResponseMetricsConfig",
     "APISchemaTestRun",
     "APISchemaTestRunWithConversationsNested",
     "ConversationNested",

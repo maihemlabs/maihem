@@ -17,7 +17,6 @@ class AgentTarget(BaseModel):
     role: str
     description: Optional[str] = None
     industry: Optional[str] = None
-    behaviour_prompt: Optional[str] = None
     language: Optional[LanguageAlpha2] = "en"
 
     chat_function: Optional[Callable] = None
