@@ -18,6 +18,7 @@ maihem_client = MaihemSync(
 
 print(m.whoami())
 
+
 # target_agent = maihem_client.create_target_agent(
 #    identifier="agent-v-6",
 #    name="Agent V6",
@@ -27,6 +28,8 @@ print(m.whoami())
 # )
 
 target_agent = maihem_client.get_target_agent("agent-v-6")
+
+target_agent.set_chat_function()
 #
 # test = maihem_client.create_test(
 #    identifier="test-v-9",
@@ -40,8 +43,15 @@ target_agent = maihem_client.get_target_agent("agent-v-6")
 
 test = maihem_client.get_test("test-v-9")
 
-test_run = maihem_client.run_test(
-    test=test, target_agent=target_agent, concurrent_conversations=1
-)
+# test_run = maihem_client.run_test(
+#    test=test, target_agent=target_agent, concurrent_conversations=1
+# )
 
-print(test_run)
+# print(test_run)
+
+turn = maihem_client._create_conversation_turn(
+    test_run_id="tr_01j71a5nb8fb890wkgpsat46k1",
+    conversation_id="c_01j71a5ncceb3axknxbqy57kdq",
+    message=None,
+)
+print(turn)
