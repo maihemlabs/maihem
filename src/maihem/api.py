@@ -1,34 +1,34 @@
 from typing import Dict, List
 
-from src.maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
-from src.maihem.api_client.maihem_client.types import Response
-from src.maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
+from maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
+from maihem.api_client.maihem_client.types import Response
+from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_agent_target_create_response import (
+from maihem.api_client.maihem_client.models.api_schema_agent_target_create_response import (
     APISchemaAgentTargetCreateResponse,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_test_create_request import (
+from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
+from maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
     APISchemaTestCreateRequestMetricsConfig,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_test_create_response import (
+from maihem.api_client.maihem_client.models.api_schema_test_create_response import (
     APISchemaTestCreateResponse,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_test_run import (
+from maihem.api_client.maihem_client.models.api_schema_test_run import (
     APISchemaTestRun,
 )
-from src.maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
+from maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
     APISchemaAgentTargetGetResponse,
 )
-from src.maihem.api_client.maihem_client.api.tests import tests_create_test
-from src.maihem.api_client.maihem_client.api.tests import tests_create_test_run
-from src.maihem.api_client.maihem_client.api.test_runs import test_runs_get_test_run
-from src.maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
-from src.maihem.api_client.maihem_client.api.agents import agents_create_agent_target
-from src.maihem.api_client.maihem_client.api.agents import (
+from maihem.api_client.maihem_client.api.tests import tests_create_test
+from maihem.api_client.maihem_client.api.tests import tests_create_test_run
+from maihem.api_client.maihem_client.api.test_runs import test_runs_get_test_run
+from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
+from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
+from maihem.api_client.maihem_client.api.agents import (
     agents_get_agent_targets,
 )
 
