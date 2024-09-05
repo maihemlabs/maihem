@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.api_schema_conversation_turn_create_request import APISchemaConversationTurnCreateRequest
-from ...models.conversation_nested import ConversationNested
+from ...models.api_schema_conversation_turn_create_response import APISchemaConversationTurnCreateResponse
 from ...models.http_validation_error import HTTPValidationError
 from ...types import UNSET, Response, Unset
 
@@ -38,9 +38,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ConversationNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     if response.status_code == HTTPStatus.CREATED:
-        response_201 = ConversationNested.from_dict(response.json())
+        response_201 = APISchemaConversationTurnCreateResponse.from_dict(response.json())
 
         return response_201
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
@@ -55,7 +55,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ConversationNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -71,7 +71,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: APISchemaConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ConversationNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -87,7 +87,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ConversationNested, HTTPValidationError]]
+        Response[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -111,7 +111,7 @@ def sync(
     client: AuthenticatedClient,
     body: APISchemaConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ConversationNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -127,7 +127,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ConversationNested, HTTPValidationError]
+        Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]
     """
 
     return sync_detailed(
@@ -146,7 +146,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: APISchemaConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ConversationNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -162,7 +162,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ConversationNested, HTTPValidationError]]
+        Response[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]
     """
 
     kwargs = _get_kwargs(
@@ -184,7 +184,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: APISchemaConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ConversationNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -200,7 +200,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ConversationNested, HTTPValidationError]
+        Union[APISchemaConversationTurnCreateResponse, HTTPValidationError]
     """
 
     return (

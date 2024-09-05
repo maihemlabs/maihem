@@ -81,8 +81,18 @@ test = maihem_client.get_test("test-v-9")
 # )
 # print(turn)
 
-message, contexts = target_agent._send_message(
-    "c_01j71a5ncceb3axknxbqy57kdq", "Hey there!"
+# message, contexts = target_agent._send_message(
+#     "c_01j71a5ncceb3axknxbqy57kdq", "Hey there!"
+# )
+
+# print(message)
+
+turn_id, conversation = maihem_client._create_conversation_turn(
+    test_run_id="tr_01j71a5nb8fb890wkgpsat46k1",
+    conversation_id="c_01j71a5ncceb3axknxbqy57kdq",
+    target_agent_message="",
+    contexts=["here is some demo context"],
 )
 
-print(message)
+print(turn_id)
+print(conversation)
