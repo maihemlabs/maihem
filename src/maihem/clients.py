@@ -1,4 +1,4 @@
-from typing import Dict, Literal, Optional
+from typing import Dict, Literal, Optional, List
 from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget, AgentType
@@ -13,6 +13,9 @@ from maihem.api_client.maihem_client.models.api_schema_test_create_request_metri
     APISchemaTestCreateRequestMetricsConfig,
 )
 from maihem.api_client.maihem_client.models.api_schema_test_run import APISchemaTestRun
+from maihem.api_client.maihem_client.models.conversation_nested import (
+    ConversationNested,
+)
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 
@@ -204,6 +207,22 @@ class MaihemSync(Client):
 
     def get_test_run_results(test_run_identifier: str) -> TestRunResults:
         raise NotImplementedError("Method not implemented")
+
+    def _create_conversation_turn(
+        self,
+        test_run_id: str,
+        conversation_id: str,
+        message: Optional[str] = None,
+        contexts: Optional[List[str]] = None,
+    ) -> ConversationNested:
+        conversation = self._maihem_api_client.create_conversation_turns(
+            test_run_id=test_run_id,
+            conversation_id=conversation_id,
+            message=message,
+            contexts=contexts,
+        )
+
+        return conversation
 
 
 class MaihemAsync(Client):

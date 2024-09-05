@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Optional
 
 from maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
 from maihem.api_client.maihem_client.types import Response
@@ -25,7 +25,16 @@ from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
     tests_get_tests,
 )
-from maihem.api_client.maihem_client.api.test_runs import test_runs_get_test_run
+from maihem.api_client.maihem_client.models.conversation_nested import (
+    ConversationNested,
+)
+from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request import (
+    APISchemaConversationTurnCreateRequest,
+)
+from maihem.api_client.maihem_client.api.test_runs import (
+    test_runs_get_test_run,
+    test_runs_create_conversation_turn,
+)
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
 from maihem.api_client.maihem_client.api.agents import (
@@ -135,6 +144,36 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                     )
                 )
 
+        except Exception as e:
+            print({"error": str(e)})
+            raise
+
+        if response.status_code != 201:
+            return response.content.decode("utf-8")
+        return response.parsed
+
+    def create_conversation_turns(
+        self,
+        test_run_id: str,
+        conversation_id: str,
+        message: Optional[str] = None,
+        contexts: Optional[List[str]] = None,
+    ) -> ConversationNested:
+        try:
+            with MaihemHTTPClient(base_url=self.base_url) as client:
+                req: APISchemaConversationTurnCreateRequest = (
+                    APISchemaConversationTurnCreateRequest(
+                        message=message, contexts=contexts
+                    )
+                )
+
+                response: Response = test_runs_create_conversation_turn.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    test_run_id=test_run_id,
+                    conversation_id=conversation_id,
+                    body=req,
+                )
         except Exception as e:
             print({"error": str(e)})
             raise
