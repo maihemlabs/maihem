@@ -27,6 +27,7 @@ class APISchemaTest:
         metrics_config (APISchemaTestMetricsConfig):
         name (Union[None, Unset, str]):
         initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
+        conversation_turns_max (Union[None, Unset, int]):
         agent_maihem_behavior_prompt (Union[None, Unset, str]):
     """
 
@@ -38,6 +39,7 @@ class APISchemaTest:
     metrics_config: "APISchemaTestMetricsConfig"
     name: Union[None, Unset, str] = UNSET
     initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
+    conversation_turns_max: Union[None, Unset, int] = UNSET
     agent_maihem_behavior_prompt: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -64,6 +66,12 @@ class APISchemaTest:
         if not isinstance(self.initiating_agent, Unset):
             initiating_agent = self.initiating_agent.value
 
+        conversation_turns_max: Union[None, Unset, int]
+        if isinstance(self.conversation_turns_max, Unset):
+            conversation_turns_max = UNSET
+        else:
+            conversation_turns_max = self.conversation_turns_max
+
         agent_maihem_behavior_prompt: Union[None, Unset, str]
         if isinstance(self.agent_maihem_behavior_prompt, Unset):
             agent_maihem_behavior_prompt = UNSET
@@ -86,6 +94,8 @@ class APISchemaTest:
             field_dict["name"] = name
         if initiating_agent is not UNSET:
             field_dict["initiating_agent"] = initiating_agent
+        if conversation_turns_max is not UNSET:
+            field_dict["conversation_turns_max"] = conversation_turns_max
         if agent_maihem_behavior_prompt is not UNSET:
             field_dict["agent_maihem_behavior_prompt"] = agent_maihem_behavior_prompt
 
@@ -124,6 +134,15 @@ class APISchemaTest:
         else:
             initiating_agent = AgentType(_initiating_agent)
 
+        def _parse_conversation_turns_max(data: object) -> Union[None, Unset, int]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, int], data)
+
+        conversation_turns_max = _parse_conversation_turns_max(d.pop("conversation_turns_max", UNSET))
+
         def _parse_agent_maihem_behavior_prompt(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
@@ -142,6 +161,7 @@ class APISchemaTest:
             metrics_config=metrics_config,
             name=name,
             initiating_agent=initiating_agent,
+            conversation_turns_max=conversation_turns_max,
             agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
         )
 

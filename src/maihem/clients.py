@@ -151,6 +151,7 @@ class MaihemSync(Client):
                     agent_target_id=target_agent.id,
                     name=name,
                     initiating_agent=initiating_agent,
+                    conversation_turns_max=conversation_turns_max,
                     agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
                     metrics_config=metrics_config,
                 )

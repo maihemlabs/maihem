@@ -56,17 +56,17 @@ target_agent = maihem_client.get_target_agent("agent-v-6")
 
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
-# test = maihem_client.create_test(
-#     identifier="test-v-17",
-#     name="Test V17",
-#     target_agent=target_agent,
-#     initiating_agent="maihem",
-#     maihem_agent_behavior_prompt="Example prompt",
-#     conversation_turns_max=10,
-#     metrics_config={"qa_cx_helpfulness": 2},
-# )
+test = maihem_client.create_test(
+    identifier="test-v-28",
+    name="Test V28",
+    target_agent=target_agent,
+    initiating_agent="maihem",
+    conversation_turns_max=7,
+    maihem_agent_behavior_prompt="Example prompt",
+    metrics_config={"qa_cx_helpfulness": 2},
+)
 
-test = maihem_client.get_test("test-v-17")
+test = maihem_client.get_test("test-v-28")
 
 # test_run = maihem_client.run_test(
 #     test=test, target_agent=target_agent, concurrent_conversations=1
