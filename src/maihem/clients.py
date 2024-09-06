@@ -13,7 +13,6 @@ from maihem.api_client.maihem_client.models.api_schema_test_create_request impor
 from maihem.api_client.maihem_client.models.api_schema_test_create_request_metrics_config import (
     APISchemaTestCreateRequestMetricsConfig,
 )
-from maihem.api_client.maihem_client.models.api_schema_test_run import APISchemaTestRun
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
 )
@@ -22,6 +21,7 @@ from maihem.api_client.maihem_client.models.conversation_nested_message import (
 )
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
+from maihem.schemas.tests import TestStatusEnum
 
 
 class Client:
@@ -241,6 +241,28 @@ class MaihemSync(Client):
 
         return test_run
 
+    def get_conversation(self, conversation_id: str) -> ConversationNested:
+        resp = None
+
+        try:
+            resp = self._maihem_api_client.get_conversation(conversation_id)
+        except Exception as e:
+            raise errors.ConversationGetError(str(e))
+
+        conversation = None
+
+        try:
+            conversation = ConversationNested.from_dict(resp.to_dict())
+        except ValidationError as e:
+            print(e.json())
+
+        if not conversation:
+            raise errors.NotFoundError(
+                f"Conversation with identifier {conversation_id} not found"
+            )
+
+        return conversation
+
     def _run_conversation(
         self,
         test_run_id: str,
@@ -248,20 +270,30 @@ class MaihemSync(Client):
         test: Test,
         target_agent: AgentTarget,
     ):
-        # this is awful - fix
-        is_first_turn = True
+        is_conversation_active = True
+        previous_turn_id = None
 
-        turn_resp = self._run_conversation_turn(
-            test_run_id=test_run_id,
-            conversation_id=conversation_id,
-            test=test,
-            target_agent=target_agent,
-            is_first_turn=is_first_turn,
-        )
+        print("Running conversation")
+        while is_conversation_active:
+            turn_resp = self._run_conversation_turn(
+                test_run_id=test_run_id,
+                conversation_id=conversation_id,
+                test=test,
+                target_agent=target_agent,
+                previous_turn_id=previous_turn_id,
+            )
 
-        is_first_turn = False
+            if (
+                turn_resp.conversation.status != TestStatusEnum.RUNNING
+                or not turn_resp.turn_id
+            ):
+                print("ending conversation")
+                is_conversation_active = False
+                return conversation_id
 
-        return turn_resp
+            previous_turn_id = turn_resp.turn_id
+
+        return conversation_id
 
     def _run_conversation_turn(
         self,
@@ -269,11 +301,16 @@ class MaihemSync(Client):
         conversation_id: str,
         test: Test,
         target_agent: AgentTarget,
-        is_first_turn: bool = False,
+        previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
-
         agent_maithem_message = None
-        if test.initiating_agent == AgentType.MAIHEM and is_first_turn:
+
+        conversation = self.get_conversation(conversation_id)
+
+        if (
+            test.initiating_agent == AgentType.MAIHEM
+            and len(conversation.conversation_turns) == 0
+        ):
             turn_resp = self._generate_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
@@ -285,6 +322,16 @@ class MaihemSync(Client):
                 turn_id=turn_resp.turn_id,
                 agent_type=AgentType.MAIHEM,
                 conversation=turn_resp.conversation,
+            )
+        elif previous_turn_id is None:
+            return ConversationTurnCreateResponse(
+                turn_id=None, conversation=conversation
+            )
+        else:
+            agent_maithem_message = self._get_conversation_message_from_conversation(
+                turn_id=previous_turn_id,
+                agent_type=AgentType.MAIHEM,
+                conversation=conversation,
             )
 
         target_agent_message, contexts = self._send_target_agent_message(
@@ -336,7 +383,7 @@ class MaihemSync(Client):
                     if message.agent_type == agent_type:
                         return message
 
-        return None
+        raise errors.NotFoundError("Conversation message not found")
 
     def _send_target_agent_message(
         self,

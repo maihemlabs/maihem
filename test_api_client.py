@@ -57,16 +57,16 @@ target_agent = maihem_client.get_target_agent("agent-v-6")
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
-#     identifier="test-v-11",
-#     name="Test V11",
+#     identifier="test-v-17",
+#     name="Test V17",
 #     target_agent=target_agent,
 #     initiating_agent="maihem",
-#     agent_maihem_behavior_prompt="Example prompt",
+#     maihem_agent_behavior_prompt="Example prompt",
 #     conversation_turns_max=10,
 #     metrics_config={"qa_cx_helpfulness": 2},
 # )
 
-test = maihem_client.get_test("test-v-11")
+test = maihem_client.get_test("test-v-17")
 
 # test_run = maihem_client.run_test(
 #     test=test, target_agent=target_agent, concurrent_conversations=1
@@ -98,11 +98,16 @@ test = maihem_client.get_test("test-v-11")
 
 # print(message)
 
-result = maihem_client._run_conversation(
-    test_run_id="tr_01j71mccpzetdr81qh9r5fdf42",
-    conversation_id="c_01j71mcwgbek7v4t2psp0hahnv",
-    test=test,
-    target_agent=target_agent,
-)
+# conv = maihem_client._run_conversation(
+#     test_run_id="tr_01j71mccpzetdr81qh9r5fdf42",
+#     conversation_id="c_01j71mcwgbek7v4t2psp0hahnv",
+#     test=test,
+#     target_agent=target_agent,
+# )
 
-print(result)
+test_run = maihem_client.run_test(
+    test=test, target_agent=target_agent, concurrent_conversations=1
+)
+print(test_run)
+
+# print(conv)

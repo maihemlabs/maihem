@@ -42,6 +42,9 @@ from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run_with_conversations,
     test_runs_create_conversation_turn,
 )
+from maihem.api_client.maihem_client.api.conversations import (
+    conversations_get_conversation,
+)
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
 from maihem.api_client.maihem_client.api.agents import (
@@ -197,6 +200,25 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 response: Response[APISchemaTestRun] = (
                     test_runs_get_test_run.sync_detailed(
                         client=client, x_api_key=self.token, test_run_id=test_run_id
+                    )
+                )
+
+        except Exception as e:
+            print({"error": str(e)})
+            raise
+
+        if response.status_code != 200:
+            return response.content.decode("utf-8")
+        return response.parsed
+
+    def get_conversation(self, conversation_id: str) -> ConversationNested:
+        try:
+            with MaihemHTTPClient(base_url=self.base_url) as client:
+                response: Response[ConversationNested] = (
+                    conversations_get_conversation.sync_detailed(
+                        client=client,
+                        x_api_key=self.token,
+                        conversation_id=conversation_id,
                     )
                 )
 
