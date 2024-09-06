@@ -40,6 +40,7 @@ class Test(BaseModel):
     name: Optional[str] = None
     agent_target_id: str
     initiating_agent: AgentType = AgentType.MAIHEM
+    conversation_turns_max: Optional[int] = None
     agent_maihem_behavior_prompt: Optional[str] = None
     metrics_config: Dict[str, int] = {}
 
