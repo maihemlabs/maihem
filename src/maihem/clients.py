@@ -232,7 +232,6 @@ class MaihemSync(Client):
                     target_agent=target_agent,
                     bar_progress=progress,
                 )
-                time.sleep(2)
                 progress()
 
         logger.info(f"Test run ({test_run.id}) completed!")
@@ -279,32 +278,27 @@ class MaihemSync(Client):
         target_agent: AgentTarget,
         bar_progress: alive_bar = None,
     ):
-        logger = get_logger()
         is_conversation_active = True
         previous_turn_id = None
 
-        cnt = 0
         bar_progress.text(f"Running conversation {conversation_id}...")
-        while is_conversation_active and cnt <= 10:
-            time.sleep(0.2)
-            cnt += 1
+        while is_conversation_active:
+            turn_resp = self._run_conversation_turn(
+                test_run_id=test_run_id,
+                conversation_id=conversation_id,
+                test=test,
+                target_agent=target_agent,
+                previous_turn_id=previous_turn_id,
+            )
 
-            # turn_resp = self._run_conversation_turn(
-            #     test_run_id=test_run_id,
-            #     conversation_id=conversation_id,
-            #     test=test,
-            #     target_agent=target_agent,
-            #     previous_turn_id=previous_turn_id,
-            # )
+            if (
+                turn_resp.conversation.status != TestStatusEnum.RUNNING
+                or not turn_resp.turn_id
+            ):
+                is_conversation_active = False
+                return conversation_id
 
-            # if (
-            #     turn_resp.conversation.status != TestStatusEnum.RUNNING
-            #     or not turn_resp.turn_id
-            # ):
-            #     is_conversation_active = False
-            #     return conversation_id
-
-            # previous_turn_id = turn_resp.turn_id
+            previous_turn_id = turn_resp.turn_id
         bar_progress.text(f"Conversation completed {conversation_id}!")
 
         return conversation_id
