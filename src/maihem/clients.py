@@ -1,6 +1,5 @@
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
-import time
 
 from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import Test, TestRun, TestRunWithConversationsNested
@@ -25,6 +24,7 @@ from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
 from alive_progress import alive_bar
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class Client:
@@ -224,15 +224,31 @@ class MaihemSync(Client):
             unit="convs",
             enrich_print=True,
         ) as progress:
-            for conversation_id in conversation_ids:
-                self._run_conversation(
-                    test_run.id,
-                    conversation_id,
-                    test=test,
-                    target_agent=target_agent,
-                    bar_progress=progress,
-                )
-                progress()
+            with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
+                futures = [
+                    executor.submit(
+                        self._run_conversation,
+                        test_run.id,
+                        conversation_id,
+                        test,
+                        target_agent,
+                        progress,
+                    )
+                    for conversation_id in conversation_ids
+                ]
+
+                for future in as_completed(futures):
+                    progress()
+
+                # for conversation_id in conversation_ids:
+                #     self._run_conversation(
+                #         test_run.id,
+                #         conversation_id,
+                #         test=test,
+                #         target_agent=target_agent,
+                #         bar_progress=progress,
+                #     )
+                #     progress()
 
         logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
