@@ -88,15 +88,15 @@ class MaihemSync(Client):
                     description=description,
                 )
             )
-        except Exception as e:
-            raise errors.AgentTargetCreateError(str(e))
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         agent_target = None
 
         try:
             agent_target = AgentTarget.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
+            errors.handle_schema_validation_error(e)
 
         return agent_target
 
@@ -106,20 +106,15 @@ class MaihemSync(Client):
             resp = self._maihem_api_client.get_agent_target_by_identifier(
                 identifier=identifier
             )
-        except Exception as e:
-            raise errors.AgentTargetGetError(str(e))
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         agent_target = None
 
         try:
             agent_target = AgentTarget.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
-
-        if not agent_target:
-            raise errors.NotFoundError(
-                f"Agent target with identifier {identifier} not found"
-            )
+            errors.handle_schema_validation_error(e)
 
         return agent_target
 
@@ -139,8 +134,8 @@ class MaihemSync(Client):
             try:
                 initiating_agent = AgentType[initiating_agent.upper()]
             except KeyError as e:
-                raise ValueError(
-                    f"Invalid initiating_agent value: {initiating_agent}"
+                raise errors.raise_request_validation_error(
+                    f"Invalid agent type: {initiating_agent}"
                 ) from e
 
         try:
@@ -158,17 +153,15 @@ class MaihemSync(Client):
                     metrics_config=metrics_config,
                 )
             )
-        except Exception as e:
-            self._logger.error(str(e))
-            raise
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         test = None
 
         try:
             test = Test.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
-            raise
+            errors.handle_schema_validation_error(e)
 
         return test
 
@@ -176,18 +169,15 @@ class MaihemSync(Client):
         resp = None
         try:
             resp = self._maihem_api_client.get_test_by_identifier(identifier=identifier)
-        except Exception as e:
-            raise errors.TestGetError(str(e))
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         test = None
 
         try:
             test = Test.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
-
-        if not test:
-            raise errors.NotFoundError(f"Test with identifier {identifier} not found")
+            errors.handle_schema_validation_error(e)
 
         return test
 
@@ -200,16 +190,15 @@ class MaihemSync(Client):
             resp = self._maihem_api_client.create_test_run(
                 test_id=test.id,
             )
-        except Exception as e:
-            raise errors.TestRunError(str(e))
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         test_run = None
 
         try:
             test_run = TestRun.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
-            raise
+            errors.handle_schema_validation_error(e)
 
         for conversation_id in test_run.conversation_ids:
             self._run_conversation(
@@ -218,9 +207,6 @@ class MaihemSync(Client):
 
         return test_run
 
-    def get_test_run(test_run_identifier: str) -> TestRun:
-        raise NotImplementedError("Method not implemented")
-
     def get_test_run_with_conversations(
         self, test_run_id: str
     ) -> TestRunWithConversationsNested:
@@ -228,20 +214,15 @@ class MaihemSync(Client):
 
         try:
             resp = self._maihem_api_client.get_test_run_with_conversations(test_run_id)
-        except Exception as e:
-            raise errors.TestRunGetError(str(e))
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         test_run = None
 
         try:
             test_run = TestRunWithConversationsNested.model_validate(resp.to_dict())
         except ValidationError as e:
-            print(e.json())
-
-        if not test_run:
-            raise errors.NotFoundError(
-                f"Test run with identifier {test_run_id} not found"
-            )
+            errors.handle_schema_validation_error(e)
 
         return test_run
 
@@ -250,22 +231,14 @@ class MaihemSync(Client):
 
         try:
             resp = self._maihem_api_client.get_conversation(conversation_id)
-        except Exception as e:
-            raise errors.ConversationGetError(str(e))
-
-        conversation = None
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         try:
             conversation = ConversationNested.from_dict(resp.to_dict())
+            return conversation
         except ValidationError as e:
-            print(e.json())
-
-        if not conversation:
-            raise errors.NotFoundError(
-                f"Conversation with identifier {conversation_id} not found"
-            )
-
-        return conversation
+            errors.handle_schema_validation_error(e)
 
     def _run_conversation(
         self,
@@ -274,10 +247,11 @@ class MaihemSync(Client):
         test: Test,
         target_agent: AgentTarget,
     ):
+        logger = get_logger()
         is_conversation_active = True
         previous_turn_id = None
 
-        print("Running conversation")
+        logger.info(f"Running conversation {conversation_id}")
         while is_conversation_active:
             turn_resp = self._run_conversation_turn(
                 test_run_id=test_run_id,
@@ -291,7 +265,7 @@ class MaihemSync(Client):
                 turn_resp.conversation.status != TestStatusEnum.RUNNING
                 or not turn_resp.turn_id
             ):
-                print("ending conversation")
+                logger.info(f"Ending conversation {conversation_id}")
                 is_conversation_active = False
                 return conversation_id
 
@@ -362,17 +336,22 @@ class MaihemSync(Client):
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
     ) -> ConversationTurnCreateResponse:
-        resp = self._maihem_api_client.create_conversation_turns(
-            test_run_id=test_run_id,
-            conversation_id=conversation_id,
-            target_agent_message=target_agent_message,
-            contexts=contexts,
-        )
+        try:
+            resp = self._maihem_api_client.create_conversation_turns(
+                test_run_id=test_run_id,
+                conversation_id=conversation_id,
+                target_agent_message=target_agent_message,
+                contexts=contexts,
+            )
 
-        return ConversationTurnCreateResponse(
-            turn_id=resp.turn_id,
-            conversation=resp.conversation,
-        )
+            return ConversationTurnCreateResponse(
+                turn_id=resp.turn_id,
+                conversation=resp.conversation,
+            )
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
     def _get_conversation_message_from_conversation(
         self,
@@ -387,7 +366,7 @@ class MaihemSync(Client):
                     if message.agent_type == agent_type:
                         return message
 
-        raise errors.NotFoundError("Conversation message not found")
+        errors.raise_not_found_error(f"Could not retrieve {agent_type} agent message")
 
     def _send_target_agent_message(
         self,

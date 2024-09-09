@@ -1,11 +1,11 @@
 from datetime import datetime
 from pydantic import BaseModel
 from typing import Callable, Optional, Tuple, List
+import maihem.errors as errors
 
 from enum import Enum
 
 from pydantic_extra_types.language_code import LanguageAlpha2
-from maihem.errors import ChatFunctionError
 
 
 class AgentTarget(BaseModel):
@@ -42,15 +42,15 @@ class AgentTarget(BaseModel):
             )
             assert isinstance(message, str), "Response message must be a string"
         except Exception as e:
-            raise ChatFunctionError(f"Chat function test failed: {e}") from e
-
-        print("Target agent chat function passed test")
+            errors.raise_chat_function_error(
+                f"Error testing target agent chat function: {e}"
+            )
 
     def _send_message(
         self, conversation_id: str, message: str
     ) -> Tuple[str, List[str]]:
         if not self._chat_function:
-            raise ChatFunctionError("Chat function not set")
+            errors.raise_chat_function_error("Target agent chat function not set")
         response, contexts = self._chat_function(conversation_id, message)
         return response, contexts
 
