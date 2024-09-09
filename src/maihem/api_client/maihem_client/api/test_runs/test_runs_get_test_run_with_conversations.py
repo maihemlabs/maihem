@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
-from ...models.http_validation_error import HTTPValidationError
+from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -30,15 +30,27 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = APISchemaTestRunWithConversationsNested.from_dict(response.json())
 
         return response_200
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        response_400 = ErrorResponse.from_dict(response.json())
+
+        return response_400
+    if response.status_code == HTTPStatus.CONFLICT:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+        response_500 = ErrorResponse.from_dict(response.json())
+
+        return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -47,7 +59,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -61,7 +73,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     """Get test result with conversations
 
      Get a test result including agent conversations
@@ -75,7 +87,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]
+        Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -95,7 +107,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     """Get test result with conversations
 
      Get a test result including agent conversations
@@ -109,7 +121,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]
+        Union[APISchemaTestRunWithConversationsNested, ErrorResponse]
     """
 
     return sync_detailed(
@@ -124,7 +136,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     """Get test result with conversations
 
      Get a test result including agent conversations
@@ -138,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]
+        Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -156,7 +168,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]]:
+) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
     """Get test result with conversations
 
      Get a test result including agent conversations
@@ -170,7 +182,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithConversationsNested, HTTPValidationError]
+        Union[APISchemaTestRunWithConversationsNested, ErrorResponse]
     """
 
     return (

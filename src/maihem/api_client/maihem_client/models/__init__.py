@@ -21,6 +21,10 @@ from .conversation_nested_test_result_metric_base import ConversationNestedTestR
 from .conversation_nested_token_cost import ConversationNestedTokenCost
 from .conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 from .conversation_nested_turn import ConversationNestedTurn
+from .error_codes import ErrorCodes
+from .error_response import ErrorResponse
+from .error_response_error import ErrorResponseError
+from .error_response_error_detail import ErrorResponseErrorDetail
 from .http_validation_error import HTTPValidationError
 from .idp_user import IDPUser
 from .org import Org
@@ -51,6 +55,10 @@ __all__ = (
     "ConversationNestedTokenCost",
     "ConversationNestedTokenCostBase",
     "ConversationNestedTurn",
+    "ErrorCodes",
+    "ErrorResponse",
+    "ErrorResponseError",
+    "ErrorResponseErrorDetail",
     "HTTPValidationError",
     "IDPUser",
     "Org",
