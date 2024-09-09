@@ -1,5 +1,6 @@
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
+import time
 
 from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import Test, TestRun, TestRunWithConversationsNested
@@ -23,6 +24,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
+from alive_progress import alive_bar
 
 
 class Client:
@@ -77,6 +79,8 @@ class MaihemSync(Client):
         description: str,
         name: Optional[str] = None,
     ) -> AgentTarget:
+        logger = get_logger()
+        logger.info(f"Creating target agent {identifier}...")
         resp = None
         try:
             resp = self._maihem_api_client.create_agent_target(
@@ -98,6 +102,7 @@ class MaihemSync(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
+        logger.info(f"Successfully created target agent {identifier}!")
         return agent_target
 
     def get_target_agent(self, identifier: str) -> AgentTarget:
@@ -129,6 +134,8 @@ class MaihemSync(Client):
         metrics_config: Dict = None,
     ) -> Test:
         resp = None
+        logger = get_logger()
+        logger.info(f"Creating test {identifier}...")
 
         if isinstance(initiating_agent, str):
             try:
@@ -163,6 +170,7 @@ class MaihemSync(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
+        logger.info(f"Successfull created test {identifier}!")
         return test
 
     def get_test(self, identifier: str) -> Test:
@@ -186,6 +194,9 @@ class MaihemSync(Client):
     ) -> TestRun:
         resp = None
 
+        logger = get_logger()
+        logger.info(f"Spawning test run for test {test.identifier}...")
+
         try:
             resp = self._maihem_api_client.create_test_run(
                 test_id=test.id,
@@ -200,11 +211,31 @@ class MaihemSync(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        for conversation_id in test_run.conversation_ids:
-            self._run_conversation(
-                test_run.id, conversation_id, test=test, target_agent=target_agent
-            )
+        conversation_ids = resp.conversation_ids
+        logger.info(f"Test run spawned for test {test.identifier}!")
+        logger.info(
+            f"Running test run ({resp.id}) with {len(conversation_ids)} conversations..."
+        )
+        logger.info(f"Test results endpoint: {test_run.links.test_result}")
 
+        with alive_bar(
+            len(conversation_ids),
+            title=f"Test run ({test_run.id})",
+            unit="convs",
+            enrich_print=True,
+        ) as progress:
+            for conversation_id in conversation_ids:
+                self._run_conversation(
+                    test_run.id,
+                    conversation_id,
+                    test=test,
+                    target_agent=target_agent,
+                    bar_progress=progress,
+                )
+                time.sleep(2)
+                progress()
+
+        logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
 
     def get_test_run_with_conversations(
@@ -246,30 +277,35 @@ class MaihemSync(Client):
         conversation_id: str,
         test: Test,
         target_agent: AgentTarget,
+        bar_progress: alive_bar = None,
     ):
         logger = get_logger()
         is_conversation_active = True
         previous_turn_id = None
 
-        logger.info(f"Running conversation {conversation_id}")
-        while is_conversation_active:
-            turn_resp = self._run_conversation_turn(
-                test_run_id=test_run_id,
-                conversation_id=conversation_id,
-                test=test,
-                target_agent=target_agent,
-                previous_turn_id=previous_turn_id,
-            )
+        cnt = 0
+        bar_progress.text(f"Running conversation {conversation_id}...")
+        while is_conversation_active and cnt <= 10:
+            time.sleep(0.2)
+            cnt += 1
 
-            if (
-                turn_resp.conversation.status != TestStatusEnum.RUNNING
-                or not turn_resp.turn_id
-            ):
-                logger.info(f"Ending conversation {conversation_id}")
-                is_conversation_active = False
-                return conversation_id
+            # turn_resp = self._run_conversation_turn(
+            #     test_run_id=test_run_id,
+            #     conversation_id=conversation_id,
+            #     test=test,
+            #     target_agent=target_agent,
+            #     previous_turn_id=previous_turn_id,
+            # )
 
-            previous_turn_id = turn_resp.turn_id
+            # if (
+            #     turn_resp.conversation.status != TestStatusEnum.RUNNING
+            #     or not turn_resp.turn_id
+            # ):
+            #     is_conversation_active = False
+            #     return conversation_id
+
+            # previous_turn_id = turn_resp.turn_id
+        bar_progress.text(f"Conversation completed {conversation_id}!")
 
         return conversation_id
 

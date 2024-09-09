@@ -19,8 +19,6 @@ maihem_client = MaihemSync(
     "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
 )
 
-print(m.whoami())
-
 
 def chat_function_colin(
     conversation_id: str,
@@ -56,17 +54,17 @@ target_agent = maihem_client.get_target_agent("agent-v-6")
 
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
-test = maihem_client.create_test(
-    identifier="test-v-28",
-    name="Test V28",
-    target_agent=target_agent,
-    initiating_agent="maihem",
-    conversation_turns_max=7,
-    maihem_agent_behavior_prompt="Example prompt",
-    metrics_config={"qa_cx_helpfulness": 2},
-)
+# test = maihem_client.create_test(
+#     identifier="test-v-29",
+#     name="Test V29",
+#     target_agent=target_agent,
+#     initiating_agent="maihem",
+#     conversation_turns_max=7,
+#     maihem_agent_behavior_prompt="Example prompt",
+#     metrics_config={"qa_cx_helpfulness": 10, "qa_rag_hallucination": 10},
+# )
 
-test = maihem_client.get_test("test-v-28")
+test = maihem_client.get_test("test-v-29")
 
 # test_run = maihem_client.run_test(
 #     test=test, target_agent=target_agent, concurrent_conversations=1
@@ -108,6 +106,5 @@ test = maihem_client.get_test("test-v-28")
 test_run = maihem_client.run_test(
     test=test, target_agent=target_agent, concurrent_conversations=1
 )
-print(test_run)
 
 # print(conv)
