@@ -22,6 +22,7 @@ from maihem.api_client.maihem_client.models.conversation_nested_message import (
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
+from maihem.logger import get_logger
 
 
 class Client:
@@ -66,6 +67,7 @@ class MaihemSync(Client):
 
     def __init__(self, api_key: str) -> None:
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, api_key)
+        self._logger = get_logger()
 
     def create_target_agent(
         self,
@@ -157,7 +159,8 @@ class MaihemSync(Client):
                 )
             )
         except Exception as e:
-            raise errors.TestCreateError(str(e))
+            self._logger.error(str(e))
+            raise
 
         test = None
 

@@ -7,7 +7,7 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.api_schema_agent_target_create_request import APISchemaAgentTargetCreateRequest
 from ...models.api_schema_agent_target_create_response import APISchemaAgentTargetCreateResponse
-from ...models.http_validation_error import HTTPValidationError
+from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
@@ -36,15 +36,27 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Optional[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = APISchemaAgentTargetCreateResponse.from_dict(response.json())
 
         return response_201
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        response_400 = ErrorResponse.from_dict(response.json())
+
+        return response_400
+    if response.status_code == HTTPStatus.CONFLICT:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+        response_500 = ErrorResponse.from_dict(response.json())
+
+        return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -53,7 +65,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Response[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -67,7 +79,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Response[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     """Connect target agent
 
      Add a new target agent for Maihem to test
@@ -81,7 +93,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]
+        Response[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -101,7 +113,7 @@ def sync(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Optional[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     """Connect target agent
 
      Add a new target agent for Maihem to test
@@ -115,7 +127,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]
+        Union[APISchemaAgentTargetCreateResponse, ErrorResponse]
     """
 
     return sync_detailed(
@@ -130,7 +142,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Response[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     """Connect target agent
 
      Add a new target agent for Maihem to test
@@ -144,7 +156,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]
+        Response[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -162,7 +174,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]]:
+) -> Optional[Union[APISchemaAgentTargetCreateResponse, ErrorResponse]]:
     """Connect target agent
 
      Add a new target agent for Maihem to test
@@ -176,7 +188,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTargetCreateResponse, HTTPValidationError]
+        Union[APISchemaAgentTargetCreateResponse, ErrorResponse]
     """
 
     return (

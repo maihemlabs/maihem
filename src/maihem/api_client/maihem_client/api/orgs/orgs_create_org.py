@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.http_validation_error import HTTPValidationError
+from ...models.error_response import ErrorResponse
 from ...models.org import Org
 from ...models.org_base import OrgBase
 from ...types import Response
@@ -33,15 +33,27 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[HTTPValidationError, Org]]:
+) -> Optional[Union[ErrorResponse, Org]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = Org.from_dict(response.json())
 
         return response_201
+    if response.status_code == HTTPStatus.BAD_REQUEST:
+        response_400 = ErrorResponse.from_dict(response.json())
+
+        return response_400
+    if response.status_code == HTTPStatus.CONFLICT:
+        response_409 = ErrorResponse.from_dict(response.json())
+
+        return response_409
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
-        response_422 = HTTPValidationError.from_dict(response.json())
+        response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+        response_500 = ErrorResponse.from_dict(response.json())
+
+        return response_500
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -50,7 +62,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[HTTPValidationError, Org]]:
+) -> Response[Union[ErrorResponse, Org]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -63,7 +75,7 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     body: OrgBase,
-) -> Response[Union[HTTPValidationError, Org]]:
+) -> Response[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
@@ -76,7 +88,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Org]]
+        Response[Union[ErrorResponse, Org]]
     """
 
     kwargs = _get_kwargs(
@@ -94,7 +106,7 @@ def sync(
     *,
     client: AuthenticatedClient,
     body: OrgBase,
-) -> Optional[Union[HTTPValidationError, Org]]:
+) -> Optional[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
@@ -107,7 +119,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Org]
+        Union[ErrorResponse, Org]
     """
 
     return sync_detailed(
@@ -120,7 +132,7 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     body: OrgBase,
-) -> Response[Union[HTTPValidationError, Org]]:
+) -> Response[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
@@ -133,7 +145,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[HTTPValidationError, Org]]
+        Response[Union[ErrorResponse, Org]]
     """
 
     kwargs = _get_kwargs(
@@ -149,7 +161,7 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     body: OrgBase,
-) -> Optional[Union[HTTPValidationError, Org]]:
+) -> Optional[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
@@ -162,7 +174,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[HTTPValidationError, Org]
+        Union[ErrorResponse, Org]
     """
 
     return (
