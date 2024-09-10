@@ -28,6 +28,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class Client:
+    _base_url = "https://api.maihem.ai"
+
     def create_target_agent(
         self,
         identifier: str,
@@ -62,10 +64,12 @@ class Client:
     def get_test_run_results(test_run_id: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
+    def _override_base_url(self, base_url: str):
+        self._base_url = base_url
+
 
 class MaihemSync(Client):
     _maihem_api_client = MaihemHTTPClientSync
-    _base_url = "http://localhost:8000"
 
     def __init__(self, api_key: str) -> None:
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, api_key)
