@@ -126,7 +126,6 @@ class MaihemSync(Client):
     def create_test(
         self,
         identifier: str,
-        target_agent: AgentTarget,
         initiating_agent: AgentType = AgentType.MAIHEM,
         name: Optional[str] = None,
         maihem_agent_behavior_prompt: str = None,
@@ -152,7 +151,6 @@ class MaihemSync(Client):
             resp = self._maihem_api_client.create_test(
                 req=APISchemaTestCreateRequest(
                     identifier=identifier,
-                    agent_target_id=target_agent.id,
                     name=name,
                     initiating_agent=initiating_agent,
                     conversation_turns_max=conversation_turns_max,
@@ -200,6 +198,7 @@ class MaihemSync(Client):
         try:
             resp = self._maihem_api_client.create_test_run(
                 test_id=test.id,
+                agent_target_id=target_agent.id,
             )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)

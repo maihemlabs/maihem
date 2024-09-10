@@ -38,7 +38,6 @@ class Test(BaseModel):
     updated_at: datetime
     identifier: str
     name: Optional[str] = None
-    agent_target_id: str
     initiating_agent: AgentType = AgentType.MAIHEM
     conversation_turns_max: Optional[int] = None
     agent_maihem_behavior_prompt: Optional[str] = None
@@ -50,6 +49,7 @@ class TestRun(BaseModel):
     created_at: datetime
     updated_at: datetime
     test_id: str
+    agent_target_id: str
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     status: TestStatusEnum

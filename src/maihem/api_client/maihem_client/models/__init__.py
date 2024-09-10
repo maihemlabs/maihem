@@ -12,6 +12,7 @@ from .api_schema_test_create_request import APISchemaTestCreateRequest
 from .api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
 from .api_schema_test_metrics_config import APISchemaTestMetricsConfig
 from .api_schema_test_run import APISchemaTestRun
+from .api_schema_test_run_create_request import APISchemaTestRunCreateRequest
 from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
 from .conversation_nested import ConversationNested
 from .conversation_nested_message import ConversationNestedMessage
@@ -46,6 +47,7 @@ __all__ = (
     "APISchemaTestCreateRequestMetricsConfig",
     "APISchemaTestMetricsConfig",
     "APISchemaTestRun",
+    "APISchemaTestRunCreateRequest",
     "APISchemaTestRunWithConversationsNested",
     "ConversationNested",
     "ConversationNestedMessage",
