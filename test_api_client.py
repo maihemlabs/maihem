@@ -10,7 +10,7 @@ from maihem.api import MaihemHTTPClientSync
 from maihem.clients import MaihemSync
 
 maihem_client = MaihemSync(
-    "aa1cd4fb59e0638a0280e8e523a8a29674f77fd2e17b67ce0df61762929c44a597ff8cb651b8433bdcf0e316370acceb"
+    "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
 )
 
 
@@ -37,28 +37,29 @@ def chat_function_colin(
 
 
 # target_agent = maihem_client.create_target_agent(
-#     identifier="agent-colin-local",
+#     identifier="agent-colin-local-v2",
 #     name="Agent Colin Local",
 #     industry="Technology",
 #     description="A helpful customer support agent",
 #     role="customer_support",
+#     language="en",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-colin-local")
+target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
-test = maihem_client.create_test(
-    identifier="test-v-4",
-    name="Test V4",
-    initiating_agent="maihem",
-    conversation_turns_max=7,
-    maihem_agent_behavior_prompt="Example prompt",
-    metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
-)
+# test = maihem_client.create_test(
+#     identifier="test-v-5",
+#     name="Test V5",
+#     initiating_agent="maihem",
+#     conversation_turns_max=7,
+#     maihem_agent_behavior_prompt="Example prompt",
+#     metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
+# )
 
-test_run = maihem_client.run_test(
-    test_identifier="test-v-4", target_agent=target_agent, concurrent_conversations=4
-)
+# test_run = maihem_client.run_test(
+#     test_identifier="test-v-4", target_agent=target_agent, concurrent_conversations=4
+# )
 
 # print(conv)

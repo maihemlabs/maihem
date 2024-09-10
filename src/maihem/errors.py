@@ -1,5 +1,10 @@
 from enum import Enum
-from maihem.api_client.maihem_client.models.error_response import ErrorResponse
+from maihem.api_client.maihem_client.models.error_response import (
+    ErrorResponse,
+)
+from maihem.api_client.maihem_client.models.error_response_error import (
+    ErrorResponseError,
+)
 from maihem.api_client.maihem_client.models.error_codes import (
     ErrorCodes as ErrorCodesAPI,
 )
@@ -57,6 +62,9 @@ class ChatFunctionError(ErrorBase):
 
 
 def handle_http_errors(error_resp: ErrorResponse):
+    if not error_resp:
+        return
+
     if error_resp.error.code == ErrorCodes.ERR_INTERNAL_SERVER:
         raise InternalServerError(error_resp)
     elif error_resp.error.code == ErrorCodes.ERR_NOT_FOUND:
@@ -87,9 +95,10 @@ def handle_schema_validation_error(exception: ValidationError):
 def raise_request_validation_error(message: str):
     raise RequestValidationError(
         ErrorResponse(
-            error=ErrorResponse.error(
-                code=ErrorCodes.ERR_REQUEST_VALIDATION, message=message
-            )
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_REQUEST_VALIDATION, message=message, detail=None
+            ),
+            request_id=None,
         )
     )
 
@@ -97,7 +106,10 @@ def raise_request_validation_error(message: str):
 def raise_not_found_error(message: str):
     raise NotFoundError(
         ErrorResponse(
-            error=ErrorResponse.error(code=ErrorCodes.ERR_NOT_FOUND, message=message)
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_NOT_FOUND, message=message, detail=None
+            ),
+            request_id=None,
         )
     )
 
@@ -105,8 +117,9 @@ def raise_not_found_error(message: str):
 def raise_chat_function_error(message: str):
     raise ChatFunctionError(
         ErrorResponse(
-            error=ErrorResponse.error(
-                code=ErrorCodes.ERR_CHAT_FUNCTION, message=message
-            )
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_CHAT_FUNCTION, message=message, detail=None
+            ),
+            request_id=None,
         )
     )

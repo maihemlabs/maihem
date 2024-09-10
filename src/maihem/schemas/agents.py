@@ -4,6 +4,7 @@ from typing import Callable, Optional, Tuple, List
 import maihem.errors as errors
 
 from enum import Enum
+from maihem.logger import get_logger
 
 from pydantic_extra_types.language_code import LanguageAlpha2
 
@@ -22,25 +23,31 @@ class AgentTarget(BaseModel):
     _chat_function: Optional[Callable] = None
 
     def set_chat_function(self, chat_function: Callable) -> None:
-        self._chat_function = chat_function
+        logger = get_logger()
+        is_test_success = self.test_chat_function(chat_function)
 
-    def test_chat_function(self, chat_function: Callable) -> None:
-        print("Testing target agent chat function...")
+        if is_test_success:
+            self._chat_function = chat_function
+            logger.info("Chat function tested and added successfully!")
+
+    def test_chat_function(self, chat_function: Callable) -> bool:
+        logger = get_logger()
+        test_message = "Hi, it's the Maihem agent. Ready for testing?"
+        logger.info("Testing chat function...")
+        logger.info(f"Sending chatbot message: {test_message}")
         try:
-            message, end_code, contexts = chat_function(
-                str(datetime.now()), "Testing target agent function...", None
+            message, contexts = chat_function(
+                str(datetime.now()),
+                test_message,
             )
             assert isinstance(message, str), "Response message must be a string"
-            assert isinstance(end_code, str), "End conversation flag must be a string"
             assert isinstance(contexts, list), "Contexts must be a list"
             for context in contexts:
                 assert isinstance(
                     context, str
                 ), "Each context in the list must be a string"
-            message, contexts = chat_function(
-                str(datetime.now()), "Testing target agent function..."
-            )
-            assert isinstance(message, str), "Response message must be a string"
+
+            return True
         except Exception as e:
             errors.raise_chat_function_error(
                 f"Error testing target agent chat function: {e}"

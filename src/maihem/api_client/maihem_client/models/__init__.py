@@ -25,7 +25,7 @@ from .conversation_nested_turn import ConversationNestedTurn
 from .error_codes import ErrorCodes
 from .error_response import ErrorResponse
 from .error_response_error import ErrorResponseError
-from .error_response_error_detail import ErrorResponseErrorDetail
+from .error_response_error_detail_type_0 import ErrorResponseErrorDetailType0
 from .http_validation_error import HTTPValidationError
 from .idp_user import IDPUser
 from .org import Org
@@ -60,7 +60,7 @@ __all__ = (
     "ErrorCodes",
     "ErrorResponse",
     "ErrorResponseError",
-    "ErrorResponseErrorDetail",
+    "ErrorResponseErrorDetailType0",
     "HTTPValidationError",
     "IDPUser",
     "Org",

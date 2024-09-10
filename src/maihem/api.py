@@ -86,6 +86,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 )
             )
 
+        print(response.status_code)
         if response.status_code != 201:
             handle_http_errors(error_resp=response.parsed)
         return response.parsed
