@@ -82,6 +82,7 @@ class MaihemSync(Client):
         industry: str,
         description: str,
         name: Optional[str] = None,
+        language: Optional[str] = "en",
     ) -> AgentTarget:
         logger = get_logger()
         logger.info(f"Creating target agent {identifier}...")
@@ -94,6 +95,7 @@ class MaihemSync(Client):
                     role=role,
                     industry=industry,
                     description=description,
+                    language=language,
                 )
             )
         except errors.ErrorBase as e:
