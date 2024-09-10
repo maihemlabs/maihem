@@ -11,6 +11,9 @@ from maihem.api_client.maihem_client.models.api_schema_agent_target_create_respo
 from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_run_create_request import (
+    APISchemaTestRunCreateRequest,
+)
 from maihem.api_client.maihem_client.models.api_schema_test import (
     APISchemaTest,
 )
@@ -131,10 +134,13 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return response.parsed[0]
 
-    def create_test_run(self, test_id: str) -> APISchemaTestRun:
+    def create_test_run(self, test_id: str, agent_target_id: str) -> APISchemaTestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[APISchemaTestRun] = tests_create_test_run.sync_detailed(
-                client=client, x_api_key=self.token, test_id=test_id
+                client=client,
+                x_api_key=self.token,
+                test_id=test_id,
+                body=APISchemaTestRunCreateRequest(agent_target_id=agent_target_id),
             )
 
         if response.status_code != 201:

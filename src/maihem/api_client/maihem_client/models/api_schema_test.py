@@ -23,7 +23,6 @@ class APISchemaTest:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         identifier (str):
-        agent_target_id (str):
         metrics_config (APISchemaTestMetricsConfig):
         name (Union[None, Unset, str]):
         initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
@@ -35,7 +34,6 @@ class APISchemaTest:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     identifier: str
-    agent_target_id: str
     metrics_config: "APISchemaTestMetricsConfig"
     name: Union[None, Unset, str] = UNSET
     initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
@@ -51,8 +49,6 @@ class APISchemaTest:
         updated_at = self.updated_at.isoformat()
 
         identifier = self.identifier
-
-        agent_target_id = self.agent_target_id
 
         metrics_config = self.metrics_config.to_dict()
 
@@ -86,7 +82,6 @@ class APISchemaTest:
                 "created_at": created_at,
                 "updated_at": updated_at,
                 "identifier": identifier,
-                "agent_target_id": agent_target_id,
                 "metrics_config": metrics_config,
             }
         )
@@ -113,8 +108,6 @@ class APISchemaTest:
         updated_at = isoparse(d.pop("updated_at"))
 
         identifier = d.pop("identifier")
-
-        agent_target_id = d.pop("agent_target_id")
 
         metrics_config = APISchemaTestMetricsConfig.from_dict(d.pop("metrics_config"))
 
@@ -157,7 +150,6 @@ class APISchemaTest:
             created_at=created_at,
             updated_at=updated_at,
             identifier=identifier,
-            agent_target_id=agent_target_id,
             metrics_config=metrics_config,
             name=name,
             initiating_agent=initiating_agent,

@@ -6,6 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.api_schema_test_run import APISchemaTestRun
+from ...models.api_schema_test_run_create_request import APISchemaTestRunCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -13,6 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     test_id: str,
     *,
+    body: APISchemaTestRunCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -23,6 +25,11 @@ def _get_kwargs(
         "method": "post",
         "url": f"/tests/{test_id}/test-runs",
     }
+
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -72,6 +79,7 @@ def sync_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestRunCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
     """Run a test
@@ -81,6 +89,7 @@ def sync_detailed(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestRunCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -92,6 +101,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -106,6 +116,7 @@ def sync(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestRunCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
     """Run a test
@@ -115,6 +126,7 @@ def sync(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestRunCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -127,6 +139,7 @@ def sync(
     return sync_detailed(
         test_id=test_id,
         client=client,
+        body=body,
         x_api_key=x_api_key,
     ).parsed
 
@@ -135,6 +148,7 @@ async def asyncio_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestRunCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
     """Run a test
@@ -144,6 +158,7 @@ async def asyncio_detailed(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestRunCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -155,6 +170,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -167,6 +183,7 @@ async def asyncio(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestRunCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
     """Run a test
@@ -176,6 +193,7 @@ async def asyncio(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestRunCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -189,6 +207,7 @@ async def asyncio(
         await asyncio_detailed(
             test_id=test_id,
             client=client,
+            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

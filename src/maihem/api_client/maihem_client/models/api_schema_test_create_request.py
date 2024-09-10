@@ -18,7 +18,6 @@ class APISchemaTestCreateRequest:
     """
     Attributes:
         identifier (str):
-        agent_target_id (str):
         metrics_config (APISchemaTestCreateRequestMetricsConfig):
         name (Union[None, Unset, str]):
         initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
@@ -27,7 +26,6 @@ class APISchemaTestCreateRequest:
     """
 
     identifier: str
-    agent_target_id: str
     metrics_config: "APISchemaTestCreateRequestMetricsConfig"
     name: Union[None, Unset, str] = UNSET
     initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
@@ -37,8 +35,6 @@ class APISchemaTestCreateRequest:
 
     def to_dict(self) -> Dict[str, Any]:
         identifier = self.identifier
-
-        agent_target_id = self.agent_target_id
 
         metrics_config = self.metrics_config.to_dict()
 
@@ -69,7 +65,6 @@ class APISchemaTestCreateRequest:
         field_dict.update(
             {
                 "identifier": identifier,
-                "agent_target_id": agent_target_id,
                 "metrics_config": metrics_config,
             }
         )
@@ -90,8 +85,6 @@ class APISchemaTestCreateRequest:
 
         d = src_dict.copy()
         identifier = d.pop("identifier")
-
-        agent_target_id = d.pop("agent_target_id")
 
         metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(d.pop("metrics_config"))
 
@@ -131,7 +124,6 @@ class APISchemaTestCreateRequest:
 
         api_schema_test_create_request = cls(
             identifier=identifier,
-            agent_target_id=agent_target_id,
             metrics_config=metrics_config,
             name=name,
             initiating_agent=initiating_agent,
