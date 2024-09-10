@@ -59,7 +59,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_results(test_run_identifier: str) -> TestRun:
+    def get_test_run_results(test_run_id: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
@@ -188,8 +188,14 @@ class MaihemSync(Client):
         return test
 
     def run_test(
-        self, test: Test, target_agent: AgentTarget, concurrent_conversations: int = 1
+        self,
+        test_identifier: str,
+        target_agent: str,
+        concurrent_conversations: int = 1,
     ) -> TestRun:
+
+        test = self._maihem_api_client.get_test_by_identifier(test_identifier)
+
         resp = None
 
         logger = get_logger()
@@ -213,9 +219,11 @@ class MaihemSync(Client):
         conversation_ids = resp.conversation_ids
         logger.info(f"Test run spawned for test {test.identifier}!")
         logger.info(
-            f"Running test run ({resp.id}) with {len(conversation_ids)} conversations..."
+            f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
         )
-        logger.info(f"Test results endpoint: {test_run.links.test_result}")
+        logger.info(f"Test run ID: {test_run.id}")
+        logger.info(f"Test run results endpoint: {test_run.links.test_result}")
+        logger.info("Test run results UI: coming soon!")
 
         with alive_bar(
             len(conversation_ids),
@@ -231,7 +239,6 @@ class MaihemSync(Client):
                         conversation_id,
                         test,
                         target_agent,
-                        progress,
                     )
                     for conversation_id in conversation_ids
                 ]
@@ -252,7 +259,24 @@ class MaihemSync(Client):
         logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
 
-    def get_test_run_with_conversations(
+    def get_test_run_results(self, test_run_id: str) -> TestRun:
+        resp = None
+
+        try:
+            resp = self._maihem_api_client.get_test_run(test_run_id)
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        test_run = None
+
+        try:
+            test_run = TestRun.model_validate(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
+        return test_run
+
+    def get_test_run_results_with_conversations(
         self, test_run_id: str
     ) -> TestRunWithConversationsNested:
         resp = None
@@ -291,12 +315,10 @@ class MaihemSync(Client):
         conversation_id: str,
         test: Test,
         target_agent: AgentTarget,
-        bar_progress: alive_bar = None,
     ):
         is_conversation_active = True
         previous_turn_id = None
 
-        bar_progress.text(f"Running conversation {conversation_id}...")
         while is_conversation_active:
             turn_resp = self._run_conversation_turn(
                 test_run_id=test_run_id,
@@ -314,7 +336,6 @@ class MaihemSync(Client):
                 return conversation_id
 
             previous_turn_id = turn_resp.turn_id
-        bar_progress.text(f"Conversation completed {conversation_id}!")
 
         return conversation_id
 
