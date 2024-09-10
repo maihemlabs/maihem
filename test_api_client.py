@@ -36,28 +36,28 @@ def chat_function_colin(
     return response_dict["message"], response_dict["contexts"]
 
 
-target_agent = maihem_client.create_target_agent(
-    identifier="agent-colin-local",
-    name="Agent Colin Local",
-    industry="Technology",
-    description="A helpful customer support agent",
-    role="customer_support",
-)
+# target_agent = maihem_client.create_target_agent(
+#     identifier="agent-colin-local",
+#     name="Agent Colin Local",
+#     industry="Technology",
+#     description="A helpful customer support agent",
+#     role="customer_support",
+# )
 
 target_agent = maihem_client.get_target_agent("agent-colin-local")
 
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
-test = maihem_client.create_test(
-    identifier="test-v-1",
-    name="Test V1",
-    initiating_agent="maihem",
-    conversation_turns_max=7,
-    maihem_agent_behavior_prompt="Example prompt",
-    metrics_config={"qa_cx_helpfulness": 1, "qa_rag_hallucination": 1},
-)
+# test = maihem_client.create_test(
+#     identifier="test-v-1",
+#     name="Test V1",
+#     initiating_agent="maihem",
+#     conversation_turns_max=7,
+#     maihem_agent_behavior_prompt="Example prompt",
+#     metrics_config={"qa_cx_helpfulness": 1, "qa_rag_hallucination": 1},
+# )
 
-# test = maihem_client.get_test("test-v-33")
+test = maihem_client.get_test("test-v-1")
 
 test_run = maihem_client.run_test(
     test_identifier="test-v-1", target_agent=target_agent, concurrent_conversations=2
