@@ -3,11 +3,11 @@ from typing import Any, Dict, List, Type, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="ErrorResponseErrorDetail")
+T = TypeVar("T", bound="ErrorResponseErrorDetailType0")
 
 
 @_attrs_define
-class ErrorResponseErrorDetail:
+class ErrorResponseErrorDetailType0:
     """ """
 
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -21,10 +21,10 @@ class ErrorResponseErrorDetail:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        error_response_error_detail = cls()
+        error_response_error_detail_type_0 = cls()
 
-        error_response_error_detail.additional_properties = d
-        return error_response_error_detail
+        error_response_error_detail_type_0.additional_properties = d
+        return error_response_error_detail_type_0
 
     @property
     def additional_keys(self) -> List[str]:
