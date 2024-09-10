@@ -131,9 +131,9 @@ class MaihemSync(Client):
         identifier: str,
         initiating_agent: AgentType = AgentType.MAIHEM,
         name: Optional[str] = None,
-        maihem_agent_behavior_prompt: str = None,
-        conversation_turns_max: int = 10,
-        metrics_config: Dict = None,
+        maihem_agent_behavior_prompt: Optional[str] = None,
+        conversation_turns_max: Optional[int] = 10,
+        metrics_config: Optional[Dict] = None,
     ) -> Test:
         resp = None
         logger = get_logger()
