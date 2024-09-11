@@ -274,11 +274,6 @@ class MaihemSync(Client):
                             f"Error running conversation ({conversation_id}): {e.message}"
                         )
                         progress.colour = "red"
-                    except Exception as e:
-                        logger.error(
-                            f"Unknown error running conversation ({conversation_id}): {e}"
-                        )
-                        progress.colour = "red"
                     finally:
                         progress.update()
 
