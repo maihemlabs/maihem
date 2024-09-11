@@ -11,9 +11,7 @@ from typing import Tuple, List, Optional
 from maihem.api import MaihemHTTPClientSync
 from maihem.clients import MaihemSync
 
-maihem_client = MaihemSync(
-    "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
-)
+maihem_client = MaihemSync()
 
 maihem_client._override_base_url(base_url="http://localhost:8000")
 

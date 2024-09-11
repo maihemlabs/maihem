@@ -1,3 +1,4 @@
+import os
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
@@ -30,6 +31,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 class Client:
     _base_url: str = "https://api.maihem.ai"
     _api_key: str = None
+
+    def __init__(self, api_key: Optional[str] = None) -> None:
+        self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
 
     def create_target_agent(
         self,
@@ -69,8 +73,8 @@ class Client:
 class MaihemSync(Client):
     _maihem_api_client = MaihemHTTPClientSync
 
-    def __init__(self, api_key: str) -> None:
-        self._api_key = api_key
+    def __init__(self, api_key: Optional[str] = None) -> None:
+        super().__init__(api_key=api_key)
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
         self._logger = get_logger()
 
