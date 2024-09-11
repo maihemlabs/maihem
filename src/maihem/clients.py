@@ -28,7 +28,8 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class Client:
-    _base_url = "https://api.maihem.ai"
+    _base_url: str = "https://api.maihem.ai"
+    _api_key: str = None
 
     def create_target_agent(
         self,
@@ -69,8 +70,13 @@ class MaihemSync(Client):
     _maihem_api_client = MaihemHTTPClientSync
 
     def __init__(self, api_key: str) -> None:
-        self._maihem_api_client = MaihemHTTPClientSync(self._base_url, api_key)
+        self._api_key = api_key
+        self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
         self._logger = get_logger()
+
+    def _override_base_url(self, base_url: str) -> None:
+        self._base_url = base_url
+        self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
 
     def create_target_agent(
         self,
