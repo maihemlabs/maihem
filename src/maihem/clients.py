@@ -357,6 +357,7 @@ class MaihemSync(Client):
         )
         while is_conversation_active:
             turn_cnt += 1
+            progress.update()
             turn_resp = self._run_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
@@ -377,7 +378,6 @@ class MaihemSync(Client):
                 return conversation_id
 
             previous_turn_id = turn_resp.turn_id
-            progress.update()
 
         return conversation_id
 
