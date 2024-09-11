@@ -9,9 +9,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 from typing import Tuple, List, Optional
 from maihem.api import MaihemHTTPClientSync
-from maihem.clients import MaihemSync
+from maihem.clients import Maihem
 
-maihem_client = MaihemSync()
+maihem_client = Maihem()
 
 maihem_client._override_base_url(base_url="http://localhost:8000")
 
