@@ -1,5 +1,5 @@
 from typing import Dict, List, Optional
-
+import json
 from maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
 from maihem.api_client.maihem_client.types import Response
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
@@ -54,7 +54,7 @@ from maihem.api_client.maihem_client.api.agents import (
     agents_get_agent_targets,
 )
 
-from maihem.errors import handle_http_errors
+from maihem.errors import handle_http_errors, ErrorResponse
 
 
 class MaihemHTTPClientBase:
@@ -86,9 +86,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 )
             )
 
-        print(response.status_code)
         if response.status_code != 201:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
     def get_agent_target_by_identifier(
@@ -105,7 +105,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
 
         return response.parsed[0]
 
@@ -118,7 +119,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
 
         return response.parsed
 
@@ -131,7 +133,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
 
         return response.parsed[0]
 
@@ -145,7 +148,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
     def create_conversation_turn(
@@ -173,7 +177,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
     def get_test_run(self, test_run_id: str) -> APISchemaTestRun:
@@ -183,7 +188,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
     def get_conversation(self, conversation_id: str) -> ConversationNested:
@@ -197,7 +203,8 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
     def get_test_run_with_conversations(
@@ -211,5 +218,6 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed

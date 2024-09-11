@@ -19,6 +19,7 @@ class ErrorCodes(str, Enum):
     ERR_REQUEST_VALIDATION = ErrorCodesAPI.ERR_REQUEST_VALIDATION
     ERR_SCHEMA_VALIDATION = ErrorCodesAPI.ERR_SCHEMA_VALIDATION
     ERR_DATA_INTEGRITY = ErrorCodesAPI.ERR_DATA_INTEGRITY
+    ERR_AUTHENTICATION_FAILED = ErrorCodesAPI.ERR_AUTHENTICATION_FAILED
 
 
 class ErrorBase(Exception):
@@ -29,6 +30,11 @@ class ErrorBase(Exception):
 
     def __str__(self) -> str:
         return self.message
+
+
+class AuthenticationFailedError(ErrorBase):
+    def __init__(self, error_resp: ErrorResponse) -> None:
+        super().__init__(error_resp)
 
 
 class InternalServerError(ErrorBase):
@@ -75,6 +81,8 @@ def handle_http_errors(error_resp: ErrorResponse):
         raise SchemaValidationError(error_resp)
     elif error_resp.error.code == ErrorCodes.ERR_DATA_INTEGRITY:
         raise DataIntegrityError(error_resp)
+    elif error_resp.error.code == ErrorCodes.ERR_AUTHENTICATION_FAILED:
+        raise AuthenticationFailedError(error_resp)
     else:
         raise ErrorBase(error_resp)
 

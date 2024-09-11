@@ -2,6 +2,7 @@ from enum import Enum
 
 
 class ErrorCodes(str, Enum):
+    ERR_AUTHENTICATION_FAILED = "err_authentication_failed"
     ERR_DATA_INTEGRITY = "err_data_integrity"
     ERR_INTERNAL_SERVER = "err_internal_server"
     ERR_NOT_FOUND = "err_not_found"
