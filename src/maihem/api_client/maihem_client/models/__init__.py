@@ -15,10 +15,10 @@ from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_create_request import APISchemaTestRunCreateRequest
 from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
 from .conversation_nested import ConversationNested
+from .conversation_nested_evaluation import ConversationNestedEvaluation
+from .conversation_nested_evaluation_base import ConversationNestedEvaluationBase
 from .conversation_nested_message import ConversationNestedMessage
 from .conversation_nested_sentence import ConversationNestedSentence
-from .conversation_nested_test_result_metric import ConversationNestedTestResultMetric
-from .conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
 from .conversation_nested_token_cost import ConversationNestedTokenCost
 from .conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 from .conversation_nested_turn import ConversationNestedTurn
@@ -50,10 +50,10 @@ __all__ = (
     "APISchemaTestRunCreateRequest",
     "APISchemaTestRunWithConversationsNested",
     "ConversationNested",
+    "ConversationNestedEvaluation",
+    "ConversationNestedEvaluationBase",
     "ConversationNestedMessage",
     "ConversationNestedSentence",
-    "ConversationNestedTestResultMetric",
-    "ConversationNestedTestResultMetricBase",
     "ConversationNestedTokenCost",
     "ConversationNestedTokenCostBase",
     "ConversationNestedTurn",

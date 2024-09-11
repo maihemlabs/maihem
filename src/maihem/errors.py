@@ -85,8 +85,10 @@ def handle_base_error(exception: ErrorBase):
 def handle_schema_validation_error(exception: ValidationError):
     raise SchemaValidationError(
         ErrorResponse(
-            error=ErrorResponse.error(
-                code=ErrorCodes.ERR_SCHEMA_VALIDATION, message=str(exception.errors())
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_SCHEMA_VALIDATION,
+                message=str(exception.errors()),
+                detail=None,
             )
         )
     ) from exception

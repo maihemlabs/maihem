@@ -219,7 +219,14 @@ class MaihemSync(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        conversation_ids = resp.conversation_ids
+        test_run_with_conversations = self.get_test_run_results_with_conversations(
+            test_run.id
+        )
+
+        conversation_ids = [
+            conv.id for conv in test_run_with_conversations.conversations
+        ]
+
         logger.info(f"Test run spawned for test {test.identifier}!")
         logger.info(
             f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
@@ -292,7 +299,21 @@ class MaihemSync(Client):
         test_run = None
 
         try:
-            test_run = TestRunWithConversationsNested.model_validate(resp.to_dict())
+            resp_conversations = resp.conversations
+            resp_dict = resp.to_dict()
+            resp_dict["conversations"] = []
+
+            conversation_nesteds: ConversationNested = []
+            for conv in resp_conversations:
+                conv_dict = conv.to_dict()
+                try:
+                    conv = ConversationNested.from_dict(conv_dict)
+                    conversation_nesteds.append(conv)
+                except ValidationError as e:
+                    errors.handle_schema_validation_error(e)
+
+            test_run = TestRunWithConversationsNested.model_validate(resp_dict)
+            test_run.conversations = conversation_nesteds
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 

@@ -10,7 +10,7 @@ from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
+    from ..models.conversation_nested_evaluation_base import ConversationNestedEvaluationBase
     from ..models.conversation_nested_turn import ConversationNestedTurn
 
 
@@ -28,7 +28,7 @@ class ConversationNested:
         result (TestResultEnum):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
-        test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetricBase']]):
+        evaluations (Union[Unset, List['ConversationNestedEvaluationBase']]):
         conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
     """
 
@@ -39,7 +39,7 @@ class ConversationNested:
     result: TestResultEnum
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
-    test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetricBase"]] = UNSET
+    evaluations: Union[Unset, List["ConversationNestedEvaluationBase"]] = UNSET
     conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -70,12 +70,12 @@ class ConversationNested:
         else:
             completed_at = self.completed_at
 
-        test_result_metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.test_result_metrics, Unset):
-            test_result_metrics = []
-            for test_result_metrics_item_data in self.test_result_metrics:
-                test_result_metrics_item = test_result_metrics_item_data.to_dict()
-                test_result_metrics.append(test_result_metrics_item)
+        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.evaluations, Unset):
+            evaluations = []
+            for evaluations_item_data in self.evaluations:
+                evaluations_item = evaluations_item_data.to_dict()
+                evaluations.append(evaluations_item)
 
         conversation_turns: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.conversation_turns, Unset):
@@ -99,8 +99,8 @@ class ConversationNested:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
             field_dict["completed_at"] = completed_at
-        if test_result_metrics is not UNSET:
-            field_dict["test_result_metrics"] = test_result_metrics
+        if evaluations is not UNSET:
+            field_dict["evaluations"] = evaluations
         if conversation_turns is not UNSET:
             field_dict["conversation_turns"] = conversation_turns
 
@@ -108,7 +108,7 @@ class ConversationNested:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.conversation_nested_test_result_metric_base import ConversationNestedTestResultMetricBase
+        from ..models.conversation_nested_evaluation_base import ConversationNestedEvaluationBase
         from ..models.conversation_nested_turn import ConversationNestedTurn
 
         d = src_dict.copy()
@@ -156,12 +156,12 @@ class ConversationNested:
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
-        test_result_metrics = []
-        _test_result_metrics = d.pop("test_result_metrics", UNSET)
-        for test_result_metrics_item_data in _test_result_metrics or []:
-            test_result_metrics_item = ConversationNestedTestResultMetricBase.from_dict(test_result_metrics_item_data)
+        evaluations = []
+        _evaluations = d.pop("evaluations", UNSET)
+        for evaluations_item_data in _evaluations or []:
+            evaluations_item = ConversationNestedEvaluationBase.from_dict(evaluations_item_data)
 
-            test_result_metrics.append(test_result_metrics_item)
+            evaluations.append(evaluations_item)
 
         conversation_turns = []
         _conversation_turns = d.pop("conversation_turns", UNSET)
@@ -178,7 +178,7 @@ class ConversationNested:
             result=result,
             started_at=started_at,
             completed_at=completed_at,
-            test_result_metrics=test_result_metrics,
+            evaluations=evaluations,
             conversation_turns=conversation_turns,
         )
 
