@@ -353,6 +353,7 @@ class MaihemSync(Client):
             desc=f"Conversation ({conversation_id})",
             unit="turn",
             position=progress_bar_position,
+            leave=False,
         )
         while is_conversation_active:
             turn_cnt += 1
