@@ -148,7 +148,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=response.parsed)
         return response.parsed
 
-    def create_conversation_turns(
+    def create_conversation_turn(
         self,
         test_run_id: str,
         conversation_id: str,
@@ -173,7 +173,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
-            return response.content.decode("utf-8")
+            handle_http_errors(error_resp=response.parsed)
         return response.parsed
 
     def get_test_run(self, test_run_id: str) -> APISchemaTestRun:
@@ -183,7 +183,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            return response.content.decode("utf-8")
+            handle_http_errors(error_resp=response.parsed)
         return response.parsed
 
     def get_conversation(self, conversation_id: str) -> ConversationNested:
@@ -197,7 +197,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            return response.content.decode("utf-8")
+            handle_http_errors(error_resp=response.parsed)
         return response.parsed
 
     def get_test_run_with_conversations(
@@ -211,5 +211,5 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 200:
-            return response.content.decode("utf-8")
+            handle_http_errors(error_resp=response.parsed)
         return response.parsed
