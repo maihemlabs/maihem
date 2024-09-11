@@ -28,7 +28,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class Client:
-    _base_url = "http://localhost:8000"
+    _base_url = "https://api.maihem.ai"
 
     def create_target_agent(
         self,
