@@ -70,7 +70,7 @@ class Client:
         raise NotImplementedError("Method not implemented")
 
 
-class MaihemSync(Client):
+class Maihem(Client):
     _maihem_api_client = MaihemHTTPClientSync
 
     def __init__(self, api_key: Optional[str] = None) -> None:

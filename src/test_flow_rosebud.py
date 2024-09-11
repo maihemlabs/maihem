@@ -3,7 +3,7 @@ from datetime import datetime
 import requests
 from typing import Optional, Tuple, List, Dict, Callable
 
-from maihem.clients import MaihemSync, MaihemAsync
+from maihem.clients import Maihem, MaihemAsync
 from maihem.schemas.agents import AgentTarget  # , AgentTargetAsync, AgentMaihem
 
 
@@ -21,18 +21,15 @@ def api_call_rosebud(messages: List[Dict]) -> str:
         "X-Stream": "false",
     }
 
-    payload = {
-        "type": "generic",
-        "messages": messages
-    }
+    payload = {"type": "generic", "messages": messages}
 
-    try: 
+    try:
         response = requests.post(url, headers=headers, json=payload)
         response_json = response.json()
     except Exception as e:
         # retry
         pass
-    
+
     return response_json["response"]
 
 
@@ -41,9 +38,9 @@ def convert_messages_to_contexts(messages: List[Dict]) -> List[str]:
     context = "Conversation history:\n"
     for m in messages:
         context += f"{m['role']}: {m['content']}\n"
-        
+
     return [context]
-    
+
 
 # Create chat callable function (sync)
 def chat_function(
@@ -66,13 +63,15 @@ def chat_function(
     """
     if conversation_id not in memory:
         memory[conversation_id] = []
-    
+
     # Append to memory the message from the maihem agent
     memory[conversation_id].append({"content": agent_maihem_message, "role": "user"})
-    
+
     # Get response from the target agent
     agent_target_message = api_call_rosebud(memory[conversation_id])
-    memory[conversation_id].append({"content": agent_target_message, "role": "assistant"})
+    memory[conversation_id].append(
+        {"content": agent_target_message, "role": "assistant"}
+    )
     end = "None"
     contexts = convert_messages_to_contexts(memory[conversation_id])
 
@@ -90,21 +89,21 @@ def chat_function(
 #             "maihem_msg": agent_maihem_message,
 #             "target_msg": agent_target_message,
 #             "end": end,
-#             "contexts": contexts            
+#             "contexts": contexts
 #         })
-        
+
 # print(history)
 
 
 if __name__ == "__main__":
-    
+
     timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
     id_base = "rosebud" + timestamp
 
     # Create Maihem client
     api_key = "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
-    m = MaihemSync(api_key=api_key)
-    
+    m = Maihem(api_key=api_key)
+
     # Create an agent target
     target_agent = m.create_target_agent(
         identifier="ag_tgt_" + id_base,  # Unique identifier for the agent
@@ -117,7 +116,7 @@ if __name__ == "__main__":
 
     # OR get an existing agent target
     # target_agent = m.get_target_agent(identifier="ag_tgt_" + id_base)
-    
+
     print(target_agent)
     print("OK")
 
@@ -153,10 +152,12 @@ if __name__ == "__main__":
     )
 
     # Get test run results
-    test_run_results = m.get_test_run_results(  # AgentTarget to be tested with callable function
-        test_run_identifier="test_run_identifier",  # ID from test run
+    test_run_results = (
+        m.get_test_run_results(  # AgentTarget to be tested with callable function
+            test_run_identifier="test_run_identifier",  # ID from test run
+        )
     )
-    
+
     print(test_run_results)
 
 
