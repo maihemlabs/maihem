@@ -1,4 +1,5 @@
 from typing import List, Optional, Dict
+import json
 from pydantic import BaseModel
 from datetime import datetime
 from maihem.schemas.agents import AgentType
@@ -54,12 +55,20 @@ class TestRun(BaseModel):
     completed_at: Optional[datetime] = None
     status: TestStatusEnum
     result: TestResultEnum
-    conversation_ids: List[str] = []
     links: Optional[APISchemaLinks] = None
+
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
 
 
 class TestRunWithConversationsNested(TestRun):
     conversations: List[ConversationNested] = []
+
+    def __str__(self):
+        test_run_dict = self.model_dump()
+        del test_run_dict["conversations"]
+
+        return json.dumps(test_run_dict, default=str, indent=4)
 
     class Config:
         arbitrary_types_allowed = True

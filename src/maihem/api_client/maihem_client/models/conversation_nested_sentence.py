@@ -8,7 +8,7 @@ from dateutil.parser import isoparse
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
+    from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
 
 
 T = TypeVar("T", bound="ConversationNestedSentence")
@@ -22,14 +22,14 @@ class ConversationNestedSentence:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         content (str):
-        test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetric']]):
+        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
     """
 
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
     content: str
-    test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetric"]] = UNSET
+    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -41,12 +41,12 @@ class ConversationNestedSentence:
 
         content = self.content
 
-        test_result_metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.test_result_metrics, Unset):
-            test_result_metrics = []
-            for test_result_metrics_item_data in self.test_result_metrics:
-                test_result_metrics_item = test_result_metrics_item_data.to_dict()
-                test_result_metrics.append(test_result_metrics_item)
+        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.evaluations, Unset):
+            evaluations = []
+            for evaluations_item_data in self.evaluations:
+                evaluations_item = evaluations_item_data.to_dict()
+                evaluations.append(evaluations_item)
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -58,14 +58,14 @@ class ConversationNestedSentence:
                 "content": content,
             }
         )
-        if test_result_metrics is not UNSET:
-            field_dict["test_result_metrics"] = test_result_metrics
+        if evaluations is not UNSET:
+            field_dict["evaluations"] = evaluations
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
+        from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -76,19 +76,19 @@ class ConversationNestedSentence:
 
         content = d.pop("content")
 
-        test_result_metrics = []
-        _test_result_metrics = d.pop("test_result_metrics", UNSET)
-        for test_result_metrics_item_data in _test_result_metrics or []:
-            test_result_metrics_item = ConversationNestedTestResultMetric.from_dict(test_result_metrics_item_data)
+        evaluations = []
+        _evaluations = d.pop("evaluations", UNSET)
+        for evaluations_item_data in _evaluations or []:
+            evaluations_item = ConversationNestedEvaluation.from_dict(evaluations_item_data)
 
-            test_result_metrics.append(test_result_metrics_item)
+            evaluations.append(evaluations_item)
 
         conversation_nested_sentence = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
             content=content,
-            test_result_metrics=test_result_metrics,
+            evaluations=evaluations,
         )
 
         conversation_nested_sentence.additional_properties = d

@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: maihem
-Version: 1.4.5
+Version: 1.5.0
 Summary: LLM evaluations and synthetic data generation with the MAIHEM models
 Author: MAIHEM
 License: MIT License
@@ -30,11 +30,19 @@ Keywords: genAI,LLM,evaluation,data,generation,synthetic
 Classifier: License :: OSI Approved :: MIT License
 Classifier: Programming Language :: Python
 Classifier: Programming Language :: Python :: 3
-Requires-Python: >=3.5
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 License-File: LICENSE
 Requires-Dist: requests
 Requires-Dist: pandas
+Requires-Dist: pydantic
+Requires-Dist: pycountry
+Requires-Dist: pydantic_extra_types
+Requires-Dist: httpx
+Requires-Dist: attrs
+Requires-Dist: loguru
+Requires-Dist: alive-progress
+Requires-Dist: anyio
 
 # maihem
 

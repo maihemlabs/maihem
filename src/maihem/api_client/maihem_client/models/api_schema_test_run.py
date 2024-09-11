@@ -29,7 +29,6 @@ class APISchemaTestRun:
         result (TestResultEnum):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
-        conversation_ids (Union[Unset, List[str]]):
         links (Union['APISchemaLinks', None, Unset]):
     """
 
@@ -42,7 +41,6 @@ class APISchemaTestRun:
     result: TestResultEnum
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
-    conversation_ids: Union[Unset, List[str]] = UNSET
     links: Union["APISchemaLinks", None, Unset] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -79,10 +77,6 @@ class APISchemaTestRun:
         else:
             completed_at = self.completed_at
 
-        conversation_ids: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.conversation_ids, Unset):
-            conversation_ids = self.conversation_ids
-
         links: Union[Dict[str, Any], None, Unset]
         if isinstance(self.links, Unset):
             links = UNSET
@@ -108,8 +102,6 @@ class APISchemaTestRun:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
             field_dict["completed_at"] = completed_at
-        if conversation_ids is not UNSET:
-            field_dict["conversation_ids"] = conversation_ids
         if links is not UNSET:
             field_dict["links"] = links
 
@@ -168,8 +160,6 @@ class APISchemaTestRun:
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
-        conversation_ids = cast(List[str], d.pop("conversation_ids", UNSET))
-
         def _parse_links(data: object) -> Union["APISchemaLinks", None, Unset]:
             if data is None:
                 return data
@@ -197,7 +187,6 @@ class APISchemaTestRun:
             result=result,
             started_at=started_at,
             completed_at=completed_at,
-            conversation_ids=conversation_ids,
             links=links,
         )
 

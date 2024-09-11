@@ -9,8 +9,8 @@ from ..models.agent_type import AgentType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
     from ..models.conversation_nested_sentence import ConversationNestedSentence
-    from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
 
 
 T = TypeVar("T", bound="ConversationNestedMessage")
@@ -26,7 +26,7 @@ class ConversationNestedMessage:
         agent_type (AgentType):
         content (str):
         end_code (Union[None, Unset, str]):
-        test_result_metrics (Union[Unset, List['ConversationNestedTestResultMetric']]):
+        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
         conversation_sentences (Union[Unset, List['ConversationNestedSentence']]):
     """
 
@@ -36,7 +36,7 @@ class ConversationNestedMessage:
     agent_type: AgentType
     content: str
     end_code: Union[None, Unset, str] = UNSET
-    test_result_metrics: Union[Unset, List["ConversationNestedTestResultMetric"]] = UNSET
+    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
     conversation_sentences: Union[Unset, List["ConversationNestedSentence"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -57,12 +57,12 @@ class ConversationNestedMessage:
         else:
             end_code = self.end_code
 
-        test_result_metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.test_result_metrics, Unset):
-            test_result_metrics = []
-            for test_result_metrics_item_data in self.test_result_metrics:
-                test_result_metrics_item = test_result_metrics_item_data.to_dict()
-                test_result_metrics.append(test_result_metrics_item)
+        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.evaluations, Unset):
+            evaluations = []
+            for evaluations_item_data in self.evaluations:
+                evaluations_item = evaluations_item_data.to_dict()
+                evaluations.append(evaluations_item)
 
         conversation_sentences: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.conversation_sentences, Unset):
@@ -84,8 +84,8 @@ class ConversationNestedMessage:
         )
         if end_code is not UNSET:
             field_dict["end_code"] = end_code
-        if test_result_metrics is not UNSET:
-            field_dict["test_result_metrics"] = test_result_metrics
+        if evaluations is not UNSET:
+            field_dict["evaluations"] = evaluations
         if conversation_sentences is not UNSET:
             field_dict["conversation_sentences"] = conversation_sentences
 
@@ -93,8 +93,8 @@ class ConversationNestedMessage:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
         from ..models.conversation_nested_sentence import ConversationNestedSentence
-        from ..models.conversation_nested_test_result_metric import ConversationNestedTestResultMetric
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -116,12 +116,12 @@ class ConversationNestedMessage:
 
         end_code = _parse_end_code(d.pop("end_code", UNSET))
 
-        test_result_metrics = []
-        _test_result_metrics = d.pop("test_result_metrics", UNSET)
-        for test_result_metrics_item_data in _test_result_metrics or []:
-            test_result_metrics_item = ConversationNestedTestResultMetric.from_dict(test_result_metrics_item_data)
+        evaluations = []
+        _evaluations = d.pop("evaluations", UNSET)
+        for evaluations_item_data in _evaluations or []:
+            evaluations_item = ConversationNestedEvaluation.from_dict(evaluations_item_data)
 
-            test_result_metrics.append(test_result_metrics_item)
+            evaluations.append(evaluations_item)
 
         conversation_sentences = []
         _conversation_sentences = d.pop("conversation_sentences", UNSET)
@@ -137,7 +137,7 @@ class ConversationNestedMessage:
             agent_type=agent_type,
             content=content,
             end_code=end_code,
-            test_result_metrics=test_result_metrics,
+            evaluations=evaluations,
             conversation_sentences=conversation_sentences,
         )
 
