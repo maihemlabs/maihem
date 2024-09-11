@@ -209,6 +209,10 @@ class Maihem(Client):
         target_agent: AgentTarget,
         concurrent_conversations: int = 1,
     ) -> TestRun:
+        if not target_agent._chat_function:
+            errors.raise_request_validation_error(
+                "Target agent must have a chat function assigned. Use `set_chat_function` method to assign a chat function."
+            )
 
         test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
