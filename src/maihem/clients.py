@@ -239,8 +239,8 @@ class MaihemSync(Client):
             f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
         )
         logger.info(f"Test run ID: {test_run.id}")
-        logger.info(f"Test run results endpoint: {test_run.links.test_result}")
-        logger.info("Test run results UI: coming soon!")
+        logger.info(f"Test run results (API): {test_run.links.test_result}")
+        logger.info("Test run results (UI): coming soon!")
 
         print("\n" + "-" * 50 + "\n")
 
@@ -357,7 +357,7 @@ class MaihemSync(Client):
         test: Test,
         target_agent: AgentTarget,
         progress_bar_position: int,
-    ):
+    ) -> str:
         is_conversation_active = True
         previous_turn_id = None
         turn_cnt = 0
