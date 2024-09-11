@@ -55,7 +55,7 @@ class Client:
     ) -> Test:
         raise NotImplementedError("Method not implemented")
 
-    def run_test(
+    def create_test_run(
         self,
         test_identifier: str,
         agent_target: AgentTarget,
@@ -203,7 +203,7 @@ class Maihem(Client):
 
         return test
 
-    def run_test(
+    def create_test_run(
         self,
         test_identifier: str,
         target_agent: AgentTarget,
@@ -537,7 +537,7 @@ class MaihemAsync(Client):
     ) -> Test:
         raise NotImplementedError("Method not implemented")
 
-    def run_test(
+    def create_test_run(
         self,
         identifier: str,
         test_identifier: str,

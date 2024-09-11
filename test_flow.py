@@ -118,7 +118,7 @@ response_test: Test = m.create_test(
 )
 
 # Run test with selected target agent
-test_run: TestRun = m.run_test(
+test_run: TestRun = m.create_test_run(
     identifier="unique_test_run_identifier",  # Unique ID for the test run
     test_identifier="unique_test_identifier",  # Test ID from created test
     agent_target=agent_target,  # AgentTarget to be tested with callable function

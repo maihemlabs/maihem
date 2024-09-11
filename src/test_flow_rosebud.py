@@ -145,7 +145,7 @@ if __name__ == "__main__":
     )
 
     # Run test with selected target agent
-    test_run = m.run_test(
+    test_run = m.create_test_run(
         test=response_test,
         target_agent=target_agent,  # AgentTarget to be tested with callable function
         concurrent_conversations=5,  # Number of concurrent conversations
