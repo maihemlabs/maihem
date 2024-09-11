@@ -69,13 +69,3 @@ test_run = maihem_client.run_test(
 test_run = maihem_client.get_test_run_results_with_conversations(
     "tr_01j7g921afeg8rjm2cmxgad3ag"
 )
-
-
-# with tqdm(
-#     total=10,
-#     unit="conversation",
-#     colour="blue",
-#     desc=f"Test run (id)",
-# ) as progress:
-#     time.sleep(1)
-#     progress.update()
