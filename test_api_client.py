@@ -1,7 +1,9 @@
 import sys
 import os
 import requests
+import time
 import json
+from tqdm import tqdm
 
 sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
@@ -13,7 +15,7 @@ maihem_client = MaihemSync(
     "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
 )
 
-maihem_client._override_base_url("http://localhost:8000")
+maihem_client._override_base_url(base_url="http://localhost:8000")
 
 
 def chat_function_colin(
@@ -47,9 +49,9 @@ def chat_function_colin(
 #     language="en",
 # )
 
-# target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
+target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 
-# target_agent.set_chat_function(chat_function=chat_function_colin)
+target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
 #     identifier="test-v-50",
@@ -60,12 +62,20 @@ def chat_function_colin(
 #     metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
 # )
 
-# test_run = maihem_client.run_test(
-#     test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
-# )
+test_run = maihem_client.run_test(
+    test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
+)
 
 test_run = maihem_client.get_test_run_results_with_conversations(
     "tr_01j7g921afeg8rjm2cmxgad3ag"
 )
 
-print(test_run)
+
+# with tqdm(
+#     total=10,
+#     unit="conversation",
+#     colour="blue",
+#     desc=f"Test run (id)",
+# ) as progress:
+#     time.sleep(1)
+#     progress.update()

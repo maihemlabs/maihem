@@ -59,10 +59,10 @@ src/maihem/api_client/maihem_client/models/api_schema_test_run.py
 src/maihem/api_client/maihem_client/models/api_schema_test_run_create_request.py
 src/maihem/api_client/maihem_client/models/api_schema_test_run_with_conversations_nested.py
 src/maihem/api_client/maihem_client/models/conversation_nested.py
+src/maihem/api_client/maihem_client/models/conversation_nested_evaluation.py
+src/maihem/api_client/maihem_client/models/conversation_nested_evaluation_base.py
 src/maihem/api_client/maihem_client/models/conversation_nested_message.py
 src/maihem/api_client/maihem_client/models/conversation_nested_sentence.py
-src/maihem/api_client/maihem_client/models/conversation_nested_test_result_metric.py
-src/maihem/api_client/maihem_client/models/conversation_nested_test_result_metric_base.py
 src/maihem/api_client/maihem_client/models/conversation_nested_token_cost.py
 src/maihem/api_client/maihem_client/models/conversation_nested_token_cost_base.py
 src/maihem/api_client/maihem_client/models/conversation_nested_turn.py

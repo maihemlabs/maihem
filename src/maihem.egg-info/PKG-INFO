@@ -41,7 +41,7 @@ Requires-Dist: pydantic_extra_types
 Requires-Dist: httpx
 Requires-Dist: attrs
 Requires-Dist: loguru
-Requires-Dist: alive-progress
+Requires-Dist: tqdm
 Requires-Dist: anyio
 
 # maihem
