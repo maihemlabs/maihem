@@ -75,6 +75,8 @@ def handle_http_errors(error_resp: ErrorResponse):
         raise SchemaValidationError(error_resp)
     elif error_resp.error.code == ErrorCodes.ERR_DATA_INTEGRITY:
         raise DataIntegrityError(error_resp)
+    else:
+        raise ErrorBase(error_resp)
 
 
 def handle_base_error(exception: ErrorBase):
