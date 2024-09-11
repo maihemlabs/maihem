@@ -6,5 +6,5 @@ pydantic_extra_types
 httpx
 attrs
 loguru
-alive-progress
+tqdm
 anyio

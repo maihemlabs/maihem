@@ -1,3 +1,4 @@
+import time
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
@@ -23,7 +24,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from alive_progress import alive_bar
+from tqdm import tqdm
 from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
@@ -241,11 +242,15 @@ class MaihemSync(Client):
         logger.info(f"Test run results endpoint: {test_run.links.test_result}")
         logger.info("Test run results UI: coming soon!")
 
-        with alive_bar(
+        print("\n" + "-" * 50 + "\n")
+
+        with tqdm(
             len(conversation_ids),
-            title=f"Test run ({test_run.id})",
-            unit="convs",
-            enrich_print=True,
+            total=len(conversation_ids),
+            unit="conversation",
+            colour="green",
+            desc=f"Test run ({test_run.id})",
+            position=0,
         ) as progress:
             with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
                 futures = [
@@ -255,23 +260,15 @@ class MaihemSync(Client):
                         conversation_id,
                         test,
                         target_agent,
+                        progress_bar_position=i + 1,
                     )
-                    for conversation_id in conversation_ids
+                    for i, conversation_id in enumerate(conversation_ids)
                 ]
 
                 for future in as_completed(futures):
-                    progress()
+                    progress.update()
 
-                # for conversation_id in conversation_ids:
-                #     self._run_conversation(
-                #         test_run.id,
-                #         conversation_id,
-                #         test=test,
-                #         target_agent=target_agent,
-                #         bar_progress=progress,
-                #     )
-                #     progress()
-
+        print("\n" + "-" * 50 + "\n")
         logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
 
@@ -345,11 +342,20 @@ class MaihemSync(Client):
         conversation_id: str,
         test: Test,
         target_agent: AgentTarget,
+        progress_bar_position: int,
     ):
         is_conversation_active = True
         previous_turn_id = None
+        turn_cnt = 0
 
+        progress = tqdm(
+            total=test.conversation_turns_max,
+            desc=f"Conversation ({conversation_id})",
+            unit="turn",
+            position=progress_bar_position,
+        )
         while is_conversation_active:
+            turn_cnt += 1
             turn_resp = self._run_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
@@ -363,9 +369,14 @@ class MaihemSync(Client):
                 or not turn_resp.turn_id
             ):
                 is_conversation_active = False
+                progress.total = turn_cnt
+                progress.n = turn_cnt
+                progress.refresh()
+                progress.close()
                 return conversation_id
 
             previous_turn_id = turn_resp.turn_id
+            progress.update()
 
         return conversation_id
 
