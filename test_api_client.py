@@ -13,6 +13,8 @@ maihem_client = MaihemSync(
     "10c972323b5a56914452fe58980b1502a64014af0bee0978f3202d7ce81a0b4cf4a3601d97d1344fac00e65a1d9371ab"
 )
 
+maihem_client._override_base_url("http://localhost:8000")
+
 
 def chat_function_colin(
     conversation_id: str,

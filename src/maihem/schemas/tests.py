@@ -66,7 +66,10 @@ class TestRunWithConversationsNested(TestRun):
 
     def __str__(self):
         test_run_dict = self.model_dump()
-        del test_run_dict["conversations"]
+        conversation_jsons = [
+            conversation.to_dict() for conversation in self.conversations
+        ]
+        test_run_dict["conversations"] = conversation_jsons
 
         return json.dumps(test_run_dict, default=str, indent=4)
 
