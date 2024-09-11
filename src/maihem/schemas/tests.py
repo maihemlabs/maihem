@@ -73,5 +73,17 @@ class TestRunWithConversationsNested(TestRun):
 
         return json.dumps(test_run_dict, default=str, indent=4)
 
+    def to_json(self):
+        return self.__str__()
+
+    def to_dict(self):
+        test_run_dict = self.model_dump()
+        conversation_jsons = [
+            conversation.to_dict() for conversation in self.conversations
+        ]
+        test_run_dict["conversations"] = conversation_jsons
+
+        return test_run_dict
+
     class Config:
         arbitrary_types_allowed = True
