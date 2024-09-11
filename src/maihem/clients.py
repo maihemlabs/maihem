@@ -72,6 +72,12 @@ class Maihem(Client):
 
     def __init__(self, api_key: Optional[str] = None) -> None:
         self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
+
+        if not self._api_key:
+            raise errors.raise_request_validation_error(
+                "API key is required to initialize Maihem client"
+            )
+
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
         self._logger = get_logger()
 
