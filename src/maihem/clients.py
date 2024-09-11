@@ -1,4 +1,3 @@
-import time
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
@@ -200,7 +199,7 @@ class MaihemSync(Client):
     def run_test(
         self,
         test_identifier: str,
-        target_agent: str,
+        target_agent: AgentTarget,
         concurrent_conversations: int = 1,
     ) -> TestRun:
 
@@ -235,6 +234,7 @@ class MaihemSync(Client):
         ]
 
         logger.info(f"Test run spawned for test {test.identifier}!")
+        print("\n" + "-" * 50 + "\n")
         logger.info(
             f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
         )
@@ -253,7 +253,7 @@ class MaihemSync(Client):
             position=0,
         ) as progress:
             with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
-                futures = [
+                future_to_conversation_id = {
                     executor.submit(
                         self._run_conversation,
                         test_run.id,
@@ -261,12 +261,26 @@ class MaihemSync(Client):
                         test,
                         target_agent,
                         progress_bar_position=i + 1,
-                    )
+                    ): conversation_id
                     for i, conversation_id in enumerate(conversation_ids)
-                ]
+                }
 
-                for future in as_completed(futures):
-                    progress.update()
+                for future in as_completed(future_to_conversation_id):
+                    conversation_id = future_to_conversation_id[future]
+                    try:
+                        future.result()
+                    except errors.ErrorBase as e:
+                        logger.error(
+                            f"Error running conversation ({conversation_id}): {e.message}"
+                        )
+                        progress.colour = "red"
+                    except Exception as e:
+                        logger.error(
+                            f"Unknown error running conversation ({conversation_id}): {e}"
+                        )
+                        progress.colour = "red"
+                    finally:
+                        progress.update()
 
         print("\n" + "-" * 50 + "\n")
         logger.info(f"Test run ({test_run.id}) completed!")
@@ -445,7 +459,7 @@ class MaihemSync(Client):
         contexts: Optional[List[str]] = None,
     ) -> ConversationTurnCreateResponse:
         try:
-            resp = self._maihem_api_client.create_conversation_turns(
+            resp = self._maihem_api_client.create_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
                 target_agent_message=target_agent_message,
