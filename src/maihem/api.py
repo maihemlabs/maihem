@@ -20,6 +20,9 @@ from maihem.api_client.maihem_client.models.api_schema_test import (
 from maihem.api_client.maihem_client.models.api_schema_test_run import (
     APISchemaTestRun,
 )
+from maihem.api_client.maihem_client.models.api_schema_test_run_with_results import (
+    APISchemaTestRunWithResults,
+)
 from maihem.api_client.maihem_client.models.api_schema_test_run_with_conversations_nested import (
     APISchemaTestRunWithConversationsNested,
 )
@@ -44,6 +47,7 @@ from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run,
     test_runs_get_test_run_with_conversations,
     test_runs_create_conversation_turn,
+    test_runs_get_test_run_with_results,
 )
 from maihem.api_client.maihem_client.api.conversations import (
     conversations_get_conversation,
@@ -181,6 +185,21 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
+    def get_conversation(self, conversation_id: str) -> ConversationNested:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[ConversationNested] = (
+                conversations_get_conversation.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    conversation_id=conversation_id,
+                )
+            )
+
+        if response.status_code != 200:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return response.parsed
+
     def get_test_run(self, test_run_id: str) -> APISchemaTestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[APISchemaTestRun] = test_runs_get_test_run.sync_detailed(
@@ -192,13 +211,11 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
-    def get_conversation(self, conversation_id: str) -> ConversationNested:
+    def get_test_run_result(self, test_run_id: str) -> APISchemaTestRunWithResults:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[ConversationNested] = (
-                conversations_get_conversation.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    conversation_id=conversation_id,
+            response: Response[APISchemaTestRunWithResults] = (
+                test_runs_get_test_run_with_results.sync_detailed(
+                    client=client, x_api_key=self.token, test_run_id=test_run_id
                 )
             )
 

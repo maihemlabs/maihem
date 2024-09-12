@@ -3,7 +3,13 @@ from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 
 from maihem.schemas.agents import AgentTarget, AgentType
-from maihem.schemas.tests import Test, TestRun, TestRunWithConversationsNested
+from maihem.schemas.tests import (
+    Test,
+    TestRun,
+    TestRunWithConversationsNested,
+    TestRunResult,
+    TestRunResultMetricScore,
+)
 from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
@@ -292,18 +298,20 @@ class Maihem(Client):
         logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
 
-    def get_test_run_results(self, test_run_id: str) -> TestRun:
+    def get_test_run_results(self, test_run_id: str) -> TestRunResult:
         resp = None
 
         try:
-            resp = self._maihem_api_client.get_test_run(test_run_id)
+            resp = self._maihem_api_client.get_test_run_result(test_run_id)
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
         test_run = None
 
+        print(resp.to_dict())
+
         try:
-            test_run = TestRun.model_validate(resp.to_dict())
+            test_run = TestRunResult.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
@@ -440,13 +448,18 @@ class Maihem(Client):
                 conversation=conversation,
             )
 
-        target_agent_message, contexts = self._send_target_agent_message(
-            target_agent,
-            conversation_id,
-            agent_maihem_message=(
-                agent_maithem_message.content if agent_maithem_message else None
-            ),
-        )
+        try:
+            target_agent_message, contexts = self._send_target_agent_message(
+                target_agent,
+                conversation_id,
+                agent_maihem_message=(
+                    agent_maithem_message.content if agent_maithem_message else None
+                ),
+            )
+        except Exception as e:
+            errors.raise_chat_function_error(
+                f"Error sending message to target agent: {e}"
+            )
 
         turn_resp = self._generate_conversation_turn(
             test_run_id=test_run_id,
