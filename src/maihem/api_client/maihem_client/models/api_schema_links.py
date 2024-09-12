@@ -12,15 +12,23 @@ T = TypeVar("T", bound="APISchemaLinks")
 class APISchemaLinks:
     """
     Attributes:
+        test_conversations (Union[None, Unset, str]):
         test_result (Union[None, Unset, str]):
         test_result_conversations (Union[None, Unset, str]):
     """
 
+    test_conversations: Union[None, Unset, str] = UNSET
     test_result: Union[None, Unset, str] = UNSET
     test_result_conversations: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        test_conversations: Union[None, Unset, str]
+        if isinstance(self.test_conversations, Unset):
+            test_conversations = UNSET
+        else:
+            test_conversations = self.test_conversations
+
         test_result: Union[None, Unset, str]
         if isinstance(self.test_result, Unset):
             test_result = UNSET
@@ -36,6 +44,8 @@ class APISchemaLinks:
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
+        if test_conversations is not UNSET:
+            field_dict["test_conversations"] = test_conversations
         if test_result is not UNSET:
             field_dict["test_result"] = test_result
         if test_result_conversations is not UNSET:
@@ -46,6 +56,15 @@ class APISchemaLinks:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+
+        def _parse_test_conversations(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        test_conversations = _parse_test_conversations(d.pop("test_conversations", UNSET))
 
         def _parse_test_result(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -66,6 +85,7 @@ class APISchemaLinks:
         test_result_conversations = _parse_test_result_conversations(d.pop("test_result_conversations", UNSET))
 
         api_schema_links = cls(
+            test_conversations=test_conversations,
             test_result=test_result,
             test_result_conversations=test_result_conversations,
         )

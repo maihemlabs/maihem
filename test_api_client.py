@@ -21,7 +21,7 @@ def chat_function_colin(
     agent_maihem_message: str,
 ) -> Tuple[str, List[str]]:
 
-    url = "http://localhost:8002/chat"
+    url = "http://localhost:8002/chat?use_db=false"
 
     payload = json.dumps(
         {
@@ -47,9 +47,9 @@ def chat_function_colin(
 #     language="en",
 # )
 
-# target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
+target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 
-# target_agent.set_chat_function(chat_function=chat_function_colin)
+target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
 #     identifier="test-v-50",
@@ -60,10 +60,10 @@ def chat_function_colin(
 #     metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
 # )
 
-# test_run = maihem_client.create_test_run(
-#     test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
-# )
+test_run = maihem_client.create_test_run(
+    test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
+)
 
-test_run = maihem_client.get_test_run_results("tr_01j6vhgs20ekpsjnnx7y4pts9r")
+test_run = maihem_client.get_test_run_result(test_run_id=test_run.id)
 
 print(test_run)

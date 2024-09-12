@@ -3,19 +3,23 @@ from typing import Any, Dict, List, Type, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="APISchemaTestRunMetricScores")
+from ..models.test_result_enum import TestResultEnum
+
+T = TypeVar("T", bound="APISchemaTestRunResultMetricScores")
 
 
 @_attrs_define
-class APISchemaTestRunMetricScores:
+class APISchemaTestRunResultMetricScores:
     """
     Attributes:
+        result (TestResultEnum):
         total (int):
         passed (int):
         failed (int):
         errored (int):
     """
 
+    result: TestResultEnum
     total: int
     passed: int
     failed: int
@@ -23,6 +27,8 @@ class APISchemaTestRunMetricScores:
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
+        result = self.result.value
+
         total = self.total
 
         passed = self.passed
@@ -35,6 +41,7 @@ class APISchemaTestRunMetricScores:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
+                "result": result,
                 "total": total,
                 "passed": passed,
                 "failed": failed,
@@ -47,6 +54,8 @@ class APISchemaTestRunMetricScores:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
+        result = TestResultEnum(d.pop("result"))
+
         total = d.pop("total")
 
         passed = d.pop("passed")
@@ -55,15 +64,16 @@ class APISchemaTestRunMetricScores:
 
         errored = d.pop("errored")
 
-        api_schema_test_run_metric_scores = cls(
+        api_schema_test_run_result_metric_scores = cls(
+            result=result,
             total=total,
             passed=passed,
             failed=failed,
             errored=errored,
         )
 
-        api_schema_test_run_metric_scores.additional_properties = d
-        return api_schema_test_run_metric_scores
+        api_schema_test_run_result_metric_scores.additional_properties = d
+        return api_schema_test_run_result_metric_scores
 
     @property
     def additional_keys(self) -> List[str]:

@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run_with_results import APISchemaTestRunWithResults
+from ...models.api_schema_test_run_result_metrics import APISchemaTestRunResultMetrics
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -30,9 +30,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRunWithResults, ErrorResponse]]:
+) -> Optional[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = APISchemaTestRunWithResults.from_dict(response.json())
+        response_200 = APISchemaTestRunResultMetrics.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -59,7 +59,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRunWithResults, ErrorResponse]]:
+) -> Response[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,10 +73,10 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithResults, ErrorResponse]]:
-    """Get test run with results
+) -> Response[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
+    """Get test run results
 
-     Get a test run with results
+     Get test run results
 
     Args:
         test_run_id (str):
@@ -87,7 +87,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithResults, ErrorResponse]]
+        Response[Union[APISchemaTestRunResultMetrics, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -107,10 +107,10 @@ def sync(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithResults, ErrorResponse]]:
-    """Get test run with results
+) -> Optional[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
+    """Get test run results
 
-     Get a test run with results
+     Get test run results
 
     Args:
         test_run_id (str):
@@ -121,7 +121,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithResults, ErrorResponse]
+        Union[APISchemaTestRunResultMetrics, ErrorResponse]
     """
 
     return sync_detailed(
@@ -136,10 +136,10 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithResults, ErrorResponse]]:
-    """Get test run with results
+) -> Response[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
+    """Get test run results
 
-     Get a test run with results
+     Get test run results
 
     Args:
         test_run_id (str):
@@ -150,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithResults, ErrorResponse]]
+        Response[Union[APISchemaTestRunResultMetrics, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -168,10 +168,10 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithResults, ErrorResponse]]:
-    """Get test run with results
+) -> Optional[Union[APISchemaTestRunResultMetrics, ErrorResponse]]:
+    """Get test run results
 
-     Get a test run with results
+     Get test run results
 
     Args:
         test_run_id (str):
@@ -182,7 +182,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithResults, ErrorResponse]
+        Union[APISchemaTestRunResultMetrics, ErrorResponse]
     """
 
     return (

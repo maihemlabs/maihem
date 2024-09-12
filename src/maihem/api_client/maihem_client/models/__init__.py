@@ -12,11 +12,12 @@ from .api_schema_test_create_request import APISchemaTestCreateRequest
 from .api_schema_test_create_request_metrics_config import APISchemaTestCreateRequestMetricsConfig
 from .api_schema_test_metrics_config import APISchemaTestMetricsConfig
 from .api_schema_test_run import APISchemaTestRun
+from .api_schema_test_run_conversations import APISchemaTestRunConversations
 from .api_schema_test_run_create_request import APISchemaTestRunCreateRequest
-from .api_schema_test_run_metric_scores import APISchemaTestRunMetricScores
-from .api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
-from .api_schema_test_run_with_results import APISchemaTestRunWithResults
-from .api_schema_test_run_with_results_metric_scores import APISchemaTestRunWithResultsMetricScores
+from .api_schema_test_run_result_conversations import APISchemaTestRunResultConversations
+from .api_schema_test_run_result_metric_scores import APISchemaTestRunResultMetricScores
+from .api_schema_test_run_result_metrics import APISchemaTestRunResultMetrics
+from .api_schema_test_run_result_metrics_metric_scores import APISchemaTestRunResultMetricsMetricScores
 from .conversation_nested import ConversationNested
 from .conversation_nested_evaluation import ConversationNestedEvaluation
 from .conversation_nested_evaluation_base import ConversationNestedEvaluationBase
@@ -49,11 +50,12 @@ __all__ = (
     "APISchemaTestCreateRequestMetricsConfig",
     "APISchemaTestMetricsConfig",
     "APISchemaTestRun",
+    "APISchemaTestRunConversations",
     "APISchemaTestRunCreateRequest",
-    "APISchemaTestRunMetricScores",
-    "APISchemaTestRunWithConversationsNested",
-    "APISchemaTestRunWithResults",
-    "APISchemaTestRunWithResultsMetricScores",
+    "APISchemaTestRunResultConversations",
+    "APISchemaTestRunResultMetrics",
+    "APISchemaTestRunResultMetricScores",
+    "APISchemaTestRunResultMetricsMetricScores",
     "ConversationNested",
     "ConversationNestedEvaluation",
     "ConversationNestedEvaluationBase",
