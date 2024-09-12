@@ -11,14 +11,14 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.api_schema_links import APISchemaLinks
-    from ..models.api_schema_test_run_with_results_metric_scores import APISchemaTestRunWithResultsMetricScores
+    from ..models.api_schema_test_run_result_metrics_metric_scores import APISchemaTestRunResultMetricsMetricScores
 
 
-T = TypeVar("T", bound="APISchemaTestRunWithResults")
+T = TypeVar("T", bound="APISchemaTestRunResultMetrics")
 
 
 @_attrs_define
-class APISchemaTestRunWithResults:
+class APISchemaTestRunResultMetrics:
     """
     Attributes:
         id (str):
@@ -31,7 +31,7 @@ class APISchemaTestRunWithResults:
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
         links (Union['APISchemaLinks', None, Unset]):
-        metric_scores (Union[Unset, APISchemaTestRunWithResultsMetricScores]):
+        metric_scores (Union[Unset, APISchemaTestRunResultMetricsMetricScores]):
     """
 
     id: str
@@ -44,7 +44,7 @@ class APISchemaTestRunWithResults:
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
     links: Union["APISchemaLinks", None, Unset] = UNSET
-    metric_scores: Union[Unset, "APISchemaTestRunWithResultsMetricScores"] = UNSET
+    metric_scores: Union[Unset, "APISchemaTestRunResultMetricsMetricScores"] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -119,7 +119,7 @@ class APISchemaTestRunWithResults:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.api_schema_links import APISchemaLinks
-        from ..models.api_schema_test_run_with_results_metric_scores import APISchemaTestRunWithResultsMetricScores
+        from ..models.api_schema_test_run_result_metrics_metric_scores import APISchemaTestRunResultMetricsMetricScores
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -188,13 +188,13 @@ class APISchemaTestRunWithResults:
         links = _parse_links(d.pop("links", UNSET))
 
         _metric_scores = d.pop("metric_scores", UNSET)
-        metric_scores: Union[Unset, APISchemaTestRunWithResultsMetricScores]
+        metric_scores: Union[Unset, APISchemaTestRunResultMetricsMetricScores]
         if isinstance(_metric_scores, Unset):
             metric_scores = UNSET
         else:
-            metric_scores = APISchemaTestRunWithResultsMetricScores.from_dict(_metric_scores)
+            metric_scores = APISchemaTestRunResultMetricsMetricScores.from_dict(_metric_scores)
 
-        api_schema_test_run_with_results = cls(
+        api_schema_test_run_result_metrics = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
@@ -208,8 +208,8 @@ class APISchemaTestRunWithResults:
             metric_scores=metric_scores,
         )
 
-        api_schema_test_run_with_results.additional_properties = d
-        return api_schema_test_run_with_results
+        api_schema_test_run_result_metrics.additional_properties = d
+        return api_schema_test_run_result_metrics
 
     @property
     def additional_keys(self) -> List[str]:

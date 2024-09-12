@@ -6,9 +6,10 @@ from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import (
     Test,
     TestRun,
-    TestRunWithConversationsNested,
-    TestRunResult,
+    TestRunResultConversations,
+    TestRunResultMetrics,
     TestRunResultMetricScore,
+    TestRunConversations,
 )
 from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
@@ -69,7 +70,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_results(test_run_id: str) -> TestRun:
+    def get_test_run_result(test_run_id: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
@@ -242,13 +243,8 @@ class Maihem(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        test_run_with_conversations = self.get_test_run_results_with_conversations(
-            test_run.id
-        )
-
-        conversation_ids = [
-            conv.id for conv in test_run_with_conversations.conversations
-        ]
+        test_run_conversations = self.get_test_run_conversations(test_run.id)
+        conversation_ids = test_run_conversations.conversation_ids
 
         logger.info(f"Test run spawned for test {test.identifier}!")
         print("\n" + "-" * 50 + "\n")
@@ -298,7 +294,24 @@ class Maihem(Client):
         logger.info(f"Test run ({test_run.id}) completed!")
         return test_run
 
-    def get_test_run_results(self, test_run_id: str) -> TestRunResult:
+    def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
+        resp = None
+
+        try:
+            resp = self._maihem_api_client.get_test_run_conversations(test_run_id)
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        test_run = None
+
+        try:
+            test_run = TestRunConversations.model_validate(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
+        return test_run
+
+    def get_test_run_result(self, test_run_id: str) -> TestRunResultMetrics:
         resp = None
 
         try:
@@ -308,22 +321,22 @@ class Maihem(Client):
 
         test_run = None
 
-        print(resp.to_dict())
-
         try:
-            test_run = TestRunResult.model_validate(resp.to_dict())
+            test_run = TestRunResultMetrics.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
         return test_run
 
-    def get_test_run_results_with_conversations(
+    def get_test_run_result_conversations(
         self, test_run_id: str
-    ) -> TestRunWithConversationsNested:
+    ) -> TestRunResultConversations:
         resp = None
 
         try:
-            resp = self._maihem_api_client.get_test_run_with_conversations(test_run_id)
+            resp = self._maihem_api_client.get_test_run_result_conversations(
+                test_run_id
+            )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
@@ -343,7 +356,7 @@ class Maihem(Client):
                 except ValidationError as e:
                     errors.handle_schema_validation_error(e)
 
-            test_run = TestRunWithConversationsNested.model_validate(resp_dict)
+            test_run = TestRunResultConversations.model_validate(resp_dict)
             test_run.conversations = conversation_nesteds
         except ValidationError as e:
             errors.handle_schema_validation_error(e)

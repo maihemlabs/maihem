@@ -11,14 +11,13 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.api_schema_links import APISchemaLinks
-    from ..models.conversation_nested import ConversationNested
 
 
-T = TypeVar("T", bound="APISchemaTestRunWithConversationsNested")
+T = TypeVar("T", bound="APISchemaTestRunConversations")
 
 
 @_attrs_define
-class APISchemaTestRunWithConversationsNested:
+class APISchemaTestRunConversations:
     """
     Attributes:
         id (str):
@@ -31,7 +30,7 @@ class APISchemaTestRunWithConversationsNested:
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
         links (Union['APISchemaLinks', None, Unset]):
-        conversations (Union[Unset, List['ConversationNested']]):
+        conversation_ids (Union[Unset, List[str]]):
     """
 
     id: str
@@ -44,7 +43,7 @@ class APISchemaTestRunWithConversationsNested:
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
     links: Union["APISchemaLinks", None, Unset] = UNSET
-    conversations: Union[Unset, List["ConversationNested"]] = UNSET
+    conversation_ids: Union[Unset, List[str]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -88,12 +87,9 @@ class APISchemaTestRunWithConversationsNested:
         else:
             links = self.links
 
-        conversations: Union[Unset, List[Dict[str, Any]]] = UNSET
-        if not isinstance(self.conversations, Unset):
-            conversations = []
-            for conversations_item_data in self.conversations:
-                conversations_item = conversations_item_data.to_dict()
-                conversations.append(conversations_item)
+        conversation_ids: Union[Unset, List[str]] = UNSET
+        if not isinstance(self.conversation_ids, Unset):
+            conversation_ids = self.conversation_ids
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -114,15 +110,14 @@ class APISchemaTestRunWithConversationsNested:
             field_dict["completed_at"] = completed_at
         if links is not UNSET:
             field_dict["links"] = links
-        if conversations is not UNSET:
-            field_dict["conversations"] = conversations
+        if conversation_ids is not UNSET:
+            field_dict["conversation_ids"] = conversation_ids
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.api_schema_links import APISchemaLinks
-        from ..models.conversation_nested import ConversationNested
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -190,14 +185,9 @@ class APISchemaTestRunWithConversationsNested:
 
         links = _parse_links(d.pop("links", UNSET))
 
-        conversations = []
-        _conversations = d.pop("conversations", UNSET)
-        for conversations_item_data in _conversations or []:
-            conversations_item = ConversationNested.from_dict(conversations_item_data)
+        conversation_ids = cast(List[str], d.pop("conversation_ids", UNSET))
 
-            conversations.append(conversations_item)
-
-        api_schema_test_run_with_conversations_nested = cls(
+        api_schema_test_run_conversations = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
@@ -208,11 +198,11 @@ class APISchemaTestRunWithConversationsNested:
             started_at=started_at,
             completed_at=completed_at,
             links=links,
-            conversations=conversations,
+            conversation_ids=conversation_ids,
         )
 
-        api_schema_test_run_with_conversations_nested.additional_properties = d
-        return api_schema_test_run_with_conversations_nested
+        api_schema_test_run_conversations.additional_properties = d
+        return api_schema_test_run_conversations
 
     @property
     def additional_keys(self) -> List[str]:

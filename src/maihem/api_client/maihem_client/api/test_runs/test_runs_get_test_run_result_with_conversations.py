@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run_with_conversations_nested import APISchemaTestRunWithConversationsNested
+from ...models.api_schema_test_run_result_conversations import APISchemaTestRunResultConversations
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -21,7 +21,7 @@ def _get_kwargs(
 
     _kwargs: Dict[str, Any] = {
         "method": "get",
-        "url": f"/test-runs/{test_run_id}/conversations",
+        "url": f"/test-runs/{test_run_id}/results/conversations",
     }
 
     _kwargs["headers"] = headers
@@ -30,9 +30,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
+) -> Optional[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
     if response.status_code == HTTPStatus.OK:
-        response_200 = APISchemaTestRunWithConversationsNested.from_dict(response.json())
+        response_200 = APISchemaTestRunResultConversations.from_dict(response.json())
 
         return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -59,7 +59,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
+) -> Response[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,10 +73,10 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
-    """Get test run with conversations
+) -> Response[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
+    """Get test run result with conversations
 
-     Get a test run including agent conversations
+     Get a test run result including agent conversations
 
     Args:
         test_run_id (str):
@@ -87,7 +87,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]
+        Response[Union[APISchemaTestRunResultConversations, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -107,10 +107,10 @@ def sync(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
-    """Get test run with conversations
+) -> Optional[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
+    """Get test run result with conversations
 
-     Get a test run including agent conversations
+     Get a test run result including agent conversations
 
     Args:
         test_run_id (str):
@@ -121,7 +121,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithConversationsNested, ErrorResponse]
+        Union[APISchemaTestRunResultConversations, ErrorResponse]
     """
 
     return sync_detailed(
@@ -136,10 +136,10 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
-    """Get test run with conversations
+) -> Response[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
+    """Get test run result with conversations
 
-     Get a test run including agent conversations
+     Get a test run result including agent conversations
 
     Args:
         test_run_id (str):
@@ -150,7 +150,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]
+        Response[Union[APISchemaTestRunResultConversations, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -168,10 +168,10 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRunWithConversationsNested, ErrorResponse]]:
-    """Get test run with conversations
+) -> Optional[Union[APISchemaTestRunResultConversations, ErrorResponse]]:
+    """Get test run result with conversations
 
-     Get a test run including agent conversations
+     Get a test run result including agent conversations
 
     Args:
         test_run_id (str):
@@ -182,7 +182,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRunWithConversationsNested, ErrorResponse]
+        Union[APISchemaTestRunResultConversations, ErrorResponse]
     """
 
     return (

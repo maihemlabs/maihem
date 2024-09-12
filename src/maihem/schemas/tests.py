@@ -26,6 +26,7 @@ class TestResultEnum(str, Enum):
 
 
 class APISchemaLinks(BaseModel):
+    test_conversations: Optional[str] = None
     test_result: Optional[str] = None
     test_result_conversations: Optional[str] = None
 
@@ -61,6 +62,13 @@ class TestRun(BaseModel):
         return json.dumps(self.model_dump(), default=str, indent=4)
 
 
+class TestRunConversations(TestRun):
+    conversation_ids: List[str] = []
+
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
+
+
 class TestRunResultMetricScore(BaseModel):
     total: int
     passed: int
@@ -68,11 +76,11 @@ class TestRunResultMetricScore(BaseModel):
     errored: int
 
 
-class TestRunResult(TestRun):
+class TestRunResultMetrics(TestRun):
     metric_scores: Dict[str, TestRunResultMetricScore] = {}
 
 
-class TestRunWithConversationsNested(TestRun):
+class TestRunResultConversations(TestRun):
     conversations: List[ConversationNested] = []
 
     def __str__(self):
