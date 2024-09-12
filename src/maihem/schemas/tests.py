@@ -61,6 +61,17 @@ class TestRun(BaseModel):
         return json.dumps(self.model_dump(), default=str, indent=4)
 
 
+class TestRunResultMetricScore(BaseModel):
+    total: int
+    passed: int
+    failed: int
+    errored: int
+
+
+class TestRunResult(TestRun):
+    metric_scores: Dict[str, TestRunResultMetricScore] = {}
+
+
 class TestRunWithConversationsNested(TestRun):
     conversations: List[ConversationNested] = []
 

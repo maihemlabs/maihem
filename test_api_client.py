@@ -47,9 +47,9 @@ def chat_function_colin(
 #     language="en",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
+# target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 
-target_agent.set_chat_function(chat_function=chat_function_colin)
+# target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
 #     identifier="test-v-50",
@@ -60,10 +60,10 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 #     metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
 # )
 
-test_run = maihem_client.create_test_run(
-    test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
-)
+# test_run = maihem_client.create_test_run(
+#     test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
+# )
 
-test_run = maihem_client.get_test_run_results_with_conversations(
-    "tr_01j7g921afeg8rjm2cmxgad3ag"
-)
+test_run = maihem_client.get_test_run_results("tr_01j6vhgs20ekpsjnnx7y4pts9r")
+
+print(test_run)
