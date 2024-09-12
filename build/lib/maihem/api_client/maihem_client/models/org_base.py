@@ -3,74 +3,65 @@ from typing import Any, Dict, List, Type, TypeVar, Union, cast
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.error_codes import ErrorCodes
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="ErrorResponseError")
+T = TypeVar("T", bound="OrgBase")
 
 
 @_attrs_define
-class ErrorResponseError:
+class OrgBase:
     """
     Attributes:
-        code (ErrorCodes):
-        message (str):
-        detail (Union[Any, None, Unset]):
+        name (str):
+        idp_org_id (Union[None, Unset, str]):
     """
 
-    code: ErrorCodes
-    message: str
-    detail: Union[Any, None, Unset] = UNSET
+    name: str
+    idp_org_id: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        code = self.code.value
+        name = self.name
 
-        message = self.message
-
-        detail: Union[Any, None, Unset]
-        if isinstance(self.detail, Unset):
-            detail = UNSET
+        idp_org_id: Union[None, Unset, str]
+        if isinstance(self.idp_org_id, Unset):
+            idp_org_id = UNSET
         else:
-            detail = self.detail
+            idp_org_id = self.idp_org_id
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "code": code,
-                "message": message,
+                "name": name,
             }
         )
-        if detail is not UNSET:
-            field_dict["detail"] = detail
+        if idp_org_id is not UNSET:
+            field_dict["idp_org_id"] = idp_org_id
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        code = ErrorCodes(d.pop("code"))
+        name = d.pop("name")
 
-        message = d.pop("message")
-
-        def _parse_detail(data: object) -> Union[Any, None, Unset]:
+        def _parse_idp_org_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
-            return cast(Union[Any, None, Unset], data)
+            return cast(Union[None, Unset, str], data)
 
-        detail = _parse_detail(d.pop("detail", UNSET))
+        idp_org_id = _parse_idp_org_id(d.pop("idp_org_id", UNSET))
 
-        error_response_error = cls(
-            code=code,
-            message=message,
-            detail=detail,
+        org_base = cls(
+            name=name,
+            idp_org_id=idp_org_id,
         )
 
-        error_response_error.additional_properties = d
-        return error_response_error
+        org_base.additional_properties = d
+        return org_base
 
     @property
     def additional_keys(self) -> List[str]:
