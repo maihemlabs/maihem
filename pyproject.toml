@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "maihem"
-version = "1.4.5"
+version = "1.5.0"
 description = "LLM evaluations and synthetic data generation with the MAIHEM models"
 readme = "README.md"
 authors = [{ name = "MAIHEM"}]
@@ -17,8 +17,8 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
-dependencies = ["requests", "pandas"]
-requires-python = ">=3.5"
+dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio"]
+requires-python = ">=3.9"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"

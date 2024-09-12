@@ -1,2 +1,10 @@
 requests
 pandas
+pydantic
+pycountry
+pydantic_extra_types
+httpx
+attrs
+loguru
+tqdm
+anyio
