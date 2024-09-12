@@ -3,7 +3,6 @@ MANIFEST.in
 README.md
 pyproject.toml
 setup.cfg
-src/test_flow_rosebud.py
 src/maihem/__init__.py
 src/maihem/api.py
 src/maihem/clients.py
