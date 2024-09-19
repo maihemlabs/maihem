@@ -166,11 +166,14 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
+        document: Optional[Dict[str, str]] = None,
     ) -> APISchemaConversationTurnCreateResponse:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             req: APISchemaConversationTurnCreateRequest = (
                 APISchemaConversationTurnCreateRequest(
-                    message=target_agent_message, contexts=contexts
+                    message=target_agent_message,
+                    contexts=contexts,
+                    document=document,
                 )
             )
 

@@ -43,6 +43,8 @@ Requires-Dist: attrs
 Requires-Dist: loguru
 Requires-Dist: tqdm
 Requires-Dist: anyio
+Requires-Dist: pymupdf
+Requires-Dist: docx2txt
 
 # maihem
 
