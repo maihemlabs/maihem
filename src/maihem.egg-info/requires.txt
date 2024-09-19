@@ -8,3 +8,5 @@ attrs
 loguru
 tqdm
 anyio
+pymupdf
+docx2txt
