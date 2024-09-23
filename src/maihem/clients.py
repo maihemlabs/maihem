@@ -450,11 +450,11 @@ class Maihem(Client):
                 agent_type=AgentType.MAIHEM,
                 conversation=turn_resp.conversation,
             )
-        elif previous_turn_id is None:
+        elif previous_turn_id is None and len(conversation.conversation_turns) > 0:
             return ConversationTurnCreateResponse(
                 turn_id=None, conversation=conversation
             )
-        else:
+        elif previous_turn_id is not None and len(conversation.conversation_turns) > 0:
             agent_maithem_message = self._get_conversation_message_from_conversation(
                 turn_id=previous_turn_id,
                 agent_type=AgentType.MAIHEM,
@@ -526,7 +526,7 @@ class Maihem(Client):
         self,
         target_agent: AgentTarget,
         conversation_id: str,
-        agent_maihem_message: str,
+        agent_maihem_message: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         target_agent_message, contexts = target_agent._send_message(
             conversation_id, agent_maihem_message
