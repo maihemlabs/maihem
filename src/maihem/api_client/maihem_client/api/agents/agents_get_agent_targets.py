@@ -63,6 +63,10 @@ def _parse_response(
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
+    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+        response_504 = ErrorResponse.from_dict(response.json())
+
+        return response_504
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:

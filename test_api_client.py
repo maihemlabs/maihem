@@ -39,7 +39,7 @@ def chat_function_colin(
 
 
 # target_agent = maihem_client.create_target_agent(
-#     identifier="agent-colin-local-v2",
+#     identifier="agent-colin-prod-v2",
 #     name="Agent Colin Local",
 #     industry="Technology",
 #     description="A helpful customer support agent",
@@ -52,16 +52,20 @@ target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
-#     identifier="test-v-50",
-#     name="Test V50",
+#     identifier="test-v-56",
+#     name="Test V55",
 #     initiating_agent="maihem",
-#     conversation_turns_max=7,
-#     maihem_agent_behavior_prompt="Example prompt",
-#     metrics_config={"qa_rag_answer_relevance": 2, "qa_rag_hallucination": 2},
+#     conversation_turns_max=10,
+#     maihem_agent_behavior_prompt="Be a difficult customer",
+#     metrics_config={
+#         "qa_cx_helpfulness": 2,
+#         "qa_cx_goal_completion": 2,
+#         "qa_rag_hallucination": 2,
+#     },
 # )
 
 test_run = maihem_client.create_test_run(
-    test_identifier="test-v-50", target_agent=target_agent, concurrent_conversations=4
+    test_identifier="test-v-56", target_agent=target_agent, concurrent_conversations=4
 )
 
 test_run = maihem_client.get_test_run_result(test_run_id=test_run.id)
