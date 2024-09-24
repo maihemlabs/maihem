@@ -9,7 +9,7 @@ import os
 from maihem.utils import extract_text
 
 
-class AgentTarget(BaseModel):
+class TargetAgent(BaseModel):
     id: str
     created_at: datetime
     updated_at: datetime
