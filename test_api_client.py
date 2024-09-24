@@ -14,6 +14,7 @@ from maihem.clients import Maihem
 maihem_client = Maihem()
 
 maihem_client._override_base_url(base_url="http://localhost:8000")
+maihem_client._override_base_url_ui(base_url_ui="http://localhost:3000")
 
 
 def chat_function_colin(
@@ -47,9 +48,9 @@ def chat_function_colin(
 #     language="en",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
+# target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
 
-target_agent.set_chat_function(chat_function=chat_function_colin)
+# target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # test = maihem_client.create_test(
 #     identifier="test-v-56",
@@ -64,10 +65,12 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 #     },
 # )
 
-test_run = maihem_client.create_test_run(
-    test_identifier="test-v-56", target_agent=target_agent, concurrent_conversations=4
-)
+# test_run = maihem_client.create_test_run(
+#     test_identifier="test-v-56", target_agent=target_agent, concurrent_conversations=4
+# )
 
-test_run = maihem_client.get_test_run_result(test_run_id=test_run.id)
+test_run = maihem_client.get_test_run_result(
+    test_run_id="tr_01j8hy5kyge9b8tx8ygr21qwq1"
+)
 
 print(test_run)

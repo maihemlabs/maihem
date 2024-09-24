@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_agent_target_get_response import APISchemaAgentTargetGetResponse
+from ...models.api_schema_agent_target import APISchemaAgentTarget
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -37,12 +37,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Optional[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = APISchemaAgentTargetGetResponse.from_dict(response_200_item_data)
+            response_200_item = APISchemaAgentTarget.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -75,7 +75,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Response[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -89,7 +89,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Response[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     """Get all target agents
 
      Gets a list of all configured target agents
@@ -103,7 +103,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['APISchemaAgentTargetGetResponse']]]
+        Response[Union[ErrorResponse, List['APISchemaAgentTarget']]]
     """
 
     kwargs = _get_kwargs(
@@ -123,7 +123,7 @@ def sync(
     client: AuthenticatedClient,
     identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Optional[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     """Get all target agents
 
      Gets a list of all configured target agents
@@ -137,7 +137,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['APISchemaAgentTargetGetResponse']]
+        Union[ErrorResponse, List['APISchemaAgentTarget']]
     """
 
     return sync_detailed(
@@ -152,7 +152,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Response[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     """Get all target agents
 
      Gets a list of all configured target agents
@@ -166,7 +166,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['APISchemaAgentTargetGetResponse']]]
+        Response[Union[ErrorResponse, List['APISchemaAgentTarget']]]
     """
 
     kwargs = _get_kwargs(
@@ -184,7 +184,7 @@ async def asyncio(
     client: AuthenticatedClient,
     identifier: Union[Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["APISchemaAgentTargetGetResponse"]]]:
+) -> Optional[Union[ErrorResponse, List["APISchemaAgentTarget"]]]:
     """Get all target agents
 
      Gets a list of all configured target agents
@@ -198,7 +198,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['APISchemaAgentTargetGetResponse']]
+        Union[ErrorResponse, List['APISchemaAgentTarget']]
     """
 
     return (
