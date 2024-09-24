@@ -86,7 +86,7 @@ class AgentTarget(BaseModel):
                 logger.error(f"Error processing document {doc_path}: {str(e)}")
 
     def _send_message(
-        self, conversation_id: str, message: str
+        self, conversation_id: str, message: Optional[str] = ""
     ) -> Tuple[str, List[str]]:
         if not self._chat_function:
             errors.raise_chat_function_error("Target agent chat function not set")
