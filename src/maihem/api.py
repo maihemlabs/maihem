@@ -29,9 +29,6 @@ from maihem.api_client.maihem_client.models.api_schema_test_run_result_conversat
 from maihem.api_client.maihem_client.models.api_schema_test_run_conversations import (
     APISchemaTestRunConversations,
 )
-from maihem.api_client.maihem_client.models.api_schema_agent_target import (
-    APISchemaAgentTarget,
-)
 from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
