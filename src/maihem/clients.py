@@ -442,8 +442,8 @@ class Maihem(Client):
         document_key = None
         document_text = None
 
-        if target_agent._documents.keys():
-            document_key = random.choice(target_agent._documents.keys())
+        if target_agent._documents:
+            document_key = random.choice(list(target_agent._documents.keys()))
             document_text = target_agent._documents[document_key]
 
         if (
