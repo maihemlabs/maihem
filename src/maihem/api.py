@@ -43,6 +43,9 @@ from maihem.api_client.maihem_client.models.conversation_nested import (
 from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request import (
     APISchemaConversationTurnCreateRequest,
 )
+from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request_document_type_0 import (
+    APISchemaConversationTurnCreateRequestDocumentType0,
+)
 from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_response import (
     APISchemaConversationTurnCreateResponse,
 )
@@ -166,11 +169,23 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
+        document: Optional[Dict[str, str]] = None,
     ) -> APISchemaConversationTurnCreateResponse:
         with MaihemHTTPClient(base_url=self.base_url) as client:
+            document_req = None
+
+            if document:
+                document_req = (
+                    APISchemaConversationTurnCreateRequestDocumentType0.from_dict(
+                        document
+                    )
+                )
+
             req: APISchemaConversationTurnCreateRequest = (
                 APISchemaConversationTurnCreateRequest(
-                    message=target_agent_message, contexts=contexts
+                    message=target_agent_message,
+                    contexts=contexts,
+                    document=document_req if document_req else None,
                 )
             )
 

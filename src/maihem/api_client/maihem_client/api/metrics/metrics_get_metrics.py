@@ -1,19 +1,17 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_agent_target import APISchemaAgentTarget
-from ...models.api_schema_agent_target_create_request import APISchemaAgentTargetCreateRequest
+from ...models.api_schema_metric import APISchemaMetric
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -21,14 +19,9 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     _kwargs: Dict[str, Any] = {
-        "method": "post",
-        "url": "/agents/target",
+        "method": "get",
+        "url": "/metrics",
     }
-
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -36,11 +29,16 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaAgentTarget.from_dict(response.json())
+) -> Optional[Union[ErrorResponse, List["APISchemaMetric"]]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = APISchemaMetric.from_dict(response_200_item_data)
 
-        return response_201
+            response_200.append(response_200_item)
+
+        return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
@@ -69,7 +67,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, List["APISchemaMetric"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -81,27 +79,24 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+) -> Response[Union[ErrorResponse, List["APISchemaMetric"]]]:
+    """Get metrics
 
-     Add a new target agent for Maihem to test
+     Get all supported metrics
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, ErrorResponse]]
+        Response[Union[ErrorResponse, List['APISchemaMetric']]]
     """
 
     kwargs = _get_kwargs(
-        body=body,
         x_api_key=x_api_key,
     )
 
@@ -115,28 +110,25 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+) -> Optional[Union[ErrorResponse, List["APISchemaMetric"]]]:
+    """Get metrics
 
-     Add a new target agent for Maihem to test
+     Get all supported metrics
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, ErrorResponse]
+        Union[ErrorResponse, List['APISchemaMetric']]
     """
 
     return sync_detailed(
         client=client,
-        body=body,
         x_api_key=x_api_key,
     ).parsed
 
@@ -144,27 +136,24 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+) -> Response[Union[ErrorResponse, List["APISchemaMetric"]]]:
+    """Get metrics
 
-     Add a new target agent for Maihem to test
+     Get all supported metrics
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, ErrorResponse]]
+        Response[Union[ErrorResponse, List['APISchemaMetric']]]
     """
 
     kwargs = _get_kwargs(
-        body=body,
         x_api_key=x_api_key,
     )
 
@@ -176,29 +165,26 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+) -> Optional[Union[ErrorResponse, List["APISchemaMetric"]]]:
+    """Get metrics
 
-     Add a new target agent for Maihem to test
+     Get all supported metrics
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, ErrorResponse]
+        Union[ErrorResponse, List['APISchemaMetric']]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

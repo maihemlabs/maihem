@@ -10,7 +10,7 @@ from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.conversation_nested_evaluation_base import ConversationNestedEvaluationBase
+    from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
     from ..models.conversation_nested_turn import ConversationNestedTurn
 
 
@@ -28,7 +28,7 @@ class ConversationNested:
         result (TestResultEnum):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
-        evaluations (Union[Unset, List['ConversationNestedEvaluationBase']]):
+        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
         conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
     """
 
@@ -39,7 +39,7 @@ class ConversationNested:
     result: TestResultEnum
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
-    evaluations: Union[Unset, List["ConversationNestedEvaluationBase"]] = UNSET
+    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
     conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
@@ -108,7 +108,7 @@ class ConversationNested:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.conversation_nested_evaluation_base import ConversationNestedEvaluationBase
+        from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
         from ..models.conversation_nested_turn import ConversationNestedTurn
 
         d = src_dict.copy()
@@ -159,7 +159,7 @@ class ConversationNested:
         evaluations = []
         _evaluations = d.pop("evaluations", UNSET)
         for evaluations_item_data in _evaluations or []:
-            evaluations_item = ConversationNestedEvaluationBase.from_dict(evaluations_item_data)
+            evaluations_item = ConversationNestedEvaluation.from_dict(evaluations_item_data)
 
             evaluations.append(evaluations_item)
 

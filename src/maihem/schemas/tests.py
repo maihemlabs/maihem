@@ -77,6 +77,7 @@ class TestRunResultMetricScore(BaseModel):
 
 
 class TestRunResultMetrics(TestRun):
+    conversation_counts: Dict[str, Optional[int]] = {}
     metric_scores: Dict[str, TestRunResultMetricScore] = {}
 
 

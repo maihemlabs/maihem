@@ -6,14 +6,13 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.api_schema_agent_target import APISchemaAgentTarget
-from ...models.api_schema_agent_target_create_request import APISchemaAgentTargetCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
+    agent_target_id: str,
     *,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -21,14 +20,9 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     _kwargs: Dict[str, Any] = {
-        "method": "post",
-        "url": "/agents/target",
+        "method": "get",
+        "url": f"/agents/target/{agent_target_id}",
     }
-
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -37,10 +31,10 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaAgentTarget.from_dict(response.json())
+    if response.status_code == HTTPStatus.OK:
+        response_200 = APISchemaAgentTarget.from_dict(response.json())
 
-        return response_201
+        return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
@@ -79,18 +73,18 @@ def _build_response(
 
 
 def sync_detailed(
+    agent_target_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+    """Get a target agent
 
-     Add a new target agent for Maihem to test
+     Gets a specified target agent
 
     Args:
+        agent_target_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -101,7 +95,7 @@ def sync_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
+        agent_target_id=agent_target_id,
         x_api_key=x_api_key,
     )
 
@@ -113,18 +107,18 @@ def sync_detailed(
 
 
 def sync(
+    agent_target_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+    """Get a target agent
 
-     Add a new target agent for Maihem to test
+     Gets a specified target agent
 
     Args:
+        agent_target_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -135,25 +129,25 @@ def sync(
     """
 
     return sync_detailed(
+        agent_target_id=agent_target_id,
         client=client,
-        body=body,
         x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
+    agent_target_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+    """Get a target agent
 
-     Add a new target agent for Maihem to test
+     Gets a specified target agent
 
     Args:
+        agent_target_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -164,7 +158,7 @@ async def asyncio_detailed(
     """
 
     kwargs = _get_kwargs(
-        body=body,
+        agent_target_id=agent_target_id,
         x_api_key=x_api_key,
     )
 
@@ -174,18 +168,18 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    agent_target_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Connect target agent
+    """Get a target agent
 
-     Add a new target agent for Maihem to test
+     Gets a specified target agent
 
     Args:
+        agent_target_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -197,8 +191,8 @@ async def asyncio(
 
     return (
         await asyncio_detailed(
+            agent_target_id=agent_target_id,
             client=client,
-            body=body,
             x_api_key=x_api_key,
         )
     ).parsed
