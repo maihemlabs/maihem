@@ -1,59 +1,51 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-from ..models.agent_maihem_role import AgentMaihemRole
-from ..models.agent_type import AgentType
 from ..models.test_result_enum import TestResultEnum
 from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
 
-if TYPE_CHECKING:
-    from ..models.api_schema_test_metrics_config import APISchemaTestMetricsConfig
-
-
-T = TypeVar("T", bound="APISchemaTest")
+T = TypeVar("T", bound="APISchemaAgentTarget")
 
 
 @_attrs_define
-class APISchemaTest:
+class APISchemaAgentTarget:
     """
     Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         identifier (str):
-        initiating_agent (AgentType):
-        metrics_config (APISchemaTestMetricsConfig):
+        role (str):
+        language (str):
         name (Union[None, Unset, str]):
-        conversation_turns_max (Union[None, Unset, int]):
-        agent_maihem_behavior_prompt (Union[None, Unset, str]):
-        agent_maihem_roles (Union[Unset, List[AgentMaihemRole]]):
+        description (Union[None, Unset, str]):
+        industry (Union[None, Unset, str]):
+        url (Union[None, Unset, str]):
         last_test_run_id (Union[None, Unset, str]):
         last_test_run_at (Union[None, Unset, datetime.datetime]):
         last_test_run_status (Union[None, TestStatusEnum, Unset]):
         last_test_run_result (Union[None, TestResultEnum, Unset]):
-        last_test_run_result_score (Union[None, Unset, float]):
     """
 
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
     identifier: str
-    initiating_agent: AgentType
-    metrics_config: "APISchemaTestMetricsConfig"
+    role: str
+    language: str
     name: Union[None, Unset, str] = UNSET
-    conversation_turns_max: Union[None, Unset, int] = UNSET
-    agent_maihem_behavior_prompt: Union[None, Unset, str] = UNSET
-    agent_maihem_roles: Union[Unset, List[AgentMaihemRole]] = UNSET
+    description: Union[None, Unset, str] = UNSET
+    industry: Union[None, Unset, str] = UNSET
+    url: Union[None, Unset, str] = UNSET
     last_test_run_id: Union[None, Unset, str] = UNSET
     last_test_run_at: Union[None, Unset, datetime.datetime] = UNSET
     last_test_run_status: Union[None, TestStatusEnum, Unset] = UNSET
     last_test_run_result: Union[None, TestResultEnum, Unset] = UNSET
-    last_test_run_result_score: Union[None, Unset, float] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -65,9 +57,9 @@ class APISchemaTest:
 
         identifier = self.identifier
 
-        initiating_agent = self.initiating_agent.value
+        role = self.role
 
-        metrics_config = self.metrics_config.to_dict()
+        language = self.language
 
         name: Union[None, Unset, str]
         if isinstance(self.name, Unset):
@@ -75,24 +67,23 @@ class APISchemaTest:
         else:
             name = self.name
 
-        conversation_turns_max: Union[None, Unset, int]
-        if isinstance(self.conversation_turns_max, Unset):
-            conversation_turns_max = UNSET
+        description: Union[None, Unset, str]
+        if isinstance(self.description, Unset):
+            description = UNSET
         else:
-            conversation_turns_max = self.conversation_turns_max
+            description = self.description
 
-        agent_maihem_behavior_prompt: Union[None, Unset, str]
-        if isinstance(self.agent_maihem_behavior_prompt, Unset):
-            agent_maihem_behavior_prompt = UNSET
+        industry: Union[None, Unset, str]
+        if isinstance(self.industry, Unset):
+            industry = UNSET
         else:
-            agent_maihem_behavior_prompt = self.agent_maihem_behavior_prompt
+            industry = self.industry
 
-        agent_maihem_roles: Union[Unset, List[str]] = UNSET
-        if not isinstance(self.agent_maihem_roles, Unset):
-            agent_maihem_roles = []
-            for agent_maihem_roles_item_data in self.agent_maihem_roles:
-                agent_maihem_roles_item = agent_maihem_roles_item_data.value
-                agent_maihem_roles.append(agent_maihem_roles_item)
+        url: Union[None, Unset, str]
+        if isinstance(self.url, Unset):
+            url = UNSET
+        else:
+            url = self.url
 
         last_test_run_id: Union[None, Unset, str]
         if isinstance(self.last_test_run_id, Unset):
@@ -124,12 +115,6 @@ class APISchemaTest:
         else:
             last_test_run_result = self.last_test_run_result
 
-        last_test_run_result_score: Union[None, Unset, float]
-        if isinstance(self.last_test_run_result_score, Unset):
-            last_test_run_result_score = UNSET
-        else:
-            last_test_run_result_score = self.last_test_run_result_score
-
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -138,18 +123,18 @@ class APISchemaTest:
                 "created_at": created_at,
                 "updated_at": updated_at,
                 "identifier": identifier,
-                "initiating_agent": initiating_agent,
-                "metrics_config": metrics_config,
+                "role": role,
+                "language": language,
             }
         )
         if name is not UNSET:
             field_dict["name"] = name
-        if conversation_turns_max is not UNSET:
-            field_dict["conversation_turns_max"] = conversation_turns_max
-        if agent_maihem_behavior_prompt is not UNSET:
-            field_dict["agent_maihem_behavior_prompt"] = agent_maihem_behavior_prompt
-        if agent_maihem_roles is not UNSET:
-            field_dict["agent_maihem_roles"] = agent_maihem_roles
+        if description is not UNSET:
+            field_dict["description"] = description
+        if industry is not UNSET:
+            field_dict["industry"] = industry
+        if url is not UNSET:
+            field_dict["url"] = url
         if last_test_run_id is not UNSET:
             field_dict["last_test_run_id"] = last_test_run_id
         if last_test_run_at is not UNSET:
@@ -158,15 +143,11 @@ class APISchemaTest:
             field_dict["last_test_run_status"] = last_test_run_status
         if last_test_run_result is not UNSET:
             field_dict["last_test_run_result"] = last_test_run_result
-        if last_test_run_result_score is not UNSET:
-            field_dict["last_test_run_result_score"] = last_test_run_result_score
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.api_schema_test_metrics_config import APISchemaTestMetricsConfig
-
         d = src_dict.copy()
         id = d.pop("id")
 
@@ -176,9 +157,9 @@ class APISchemaTest:
 
         identifier = d.pop("identifier")
 
-        initiating_agent = AgentType(d.pop("initiating_agent"))
+        role = d.pop("role")
 
-        metrics_config = APISchemaTestMetricsConfig.from_dict(d.pop("metrics_config"))
+        language = d.pop("language")
 
         def _parse_name(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -189,30 +170,32 @@ class APISchemaTest:
 
         name = _parse_name(d.pop("name", UNSET))
 
-        def _parse_conversation_turns_max(data: object) -> Union[None, Unset, int]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, int], data)
-
-        conversation_turns_max = _parse_conversation_turns_max(d.pop("conversation_turns_max", UNSET))
-
-        def _parse_agent_maihem_behavior_prompt(data: object) -> Union[None, Unset, str]:
+        def _parse_description(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        agent_maihem_behavior_prompt = _parse_agent_maihem_behavior_prompt(d.pop("agent_maihem_behavior_prompt", UNSET))
+        description = _parse_description(d.pop("description", UNSET))
 
-        agent_maihem_roles = []
-        _agent_maihem_roles = d.pop("agent_maihem_roles", UNSET)
-        for agent_maihem_roles_item_data in _agent_maihem_roles or []:
-            agent_maihem_roles_item = AgentMaihemRole(agent_maihem_roles_item_data)
+        def _parse_industry(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
 
-            agent_maihem_roles.append(agent_maihem_roles_item)
+        industry = _parse_industry(d.pop("industry", UNSET))
+
+        def _parse_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        url = _parse_url(d.pop("url", UNSET))
 
         def _parse_last_test_run_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -274,35 +257,25 @@ class APISchemaTest:
 
         last_test_run_result = _parse_last_test_run_result(d.pop("last_test_run_result", UNSET))
 
-        def _parse_last_test_run_result_score(data: object) -> Union[None, Unset, float]:
-            if data is None:
-                return data
-            if isinstance(data, Unset):
-                return data
-            return cast(Union[None, Unset, float], data)
-
-        last_test_run_result_score = _parse_last_test_run_result_score(d.pop("last_test_run_result_score", UNSET))
-
-        api_schema_test = cls(
+        api_schema_agent_target = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
             identifier=identifier,
-            initiating_agent=initiating_agent,
-            metrics_config=metrics_config,
+            role=role,
+            language=language,
             name=name,
-            conversation_turns_max=conversation_turns_max,
-            agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
-            agent_maihem_roles=agent_maihem_roles,
+            description=description,
+            industry=industry,
+            url=url,
             last_test_run_id=last_test_run_id,
             last_test_run_at=last_test_run_at,
             last_test_run_status=last_test_run_status,
             last_test_run_result=last_test_run_result,
-            last_test_run_result_score=last_test_run_result_score,
         )
 
-        api_schema_test.additional_properties = d
-        return api_schema_test
+        api_schema_agent_target.additional_properties = d
+        return api_schema_agent_target
 
     @property
     def additional_keys(self) -> List[str]:

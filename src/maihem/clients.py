@@ -1,7 +1,7 @@
 import os
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
-
+import random
 from maihem.schemas.agents import AgentTarget, AgentType
 from maihem.schemas.tests import (
     Test,
@@ -37,6 +37,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class Client:
     _base_url: str = "https://api.maihem.ai"
+    _base_url_ui: str = "https://cause.maihem.ai"
     _api_key: str = None
 
     def create_target_agent(
@@ -91,6 +92,9 @@ class Maihem(Client):
     def _override_base_url(self, base_url: str) -> None:
         self._base_url = base_url
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
+
+    def _override_base_url_ui(self, base_url_ui: str) -> None:
+        self._base_url_ui = base_url_ui
 
     def create_target_agent(
         self,
@@ -252,8 +256,9 @@ class Maihem(Client):
             f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
         )
         logger.info(f"Test run ID: {test_run.id}")
-        logger.info(f"Test run results (API): {test_run.links.test_result}")
-        logger.info("Test run results (UI): coming soon!")
+        logger.info(
+            f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
+        )
 
         print("\n" + "-" * 50 + "\n")
 
@@ -430,22 +435,31 @@ class Maihem(Client):
         target_agent: AgentTarget,
         previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
-        agent_maithem_message = None
+        agent_maihem_message = None
 
         conversation = self.get_conversation(conversation_id)
+
+        document_key = None
+        document_text = None
+
+        if target_agent._documents:
+            document_key = random.choice(list(target_agent._documents.keys()))
+            document_text = target_agent._documents[document_key]
 
         if (
             test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
         ):
+
             turn_resp = self._generate_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
                 target_agent_message=None,
                 contexts=[],
+                document={document_key: document_text} if document_key else None,
             )
 
-            agent_maithem_message = self._get_conversation_message_from_conversation(
+            agent_maihem_message = self._get_conversation_message_from_conversation(
                 turn_id=turn_resp.turn_id,
                 agent_type=AgentType.MAIHEM,
                 conversation=turn_resp.conversation,
@@ -455,7 +469,7 @@ class Maihem(Client):
                 turn_id=None, conversation=conversation
             )
         elif previous_turn_id is not None and len(conversation.conversation_turns) > 0:
-            agent_maithem_message = self._get_conversation_message_from_conversation(
+            agent_maihem_message = self._get_conversation_message_from_conversation(
                 turn_id=previous_turn_id,
                 agent_type=AgentType.MAIHEM,
                 conversation=conversation,
@@ -466,7 +480,7 @@ class Maihem(Client):
                 target_agent,
                 conversation_id,
                 agent_maihem_message=(
-                    agent_maithem_message.content if agent_maithem_message else None
+                    agent_maihem_message.content if agent_maihem_message else None
                 ),
             )
         except Exception as e:
@@ -479,6 +493,7 @@ class Maihem(Client):
             conversation_id=conversation_id,
             target_agent_message=target_agent_message,
             contexts=contexts,
+            document={document_key: document_text} if document_key else None,
         )
 
         return turn_resp
@@ -489,6 +504,7 @@ class Maihem(Client):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
+        document: Optional[Dict] = None,
     ) -> ConversationTurnCreateResponse:
         try:
             resp = self._maihem_api_client.create_conversation_turn(
@@ -496,6 +512,7 @@ class Maihem(Client):
                 conversation_id=conversation_id,
                 target_agent_message=target_agent_message,
                 contexts=contexts,
+                document=document,
             )
 
             return ConversationTurnCreateResponse(
