@@ -6,19 +6,19 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.http_validation_error import HTTPValidationError
-from ...models.idp_user import IDPUser
+from ...models.idp_user_update_request import IDPUserUpdateRequest
 from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: IDPUser,
+    body: IDPUserUpdateRequest,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
 
     _kwargs: Dict[str, Any] = {
         "method": "post",
-        "url": "/webhooks/idp/users",
+        "url": "/webhooks/idp/users/update",
     }
 
     _body = body.to_dict()
@@ -33,9 +33,9 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = response.json()
-        return response_201
+    if response.status_code == HTTPStatus.OK:
+        response_200 = response.json()
+        return response_200
     if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = HTTPValidationError.from_dict(response.json())
 
@@ -60,14 +60,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: IDPUser,
+    body: IDPUserUpdateRequest,
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Webhook IDP User Create
+    """Webhook IDP User Update
 
-     Receive a new user from the IDP
+     Update a user from the IDP user create event
 
     Args:
-        body (IDPUser):
+        body (IDPUserUpdateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -91,14 +91,14 @@ def sync_detailed(
 def sync(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: IDPUser,
+    body: IDPUserUpdateRequest,
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Webhook IDP User Create
+    """Webhook IDP User Update
 
-     Receive a new user from the IDP
+     Update a user from the IDP user create event
 
     Args:
-        body (IDPUser):
+        body (IDPUserUpdateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -117,14 +117,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: IDPUser,
+    body: IDPUserUpdateRequest,
 ) -> Response[Union[Any, HTTPValidationError]]:
-    """Webhook IDP User Create
+    """Webhook IDP User Update
 
-     Receive a new user from the IDP
+     Update a user from the IDP user create event
 
     Args:
-        body (IDPUser):
+        body (IDPUserUpdateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -146,14 +146,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: Union[AuthenticatedClient, Client],
-    body: IDPUser,
+    body: IDPUserUpdateRequest,
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    """Webhook IDP User Create
+    """Webhook IDP User Update
 
-     Receive a new user from the IDP
+     Update a user from the IDP user create event
 
     Args:
-        body (IDPUser):
+        body (IDPUserUpdateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
