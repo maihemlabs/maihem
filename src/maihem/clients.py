@@ -33,7 +33,7 @@ from maihem.api_client.maihem_client.models.conversation_nested_message import (
     ConversationNestedMessage,
 )
 import maihem.errors as errors
-from maihem.api import MaihemHTTPClientSync
+from maihem.api_client import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
 
