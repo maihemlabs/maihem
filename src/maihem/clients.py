@@ -37,6 +37,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 
 class Client:
     _base_url: str = "https://api.maihem.ai"
+    _base_url_ui: str = "https://cause.maihem.ai"
     _api_key: str = None
 
     def create_target_agent(
@@ -91,6 +92,9 @@ class Maihem(Client):
     def _override_base_url(self, base_url: str) -> None:
         self._base_url = base_url
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
+
+    def _override_base_url_ui(self, base_url_ui: str) -> None:
+        self._base_url_ui = base_url_ui
 
     def create_target_agent(
         self,
@@ -252,8 +256,9 @@ class Maihem(Client):
             f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
         )
         logger.info(f"Test run ID: {test_run.id}")
-        logger.info(f"Test run results (API): {test_run.links.test_result}")
-        logger.info("Test run results (UI): coming soon!")
+        logger.info(
+            f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
+        )
 
         print("\n" + "-" * 50 + "\n")
 
@@ -433,8 +438,13 @@ class Maihem(Client):
         agent_maihem_message = None
 
         conversation = self.get_conversation(conversation_id)
-        document_key = random.choice(target_agent._documents.keys())
-        document_text = target_agent._documents[document_key]
+
+        document_key = None
+        document_text = None
+
+        if target_agent._documents.keys():
+            document_key = random.choice(target_agent._documents.keys())
+            document_text = target_agent._documents[document_key]
 
         if (
             test.initiating_agent == AgentType.MAIHEM
@@ -446,7 +456,7 @@ class Maihem(Client):
                 conversation_id=conversation_id,
                 target_agent_message=None,
                 contexts=[],
-                document={document_key: document_text},
+                document={document_key: document_text} if document_key else None,
             )
 
             agent_maihem_message = self._get_conversation_message_from_conversation(
@@ -483,7 +493,7 @@ class Maihem(Client):
             conversation_id=conversation_id,
             target_agent_message=target_agent_message,
             contexts=contexts,
-            document={document_key: document_text},
+            document={document_key: document_text} if document_key else None,
         )
 
         return turn_resp
