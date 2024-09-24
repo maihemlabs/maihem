@@ -5,11 +5,11 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="IDPUser")
+T = TypeVar("T", bound="IDPUserCreateRequest")
 
 
 @_attrs_define
-class IDPUser:
+class IDPUserCreateRequest:
     """
     Attributes:
         email (str):
@@ -109,7 +109,7 @@ class IDPUser:
 
         username = _parse_username(d.pop("username", UNSET))
 
-        idp_user = cls(
+        idp_user_create_request = cls(
             email=email,
             email_confirmed=email_confirmed,
             event_type=event_type,
@@ -120,8 +120,8 @@ class IDPUser:
             username=username,
         )
 
-        idp_user.additional_properties = d
-        return idp_user
+        idp_user_create_request.additional_properties = d
+        return idp_user_create_request
 
     @property
     def additional_keys(self) -> List[str]:

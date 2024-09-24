@@ -5,8 +5,8 @@ from maihem.api_client.maihem_client.types import Response
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
 )
-from maihem.api_client.maihem_client.models.api_schema_agent_target_create_response import (
-    APISchemaAgentTargetCreateResponse,
+from maihem.api_client.maihem_client.models.api_schema_agent_target import (
+    APISchemaAgentTarget,
 )
 from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
@@ -29,9 +29,6 @@ from maihem.api_client.maihem_client.models.api_schema_test_run_result_conversat
 from maihem.api_client.maihem_client.models.api_schema_test_run_conversations import (
     APISchemaTestRunConversations,
 )
-from maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
-    APISchemaAgentTargetGetResponse,
-)
 from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
@@ -42,6 +39,9 @@ from maihem.api_client.maihem_client.models.conversation_nested import (
 )
 from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request import (
     APISchemaConversationTurnCreateRequest,
+)
+from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_request_document_type_0 import (
+    APISchemaConversationTurnCreateRequestDocumentType0,
 )
 from maihem.api_client.maihem_client.models.api_schema_conversation_turn_create_response import (
     APISchemaConversationTurnCreateResponse,
@@ -84,9 +84,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
-    ) -> APISchemaAgentTargetCreateResponse:
+    ) -> APISchemaAgentTarget:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaAgentTargetCreateResponse] = (
+            response: Response[APISchemaAgentTarget] = (
                 agents_create_agent_target.sync_detailed(
                     client=client,
                     x_api_key=self.token,
@@ -101,10 +101,10 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def get_agent_target_by_identifier(
         self, identifier: str
-    ) -> APISchemaAgentTargetGetResponse:
+    ) -> APISchemaAgentTarget:
 
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[List[APISchemaAgentTargetGetResponse]] = (
+            response: Response[List[APISchemaAgentTarget]] = (
                 agents_get_agent_targets.sync_detailed(
                     client=client,
                     x_api_key=self.token,
@@ -166,11 +166,23 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
+        document: Optional[Dict[str, str]] = None,
     ) -> APISchemaConversationTurnCreateResponse:
         with MaihemHTTPClient(base_url=self.base_url) as client:
+            document_req = None
+
+            if document:
+                document_req = (
+                    APISchemaConversationTurnCreateRequestDocumentType0.from_dict(
+                        document
+                    )
+                )
+
             req: APISchemaConversationTurnCreateRequest = (
                 APISchemaConversationTurnCreateRequest(
-                    message=target_agent_message, contexts=contexts
+                    message=target_agent_message,
+                    contexts=contexts,
+                    document=document_req if document_req else None,
                 )
             )
 
