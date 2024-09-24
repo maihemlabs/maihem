@@ -1,9 +1,11 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 import random
 from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
+from yaspin import yaspin
+from yaspin.spinners import Spinners
 
 from maihem.schemas.agents import TargetAgent, AgentType
 from maihem.schemas.tests import (
@@ -234,10 +236,11 @@ class Maihem(Client):
         logger.info(f"Spawning test run for test {test.identifier}...")
 
         try:
-            resp = self._maihem_api_client.create_test_run(
-                test_id=test.id,
-                agent_target_id=target_agent.id,
-            )
+            with yaspin(Spinners.arc, text="Creating Maihem Agents, this might take a minute...") as sp:
+                resp = self._maihem_api_client.create_test_run(
+                    test_id=test.id,
+                    agent_target_id=target_agent.id,
+                )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
@@ -575,7 +578,7 @@ class MaihemAsync(Client):
         self,
         test_identifier: str,
         initiating_agent: Literal["maihem", "target"],
-        agent_maihem_behavior_prompt: str = None,
+        maihem_agent_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
@@ -585,7 +588,7 @@ class MaihemAsync(Client):
         self,
         identifier: str,
         test_identifier: str,
-        agent_target: TargetAgent,
+        target_agent: TargetAgent,
         dynamic_mode: Literal["static", "dynamic"],
         concurrent_conversations: int,
     ) -> TestRun:
