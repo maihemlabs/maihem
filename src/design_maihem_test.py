@@ -64,16 +64,16 @@ metrics_config = {
 }
 
 # Create a Test
-# test = maihem_client.create_test(
-#     identifier="test_pg_essays_999",
-#     metrics_config=metrics_config,
-#     maihem_agent_behavior_prompt="Ask questions about entrepreneurship and startups based on the essays of Paul Graham. Image you are a young entrepreneur looking for advice, deciding wheter to drop out of college to start a company.",
-#     conversation_turns_max=5
-# )
+test = maihem_client.create_test(
+    identifier="test_pg_essays_9999",
+    metrics_config=metrics_config,
+    maihem_agent_behavior_prompt="Ask questions about entrepreneurship and startups based on the essays of Paul Graham. Image you are a young entrepreneur looking for advice, deciding wheter to drop out of college to start a company.",
+    conversation_turns_max=5
+)
 
 # # Create a Test Run from a Test and a Target Agent
 test_run = maihem_client.create_test_run(
-    test_identifier="test_pg_essays_999", # The identifier of the Test you want to run
+    test_identifier="test_pg_essays_9999", # The identifier of the Test you want to run
     target_agent=target_agent, # The Target Agent you want to test
     concurrent_conversations=10, # How many conversations to run concurrently
 )
