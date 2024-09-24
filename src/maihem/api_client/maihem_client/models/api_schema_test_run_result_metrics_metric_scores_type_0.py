@@ -7,11 +7,11 @@ if TYPE_CHECKING:
     from ..models.api_schema_test_run_result_metric_scores import APISchemaTestRunResultMetricScores
 
 
-T = TypeVar("T", bound="APISchemaTestRunResultMetricsMetricScores")
+T = TypeVar("T", bound="APISchemaTestRunResultMetricsMetricScoresType0")
 
 
 @_attrs_define
-class APISchemaTestRunResultMetricsMetricScores:
+class APISchemaTestRunResultMetricsMetricScoresType0:
     """ """
 
     additional_properties: Dict[str, "APISchemaTestRunResultMetricScores"] = _attrs_field(init=False, factory=dict)
@@ -28,7 +28,7 @@ class APISchemaTestRunResultMetricsMetricScores:
         from ..models.api_schema_test_run_result_metric_scores import APISchemaTestRunResultMetricScores
 
         d = src_dict.copy()
-        api_schema_test_run_result_metrics_metric_scores = cls()
+        api_schema_test_run_result_metrics_metric_scores_type_0 = cls()
 
         additional_properties = {}
         for prop_name, prop_dict in d.items():
@@ -36,8 +36,8 @@ class APISchemaTestRunResultMetricsMetricScores:
 
             additional_properties[prop_name] = additional_property
 
-        api_schema_test_run_result_metrics_metric_scores.additional_properties = additional_properties
-        return api_schema_test_run_result_metrics_metric_scores
+        api_schema_test_run_result_metrics_metric_scores_type_0.additional_properties = additional_properties
+        return api_schema_test_run_result_metrics_metric_scores_type_0
 
     @property
     def additional_keys(self) -> List[str]:
