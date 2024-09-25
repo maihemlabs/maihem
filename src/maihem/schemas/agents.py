@@ -21,7 +21,7 @@ class TargetAgent(BaseModel):
     language: Optional[LanguageAlpha2] = "en"
 
     _chat_function: Optional[Callable] = None
-    _documents: Dict[str, str] = {}
+    document_paths: List[str] = []
 
     def set_chat_function(self, chat_function: Callable) -> None:
         logger = get_logger()
@@ -75,13 +75,8 @@ class TargetAgent(BaseModel):
                 continue
 
             try:
-                text = extract_text(doc_path)
-                if not text.strip():
-                    logger.warning(f"Extracted text is empty: {doc_path}")
-                    continue
-                filename = os.path.basename(doc_path)
-                self._documents[filename] = text
-                logger.info(f"Added document: {filename}")
+                self.document_paths.append(doc_path)
+                logger.info(f"Added document: {doc_path}")
             except Exception as e:
                 logger.error(f"Error processing document {doc_path}: {str(e)}")
 
