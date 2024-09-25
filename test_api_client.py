@@ -40,36 +40,36 @@ def chat_function_colin(
 
 
 # target_agent = maihem_client.create_target_agent(
-#     identifier="agent-colin-prod-v2",
-#     name="Agent Colin Local",
-#     industry="Technology",
-#     description="A helpful customer support agent",
+#     identifier="agent-airbnb-v2",
+#     name="Agent Airbnb",
+#     industry="Travel",
+#     description="A helpful customer support agent for Airbnb",
 #     role="customer_support",
 #     language="en",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-colin-local-v2")
+# target_agent = maihem_client.get_target_agent("agent-airbnb-v2")
 
-target_agent.set_chat_function(chat_function=chat_function_colin)
+# target_agent.set_chat_function(chat_function=chat_function_colin)
 
-# target_agent.add_documents(["/Users/simon/Downloads/test1.pdf"])
+# # target_agent.add_documents(["/Users/simon/Downloads/test1.pdf"])
 
 # test = maihem_client.create_test(
-#     identifier="test-v-58",
-#     name="Test V58",
+#     identifier="test-v-61",
+#     name="Test V61",
 #     initiating_agent="maihem",
 #     conversation_turns_max=10,
-#     metrics_config={
-#         "qa_rag_hallucination": 1,
-#     },
+#     metrics_config={"qa_rag_hallucination": 5},
 # )
 
-test = maihem_client.get_test("test-v-58")
+# test = maihem_client.get_test("test-v-61")
 
-test_run = maihem_client.create_test_run(
-    test_identifier="test-v-58", target_agent=target_agent, concurrent_conversations=4
+# test_run = maihem_client.create_test_run(
+#     test_identifier="test-v-61", target_agent=target_agent, concurrent_conversations=4
+# )
+
+test_run = maihem_client.get_test_run_result(
+    test_run_id="tr_01j8jj6n8gf1dtg2fjqpn3se67"
 )
-
-test_run = maihem_client.get_test_run_result(test_run_id=test_run.id)
 
 print(test_run)

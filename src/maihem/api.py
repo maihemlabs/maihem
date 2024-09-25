@@ -5,8 +5,8 @@ from maihem.api_client.maihem_client.types import Response
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
     APISchemaAgentTargetCreateRequest,
 )
-from maihem.api_client.maihem_client.models.api_schema_agent_target_create_response import (
-    APISchemaAgentTargetCreateResponse,
+from maihem.api_client.maihem_client.models.api_schema_agent_target import (
+    APISchemaAgentTarget,
 )
 from maihem.api_client.maihem_client.models.api_schema_test_create_request import (
     APISchemaTestCreateRequest,
@@ -28,9 +28,6 @@ from maihem.api_client.maihem_client.models.api_schema_test_run_result_conversat
 )
 from maihem.api_client.maihem_client.models.api_schema_test_run_conversations import (
     APISchemaTestRunConversations,
-)
-from maihem.api_client.maihem_client.models.api_schema_agent_target_get_response import (
-    APISchemaAgentTargetGetResponse,
 )
 from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
@@ -87,9 +84,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
-    ) -> APISchemaAgentTargetCreateResponse:
+    ) -> APISchemaAgentTarget:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaAgentTargetCreateResponse] = (
+            response: Response[APISchemaAgentTarget] = (
                 agents_create_agent_target.sync_detailed(
                     client=client,
                     x_api_key=self.token,
@@ -104,10 +101,10 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def get_agent_target_by_identifier(
         self, identifier: str
-    ) -> APISchemaAgentTargetGetResponse:
+    ) -> APISchemaAgentTarget:
 
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[List[APISchemaAgentTargetGetResponse]] = (
+            response: Response[List[APISchemaAgentTarget]] = (
                 agents_get_agent_targets.sync_detailed(
                     client=client,
                     x_api_key=self.token,
