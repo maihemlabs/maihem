@@ -76,8 +76,23 @@ class TestRunResultMetricScore(BaseModel):
     errored: int
 
 
+class ConversationCounts(BaseModel):
+    total_conversations: int
+    result_passed: int
+    result_failed: int
+    result_errored: int
+    result_pending: int
+    result_cancelled: int
+    status_completed: int
+    status_failed: int
+    status_running: int
+    status_pending: int
+    status_paused: int
+    total_score: Optional[float] = None
+
+
 class TestRunResultMetrics(TestRun):
-    conversation_counts: Dict[str, Optional[int]] = {}
+    conversation_counts: ConversationCounts
     metric_scores: Dict[str, TestRunResultMetricScore] = {}
 
 

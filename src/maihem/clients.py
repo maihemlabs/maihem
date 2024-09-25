@@ -1,8 +1,13 @@
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 import random
-from maihem.schemas.agents import AgentTarget, AgentType
+from tqdm import tqdm
+from yaspin import yaspin
+from yaspin.spinners import Spinners
+
+from maihem.schemas.agents import TargetAgent, AgentType
 from maihem.schemas.tests import (
     Test,
     TestRun,
@@ -28,11 +33,9 @@ from maihem.api_client.maihem_client.models.conversation_nested_message import (
     ConversationNestedMessage,
 )
 import maihem.errors as errors
-from maihem.api import MaihemHTTPClientSync
+from maihem.api_client import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from tqdm import tqdm
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 
 class Client:
@@ -46,10 +49,10 @@ class Client:
         role: str,
         industry: str,
         description: str,
-    ) -> AgentTarget:
+    ) -> TargetAgent:
         pass
 
-    def get_target_agent(self, identifier: str) -> AgentTarget:
+    def get_target_agent(self, identifier: str) -> TargetAgent:
         # Add implementation here
         raise NotImplementedError("Method not implemented")
 
@@ -66,7 +69,7 @@ class Client:
     def create_test_run(
         self,
         test_identifier: str,
-        agent_target: AgentTarget,
+        agent_target: TargetAgent,
         concurrent_conversations: int,
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
@@ -104,7 +107,7 @@ class Maihem(Client):
         description: str,
         name: Optional[str] = None,
         language: Optional[str] = "en",
-    ) -> AgentTarget:
+    ) -> TargetAgent:
         logger = get_logger()
         logger.info(f"Creating target agent {identifier}...")
         resp = None
@@ -125,14 +128,14 @@ class Maihem(Client):
         agent_target = None
 
         try:
-            agent_target = AgentTarget.model_validate(resp.to_dict())
+            agent_target = TargetAgent.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
         logger.info(f"Successfully created target agent {identifier}!")
         return agent_target
 
-    def get_target_agent(self, identifier: str) -> AgentTarget:
+    def get_target_agent(self, identifier: str) -> TargetAgent:
         resp = None
         try:
             resp = self._maihem_api_client.get_agent_target_by_identifier(
@@ -144,7 +147,7 @@ class Maihem(Client):
         agent_target = None
 
         try:
-            agent_target = AgentTarget.model_validate(resp.to_dict())
+            agent_target = TargetAgent.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
@@ -217,7 +220,7 @@ class Maihem(Client):
     def create_test_run(
         self,
         test_identifier: str,
-        target_agent: AgentTarget,
+        target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
         if not target_agent._chat_function:
@@ -233,10 +236,11 @@ class Maihem(Client):
         logger.info(f"Spawning test run for test {test.identifier}...")
 
         try:
-            resp = self._maihem_api_client.create_test_run(
-                test_id=test.id,
-                agent_target_id=target_agent.id,
-            )
+            with yaspin(Spinners.arc, text="Creating Maihem Agents, this might take a minute...") as sp:
+                resp = self._maihem_api_client.create_test_run(
+                    test_id=test.id,
+                    agent_target_id=target_agent.id,
+                )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
@@ -387,7 +391,7 @@ class Maihem(Client):
         test_run_id: str,
         conversation_id: str,
         test: Test,
-        target_agent: AgentTarget,
+        target_agent: TargetAgent,
         progress_bar_position: int,
     ) -> str:
         is_conversation_active = True
@@ -432,7 +436,7 @@ class Maihem(Client):
         test_run_id: str,
         conversation_id: str,
         test: Test,
-        target_agent: AgentTarget,
+        target_agent: TargetAgent,
         previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
         agent_maihem_message = None
@@ -541,7 +545,7 @@ class Maihem(Client):
 
     def _send_target_agent_message(
         self,
-        target_agent: AgentTarget,
+        target_agent: TargetAgent,
         conversation_id: str,
         agent_maihem_message: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
@@ -564,17 +568,17 @@ class MaihemAsync(Client):
         company: str,
         industry: str,
         description: str,
-    ) -> AgentTarget:
+    ) -> TargetAgent:
         raise NotImplementedError("Method not implemented")
 
-    def get_target_agent(self, identifier: str) -> AgentTarget:
+    def get_target_agent(self, identifier: str) -> TargetAgent:
         raise NotImplementedError("Method not implemented")
 
     def create_test(
         self,
         test_identifier: str,
         initiating_agent: Literal["maihem", "target"],
-        agent_maihem_behavior_prompt: str = None,
+        maihem_agent_behavior_prompt: str = None,
         conversation_turns_max: int = 10,
         metrics_config: Dict = None,
     ) -> Test:
@@ -584,7 +588,7 @@ class MaihemAsync(Client):
         self,
         identifier: str,
         test_identifier: str,
-        agent_target: AgentTarget,
+        target_agent: TargetAgent,
         dynamic_mode: Literal["static", "dynamic"],
         concurrent_conversations: int,
     ) -> TestRun:
