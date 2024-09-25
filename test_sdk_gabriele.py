@@ -8,7 +8,9 @@ sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 from maihem.clients import Maihem
 
-maihem_client = Maihem()
+maihem_client = Maihem(
+    api_key="794b3e5e227ca776a583c97eb0818d7be55d7c1f538bdf61bdfbb2fdcc888c51ca2403f5c48830679ea9aad3f42d7733"
+)
 
 try:
     target_agent = maihem_client.create_target_agent(
@@ -51,17 +53,24 @@ target_agent.set_chat_function(chat_function)
 target_agent.add_documents(["test_data/test.pdf", "test_data/test1.pdf"])
 
 metrics_config = {
-    "qa_cx_helpfulness": 5,
-    "qa_cx_goal_completion": 5,
+    "qa_rag_hallucination": 2,
 }
+try:
+    test = maihem_client.create_test(
+        identifier="mh-test-5",
+        metrics_config=metrics_config,
+    )
+except Exception as e:
+    print(e)
+    test = maihem_client.get_test(identifier="mh-test-1")
 
-test = maihem_client.create_test(
-    identifier="mh-test-0",
-    metrics_config=metrics_config,
-)
+print(test)
 
-test_run = maihem_client.create_test_run(
-    test_identifier="mh-test-0",
-    target_agent=target_agent,
-    concurrent_conversations=5,
-)
+try:
+    test_run = maihem_client.create_test_run(
+        test_identifier="mh-test-5",
+        target_agent=target_agent,
+        concurrent_conversations=5,
+    )
+except Exception as e:
+    print(e)
