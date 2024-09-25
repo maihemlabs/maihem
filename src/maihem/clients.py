@@ -449,7 +449,7 @@ class Maihem(Client):
         document_key = None
         text = None
 
-        logger = get_logger()  # Initialize logger here
+        logger = get_logger()
 
         # Document loading and chunking (for RAG)
         if target_agent.document_paths:
@@ -468,7 +468,7 @@ class Maihem(Client):
                         ).split_text(document)
                         text = random.choice(chunks)
                     else:
-                        text = document  # Assign text directly if document is smaller than 10k characters
+                        text = document
                     if text.strip():
                         break
                 except Exception as e:
