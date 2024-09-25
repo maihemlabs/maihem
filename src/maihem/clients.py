@@ -449,6 +449,8 @@ class Maihem(Client):
         document_key = None
         text = None
 
+        logger = get_logger()
+
         # Document loading and chunking (for RAG)
         if target_agent.document_paths:
             max_attempts = 10
@@ -465,10 +467,11 @@ class Maihem(Client):
                             chunk_size=5000, chunk_overlap=200
                         ).split_text(document)
                         text = random.choice(chunks)
-                        if text.strip():
-                            break
+                    else:
+                        text = document
+                    if text.strip():
+                        break
                 except Exception as e:
-                    logger = get_logger()
                     logger.warning(
                         f"Error processing document {document_key}: {str(e)}"
                     )
@@ -520,14 +523,14 @@ class Maihem(Client):
             errors.raise_chat_function_error(
                 f"Error sending message to target agent: {e}"
             )
-            
+
         if contexts != []:
             contexts_concat = "\n".join(contexts)
             if len(contexts_concat) > 20000:
                 errors.raise_chat_function_error(
                     "Length of all contexts combined should not exceed 20,000 characters"
                 )
-                
+
         turn_resp = self._generate_conversation_turn(
             test_run_id=test_run_id,
             conversation_id=conversation_id,
