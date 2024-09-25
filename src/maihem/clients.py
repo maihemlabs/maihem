@@ -414,7 +414,7 @@ class Maihem(Client):
             turn_resp = self._run_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
-                text=test,
+                test=test,
                 target_agent=target_agent,
                 previous_turn_id=previous_turn_id,
             )
@@ -438,7 +438,7 @@ class Maihem(Client):
         self,
         test_run_id: str,
         conversation_id: str,
-        text: Test,
+        test: Test,
         target_agent: TargetAgent,
         previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
@@ -449,6 +449,7 @@ class Maihem(Client):
         document_key = None
         text = None
 
+        # Document loading and chunking (for RAG)
         if target_agent.document_paths:
             max_attempts = 10
             attempts = 0
@@ -461,7 +462,7 @@ class Maihem(Client):
                     document = extract_text(document_path)
                     if len(document) > 10000:
                         chunks = TextSplitter(
-                            chunk_size=2000, chunk_overlap=200
+                            chunk_size=5000, chunk_overlap=200
                         ).split_text(document)
                         text = random.choice(chunks)
                         if text.strip():
@@ -479,7 +480,7 @@ class Maihem(Client):
                 )
 
         if (
-            text.initiating_agent == AgentType.MAIHEM
+            test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
         ):
 
@@ -519,7 +520,14 @@ class Maihem(Client):
             errors.raise_chat_function_error(
                 f"Error sending message to target agent: {e}"
             )
-
+            
+        if contexts != []:
+            contexts_concat = "\n".join(contexts)
+            if len(contexts_concat) > 20000:
+                errors.raise_chat_function_error(
+                    "Length of all contexts combined should not exceed 20,000 characters"
+                )
+                
         turn_resp = self._generate_conversation_turn(
             test_run_id=test_run_id,
             conversation_id=conversation_id,
