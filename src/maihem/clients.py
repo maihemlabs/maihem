@@ -33,9 +33,10 @@ from maihem.api_client.maihem_client.models.conversation_nested_message import (
     ConversationNestedMessage,
 )
 import maihem.errors as errors
-from maihem.api_client import MaihemHTTPClientSync
+from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
+from maihem.utils import TextSplitter, extract_text
 
 
 class Client:
@@ -236,7 +237,9 @@ class Maihem(Client):
         logger.info(f"Spawning test run for test {test.identifier}...")
 
         try:
-            with yaspin(Spinners.arc, text="Creating Maihem Agents, this might take a minute...") as sp:
+            with yaspin(
+                Spinners.arc, text="Creating Maihem Agents, this might take a minute..."
+            ) as sp:
                 resp = self._maihem_api_client.create_test_run(
                     test_id=test.id,
                     agent_target_id=target_agent.id,
@@ -444,11 +447,37 @@ class Maihem(Client):
         conversation = self.get_conversation(conversation_id)
 
         document_key = None
-        document_text = None
+        text = None
 
-        if target_agent._documents:
-            document_key = random.choice(list(target_agent._documents.keys()))
-            document_text = target_agent._documents[document_key]
+        # Document loading and chunking (for RAG)
+        if target_agent.document_paths:
+            max_attempts = 10
+            attempts = 0
+            while attempts < max_attempts:
+                if not target_agent.document_paths:
+                    break
+                document_path = random.choice(list(target_agent.document_paths))
+                document_key = os.path.basename(document_path)
+                try:
+                    document = extract_text(document_path)
+                    if len(document) > 10000:
+                        chunks = TextSplitter(
+                            chunk_size=5000, chunk_overlap=200
+                        ).split_text(document)
+                        text = random.choice(chunks)
+                        if text.strip():
+                            break
+                except Exception as e:
+                    logger = get_logger()
+                    logger.warning(
+                        f"Error processing document {document_key}: {str(e)}"
+                    )
+                attempts += 1
+
+            if attempts == max_attempts:
+                logger.warning(
+                    "Max attempts reached while trying to select a valid document chunk."
+                )
 
         if (
             test.initiating_agent == AgentType.MAIHEM
@@ -460,7 +489,7 @@ class Maihem(Client):
                 conversation_id=conversation_id,
                 target_agent_message=None,
                 contexts=[],
-                document={document_key: document_text} if document_key else None,
+                document={document_key: text} if document_key else None,
             )
 
             agent_maihem_message = self._get_conversation_message_from_conversation(
@@ -491,13 +520,20 @@ class Maihem(Client):
             errors.raise_chat_function_error(
                 f"Error sending message to target agent: {e}"
             )
-
+            
+        if contexts != []:
+            contexts_concat = "\n".join(contexts)
+            if len(contexts_concat) > 20000:
+                errors.raise_chat_function_error(
+                    "Length of all contexts combined should not exceed 20,000 characters"
+                )
+                
         turn_resp = self._generate_conversation_turn(
             test_run_id=test_run_id,
             conversation_id=conversation_id,
             target_agent_message=target_agent_message,
             contexts=contexts,
-            document={document_key: document_text} if document_key else None,
+            document={document_key: text} if document_key else None,
         )
 
         return turn_resp
