@@ -15,6 +15,7 @@ class TestStatusEnum(str, Enum):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    CANCELED = "canceled"
 
 
 class TestResultEnum(str, Enum):
@@ -22,7 +23,7 @@ class TestResultEnum(str, Enum):
     PASSED = "passed"
     FAILED = "failed"
     ERRORED = "errored"
-    CANCELLED = "cancelled"
+    CANCELED = "canceled"
 
 
 class APISchemaLinks(BaseModel):
