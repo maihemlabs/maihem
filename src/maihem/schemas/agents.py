@@ -1,12 +1,19 @@
 from datetime import datetime
 from pydantic import BaseModel
-from typing import Callable, Optional, Tuple, List, Dict
-import maihem.errors as errors
+
 from enum import Enum
-from maihem.logger import get_logger
-from pydantic_extra_types.language_code import LanguageAlpha2
 import os
+from pydantic_extra_types.language_code import LanguageAlpha2
+from typing import Callable, Optional, Tuple, List, Dict
+
+import maihem.errors as errors
+from maihem.logger import get_logger
 from maihem.utils import extract_text
+
+
+class AgentType(str, Enum):
+    MAIHEM = "maihem"
+    TARGET = "target"
 
 
 class TargetAgent(BaseModel):
@@ -87,8 +94,3 @@ class TargetAgent(BaseModel):
             errors.raise_chat_function_error("Target agent chat function not set")
         response, contexts = self._chat_function(conversation_id, message)
         return response, contexts
-
-
-class AgentType(str, Enum):
-    MAIHEM = "maihem"
-    TARGET = "target"
