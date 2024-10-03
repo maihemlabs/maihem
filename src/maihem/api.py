@@ -33,6 +33,7 @@ from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
     tests_get_tests,
+    tests_upsert_test,
 )
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
@@ -64,6 +65,7 @@ from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
 from maihem.api_client.maihem_client.api.agents import (
     agents_get_agent_targets,
+    agents_upsert_agent_target,
 )
 
 from maihem.errors import handle_http_errors, ErrorResponse
@@ -104,6 +106,23 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
+    def upsert_agent_target(
+        self, req: APISchemaAgentTargetCreateRequest
+    ) -> APISchemaAgentTarget:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[APISchemaAgentTarget] = (
+                agents_upsert_agent_target.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    body=req,
+                )
+            )
+
+        if response.status_code != 201 and response.status_code != 200:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return response.parsed
+
     def get_agent_target_by_identifier(self, identifier: str) -> APISchemaAgentTarget:
 
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -130,6 +149,20 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+
+        return response.parsed
+
+    def upsert_test(self, req: APISchemaTestCreateRequest) -> APISchemaTest:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[APISchemaTest] = tests_upsert_test.sync_detailed(
+                client=client,
+                x_api_key=self.token,
+                body=req,
+            )
+
+        if response.status_code != 201 and response.status_code != 200:
             error_dict = json.loads(response.content)
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
 
