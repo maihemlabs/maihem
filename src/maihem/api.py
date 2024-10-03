@@ -52,6 +52,10 @@ from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run_result_with_conversations,
     test_runs_create_conversation_turn,
     test_runs_get_test_run_result,
+    test_runs_update_test_run_status,
+)
+from maihem.api_client.maihem_client.models.api_schema_test_run_status_update_request import (
+    APISchemaTestRunStatusUpdateRequest,
 )
 from maihem.api_client.maihem_client.api.conversations import (
     conversations_get_conversation,
@@ -63,6 +67,7 @@ from maihem.api_client.maihem_client.api.agents import (
 )
 
 from maihem.errors import handle_http_errors, ErrorResponse
+from maihem.schemas.tests import TestStatusEnum
 
 
 class MaihemHTTPClientBase:
@@ -99,9 +104,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
-    def get_agent_target_by_identifier(
-        self, identifier: str
-    ) -> APISchemaAgentTarget:
+    def get_agent_target_by_identifier(self, identifier: str) -> APISchemaAgentTarget:
 
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[List[APISchemaAgentTarget]] = (
@@ -156,6 +159,24 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             )
 
         if response.status_code != 201:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return response.parsed
+
+    def update_test_run_status(
+        self, test_run_id: str, status: TestStatusEnum
+    ) -> APISchemaTestRun:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[APISchemaTestRun] = (
+                test_runs_update_test_run_status.sync_detailed(
+                    client=client,
+                    x_api_key=self.token,
+                    test_run_id=test_run_id,
+                    body=APISchemaTestRunStatusUpdateRequest(status=status),
+                )
+            )
+
+        if response.status_code != 200:
             error_dict = json.loads(response.content)
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
