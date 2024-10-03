@@ -1,0 +1,46 @@
+# See list of supported metrics here: https://docs.maihem.ai/metrics/collection
+metric: qa_cx_helpfulness
+
+target_agent:
+  # Unique identifier for the target agent.
+  tg_ag_1:
+    # (Optional) Name of the target agent to be displayed in the Maihem webapp
+    name: Therapy chatbot 
+
+    # Free text short description of the role of the target agent
+    role: mental health assistant
+
+    # Free text description of the industry that the target agent belongs to
+    industry: mental health
+
+    # Free text detailed description of the target agent
+    description: A chatbot for emotional support
+
+    # Language of the target agent in ISO 639-1 format
+    language: en  
+
+  # Add more target agents if needed with a different unique identifier
+  tg_ag_2:
+    name: Therapy chatbot 2
+    role: mental health assistant
+    industry: mental health
+    description: A chatbot for emotional support and venting
+    language: en  
+
+maihem_agent:
+  # Unique identifier for the Maihem agent
+  mh_ag_1:
+    # (Optional) Name of the Maihem agent to be displayed in the Maihem webapp
+    name: Maihem_Agent_1
+
+    # Free text prompt to guide the behavior of the Maihem Agent
+    behavior_prompt: Vent about stress in the workplace
+
+    # Maximum number of turns for the conversation
+    turns_max: 8
+  
+  # Add more Maihem agents if needed with a different unique identifier
+  mh_ag_2:
+    name: Maihem_Agent_2
+    behavior_prompt: Discuss techniques for managing anxiety
+    turns_max: 10

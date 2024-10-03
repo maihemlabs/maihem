@@ -14,6 +14,7 @@ from maihem.logger import get_logger
 
 class ErrorCodes(str, Enum):
     ERR_CHAT_FUNCTION = "err_chat_function"
+    ERR_CONFIG_FILE = "err_config_file"
     ERR_INTERNAL_SERVER = ErrorCodesAPI.ERR_INTERNAL_SERVER
     ERR_NOT_FOUND = ErrorCodesAPI.ERR_NOT_FOUND
     ERR_REQUEST_VALIDATION = ErrorCodesAPI.ERR_REQUEST_VALIDATION
@@ -63,6 +64,10 @@ class DataIntegrityError(ErrorBase):
 
 
 class ChatFunctionError(ErrorBase):
+    def __init__(self, error_resp: ErrorResponse) -> None:
+        super().__init__(error_resp)
+        
+class ConfigFileError(ErrorBase):
     def __init__(self, error_resp: ErrorResponse) -> None:
         super().__init__(error_resp)
 
@@ -131,6 +136,17 @@ def raise_chat_function_error(message: str):
         ErrorResponse(
             error=ErrorResponseError(
                 code=ErrorCodes.ERR_CHAT_FUNCTION, message=message, detail=None
+            ),
+            request_id=None,
+        )
+    )
+    
+    
+def raise_config_file_error(message: str):
+    raise ConfigFileError(
+        ErrorResponse(
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_CONFIG_FILE, message=message, detail=None
             ),
             request_id=None,
         )
