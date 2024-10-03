@@ -224,87 +224,102 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
-        if not target_agent._chat_function:
-            errors.raise_request_validation_error(
-                "Target agent must have a chat function assigned. Use `set_chat_function` method to assign a chat function."
+        try:
+            if not target_agent._chat_function:
+                errors.raise_request_validation_error(
+                    "Target agent must have a chat function assigned. Use `set_chat_function` method to assign a chat function."
+                )
+
+            test = self._maihem_api_client.get_test_by_identifier(test_identifier)
+
+            resp = None
+
+            logger = get_logger()
+            logger.info(f"Spawning test run for test {test.identifier}...")
+
+            try:
+                with yaspin(
+                    Spinners.arc,
+                    text="Creating Maihem Agents, this might take a minute...",
+                ) as sp:
+                    resp = self._maihem_api_client.create_test_run(
+                        test_id=test.id,
+                        agent_target_id=target_agent.id,
+                    )
+            except errors.ErrorBase as e:
+                errors.handle_base_error(e)
+
+            test_run = None
+
+            try:
+                test_run = TestRun.model_validate(resp.to_dict())
+            except ValidationError as e:
+                errors.handle_schema_validation_error(e)
+
+            test_run_conversations = self.get_test_run_conversations(test_run.id)
+            conversation_ids = test_run_conversations.conversation_ids
+
+            logger.info(f"Test run spawned for test {test.identifier}!")
+            print("\n" + "-" * 50 + "\n")
+            logger.info(
+                f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
+            )
+            logger.info(f"Test run ID: {test_run.id}")
+            logger.info(
+                f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
             )
 
-        test = self._maihem_api_client.get_test_by_identifier(test_identifier)
+            print("\n" + "-" * 50 + "\n")
 
-        resp = None
+            with tqdm(
+                len(conversation_ids),
+                total=len(conversation_ids),
+                unit="conversation",
+                colour="green",
+                desc=f"Test run ({test_run.id})",
+                position=0,
+            ) as progress:
+                with ThreadPoolExecutor(
+                    max_workers=concurrent_conversations
+                ) as executor:
+                    future_to_conversation_id = {
+                        executor.submit(
+                            self._run_conversation,
+                            test_run.id,
+                            conversation_id,
+                            test,
+                            target_agent,
+                            progress_bar_position=i + 1,
+                        ): conversation_id
+                        for i, conversation_id in enumerate(conversation_ids)
+                    }
 
-        logger = get_logger()
-        logger.info(f"Spawning test run for test {test.identifier}...")
+                    for future in as_completed(future_to_conversation_id):
+                        conversation_id = future_to_conversation_id[future]
+                        try:
+                            future.result()
+                        except errors.ErrorBase as e:
+                            logger.error(
+                                f"Error running conversation ({conversation_id}): {e.message}"
+                            )
+                            progress.colour = "red"
+                        finally:
+                            progress.update()
 
-        try:
-            with yaspin(
-                Spinners.arc, text="Creating Maihem Agents, this might take a minute..."
-            ) as sp:
-                resp = self._maihem_api_client.create_test_run(
-                    test_id=test.id,
-                    agent_target_id=target_agent.id,
-                )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
-
-        test_run = None
-
-        try:
-            test_run = TestRun.model_validate(resp.to_dict())
-        except ValidationError as e:
-            errors.handle_schema_validation_error(e)
-
-        test_run_conversations = self.get_test_run_conversations(test_run.id)
-        conversation_ids = test_run_conversations.conversation_ids
-
-        logger.info(f"Test run spawned for test {test.identifier}!")
-        print("\n" + "-" * 50 + "\n")
-        logger.info(
-            f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
-        )
-        logger.info(f"Test run ID: {test_run.id}")
-        logger.info(
-            f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
-        )
-
-        print("\n" + "-" * 50 + "\n")
-
-        with tqdm(
-            len(conversation_ids),
-            total=len(conversation_ids),
-            unit="conversation",
-            colour="green",
-            desc=f"Test run ({test_run.id})",
-            position=0,
-        ) as progress:
-            with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
-                future_to_conversation_id = {
-                    executor.submit(
-                        self._run_conversation,
-                        test_run.id,
-                        conversation_id,
-                        test,
-                        target_agent,
-                        progress_bar_position=i + 1,
-                    ): conversation_id
-                    for i, conversation_id in enumerate(conversation_ids)
-                }
-
-                for future in as_completed(future_to_conversation_id):
-                    conversation_id = future_to_conversation_id[future]
-                    try:
-                        future.result()
-                    except errors.ErrorBase as e:
-                        logger.error(
-                            f"Error running conversation ({conversation_id}): {e.message}"
-                        )
-                        progress.colour = "red"
-                    finally:
-                        progress.update()
-
-        print("\n" + "-" * 50 + "\n")
-        logger.info(f"Test run ({test_run.id}) completed!")
-        return test_run
+            print("\n" + "-" * 50 + "\n")
+            logger.info(f"Test run ({test_run.id}) completed!")
+            return test_run
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt detected. Canceling test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.CANCELED
+            )
+            logger.info("Test run canceled!")
+        except Exception as e:
+            logger.error(f"Error: {e}. Ending test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.FAILED
+            )
 
     def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
         resp = None
