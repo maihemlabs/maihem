@@ -23,6 +23,7 @@ class APISchemaTestCreateRequest:
         initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
         conversation_turns_max (Union[None, Unset, int]):
         agent_maihem_behavior_prompt (Union[None, Unset, str]):
+        is_dev_mode (Union[None, Unset, bool]):  Default: False.
     """
 
     identifier: str
@@ -31,6 +32,7 @@ class APISchemaTestCreateRequest:
     initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
     conversation_turns_max: Union[None, Unset, int] = UNSET
     agent_maihem_behavior_prompt: Union[None, Unset, str] = UNSET
+    is_dev_mode: Union[None, Unset, bool] = False
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -60,6 +62,12 @@ class APISchemaTestCreateRequest:
         else:
             agent_maihem_behavior_prompt = self.agent_maihem_behavior_prompt
 
+        is_dev_mode: Union[None, Unset, bool]
+        if isinstance(self.is_dev_mode, Unset):
+            is_dev_mode = UNSET
+        else:
+            is_dev_mode = self.is_dev_mode
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -76,6 +84,8 @@ class APISchemaTestCreateRequest:
             field_dict["conversation_turns_max"] = conversation_turns_max
         if agent_maihem_behavior_prompt is not UNSET:
             field_dict["agent_maihem_behavior_prompt"] = agent_maihem_behavior_prompt
+        if is_dev_mode is not UNSET:
+            field_dict["is_dev_mode"] = is_dev_mode
 
         return field_dict
 
@@ -122,6 +132,15 @@ class APISchemaTestCreateRequest:
 
         agent_maihem_behavior_prompt = _parse_agent_maihem_behavior_prompt(d.pop("agent_maihem_behavior_prompt", UNSET))
 
+        def _parse_is_dev_mode(data: object) -> Union[None, Unset, bool]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, bool], data)
+
+        is_dev_mode = _parse_is_dev_mode(d.pop("is_dev_mode", UNSET))
+
         api_schema_test_create_request = cls(
             identifier=identifier,
             metrics_config=metrics_config,
@@ -129,6 +148,7 @@ class APISchemaTestCreateRequest:
             initiating_agent=initiating_agent,
             conversation_turns_max=conversation_turns_max,
             agent_maihem_behavior_prompt=agent_maihem_behavior_prompt,
+            is_dev_mode=is_dev_mode,
         )
 
         api_schema_test_create_request.additional_properties = d

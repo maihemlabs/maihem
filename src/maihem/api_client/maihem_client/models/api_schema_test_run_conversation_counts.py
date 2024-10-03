@@ -17,7 +17,7 @@ class APISchemaTestRunConversationCounts:
         result_failed (int):
         result_errored (int):
         result_pending (int):
-        result_cancelled (int):
+        result_canceled (int):
         status_completed (int):
         status_failed (int):
         status_running (int):
@@ -31,7 +31,7 @@ class APISchemaTestRunConversationCounts:
     result_failed: int
     result_errored: int
     result_pending: int
-    result_cancelled: int
+    result_canceled: int
     status_completed: int
     status_failed: int
     status_running: int
@@ -51,7 +51,7 @@ class APISchemaTestRunConversationCounts:
 
         result_pending = self.result_pending
 
-        result_cancelled = self.result_cancelled
+        result_canceled = self.result_canceled
 
         status_completed = self.status_completed
 
@@ -78,7 +78,7 @@ class APISchemaTestRunConversationCounts:
                 "result_failed": result_failed,
                 "result_errored": result_errored,
                 "result_pending": result_pending,
-                "result_cancelled": result_cancelled,
+                "result_canceled": result_canceled,
                 "status_completed": status_completed,
                 "status_failed": status_failed,
                 "status_running": status_running,
@@ -104,7 +104,7 @@ class APISchemaTestRunConversationCounts:
 
         result_pending = d.pop("result_pending")
 
-        result_cancelled = d.pop("result_cancelled")
+        result_canceled = d.pop("result_canceled")
 
         status_completed = d.pop("status_completed")
 
@@ -131,7 +131,7 @@ class APISchemaTestRunConversationCounts:
             result_failed=result_failed,
             result_errored=result_errored,
             result_pending=result_pending,
-            result_cancelled=result_cancelled,
+            result_canceled=result_canceled,
             status_completed=status_completed,
             status_failed=status_failed,
             status_running=status_running,
