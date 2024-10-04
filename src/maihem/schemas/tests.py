@@ -123,3 +123,23 @@ class TestRunResultConversations(TestRun):
 
     class Config:
         arbitrary_types_allowed = True
+        
+        
+class SimulatedConversation:
+    
+    def __init__(self, conversation: TestRunResultConversations):
+        self.messages = self._convert_conv_to_message_list(conversation)
+        self.evaluation = conversation.conversations[0].evaluations[0].explanation
+    
+    def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
+        conversation.conversations[0].conversation_turns[2].conversation_messages[0].agent_type
+        conv = conversation.conversations[0]
+        message_list = []
+        
+        for turn in conv.conversation_turns:
+            for message in turn.conversation_messages:
+                message_list.append({
+                    message.agent_type.value: message.content
+                })
+                
+        return message_list

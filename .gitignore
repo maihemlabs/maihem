@@ -7,3 +7,4 @@ venv/
 myenv/
 **/myenv/
 build/
+src/maihem.egg-info/

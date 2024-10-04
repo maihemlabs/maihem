@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = APISchemaTest.from_dict(response.json())
 
@@ -62,7 +62,8 @@ def _parse_response(
 
         return response_504
     if response.status_code == HTTPStatus.OK:
-        response_200 = cast(Any, None)
+        response_200 = APISchemaTest.from_dict(response.json())
+
         return response_200
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -72,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -86,7 +87,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
     """Upsert test by identifier
 
      Create or update a test by identifier
@@ -100,7 +101,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTest, Any, ErrorResponse]]
+        Response[Union[APISchemaTest, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -120,7 +121,7 @@ def sync(
     client: AuthenticatedClient,
     body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
     """Upsert test by identifier
 
      Create or update a test by identifier
@@ -134,7 +135,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTest, Any, ErrorResponse]
+        Union[APISchemaTest, ErrorResponse]
     """
 
     return sync_detailed(
@@ -149,7 +150,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
     """Upsert test by identifier
 
      Create or update a test by identifier
@@ -163,7 +164,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTest, Any, ErrorResponse]]
+        Response[Union[APISchemaTest, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -181,7 +182,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTest, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
     """Upsert test by identifier
 
      Create or update a test by identifier
@@ -195,7 +196,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTest, Any, ErrorResponse]
+        Union[APISchemaTest, ErrorResponse]
     """
 
     return (
