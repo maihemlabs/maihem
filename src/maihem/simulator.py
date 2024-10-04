@@ -4,15 +4,13 @@ import yaml
 from maihem.clients import Maihem
 from maihem.errors import raise_config_file_error
 from maihem.logger import get_logger
-from maihem.schemas.tests import TestRun
+from maihem.schemas.tests import SimulatedConversation
 
 
 class Simulator:
     """
     Class to simulate conversations between the Maihem Agent and the Target Agent
     """
-    
-    
     
     @classmethod
     def conversation(
@@ -21,7 +19,7 @@ class Simulator:
         target_agent_identifier: str,
         maihem_agent_identifier: str,      
         config_path: str = "./config.yaml",    
-    ) -> TestRun:
+    ) -> SimulatedConversation:
         """Simulate a single conversation between the Maihem Agent and the Target Agent"""
         logger = get_logger()
         
@@ -31,26 +29,17 @@ class Simulator:
         maihem_client = Maihem()
         
         logger.info("Initiating conversation...")
-        # target_agent = maihem_client.upsert_target_agent(
-        #     identifier=target_agent_identifier, 
-        #     role=config["target_agent"][target_agent_identifier]["role"],
-        #     industry=config["target_agent"][target_agent_identifier]["industry"],
-        #     description=config["target_agent"][target_agent_identifier]["description"],
-        #     name=config["target_agent"][target_agent_identifier]["name"],
-        #     language=config["target_agent"][target_agent_identifier]["language"],
-        # )
-        # target_agent.set_chat_function(chat_function)
+        target_agent = maihem_client.upsert_target_agent(
+            identifier=target_agent_identifier, 
+            role=config["target_agent"][target_agent_identifier]["role"],
+            industry=config["target_agent"][target_agent_identifier]["industry"],
+            description=config["target_agent"][target_agent_identifier]["description"],
+            name=config["target_agent"][target_agent_identifier]["name"],
+            language=config["target_agent"][target_agent_identifier]["language"],
+        )
+        target_agent.set_chat_function(chat_function)
         
         metrics_config = {config["metric"]: 1}
-        
-        test_o = maihem_client.create_test(
-            identifier=maihem_agent_identifier + "not_dev_mode_1",
-            initiating_agent=config["initiating_agent"],
-            name=config["maihem_agent"][maihem_agent_identifier]["name"],
-            maihem_agent_behavior_prompt=config["maihem_agent"][maihem_agent_identifier]["behavior_prompt"],
-            conversation_turns_max=config["maihem_agent"][maihem_agent_identifier]["conversation_turns_max"],
-            metrics_config=metrics_config
-        )
         
         test = maihem_client.upsert_test(
             identifier=maihem_agent_identifier,
@@ -66,7 +55,9 @@ class Simulator:
             target_agent=target_agent
         )
         
-        return test_run
+        conversation = maihem_client.get_test_run_result_conversations(test_run.id)
+        
+        return SimulatedConversation(conversation)
     
     @classmethod
     def _load_config(

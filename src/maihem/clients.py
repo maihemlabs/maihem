@@ -263,15 +263,6 @@ class Maihem(Client):
             metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
                 metrics_config
             )
-            logger.info(APISchemaTestCreateRequest(
-                    identifier=identifier,
-                    name=name,
-                    initiating_agent=initiating_agent,
-                    conversation_turns_max=conversation_turns_max,
-                    agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
-                    metrics_config=metrics_config,
-                    is_dev_mode=True
-            ).__str__())
             resp = self._maihem_api_client.upsert_test(
                 req=APISchemaTestCreateRequest(
                     identifier=identifier,
@@ -293,7 +284,6 @@ class Maihem(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        logger.info(f"Successfull created test {identifier}!")
         return test
 
     def get_test(self, identifier: str) -> Test:
@@ -459,40 +449,40 @@ class Maihem(Client):
             #     f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
             # )
 
-            with tqdm(
-                len(conversation_ids),
-                total=len(conversation_ids),
-                unit="conversation",
-                colour="green",
-                desc=f"Test run ({test_run.id})",
-                position=0,
-            ) as progress:
-                with ThreadPoolExecutor(
-                    max_workers=concurrent_conversations
-                ) as executor:
-                    future_to_conversation_id = {
-                        executor.submit(
-                            self._run_conversation,
-                            test_run.id,
-                            conversation_id,
-                            test,
-                            target_agent,
-                            progress_bar_position=i + 1,
-                        ): conversation_id
-                        for i, conversation_id in enumerate(conversation_ids)
-                    }
+            # with tqdm(
+            #     len(conversation_ids),
+            #     total=len(conversation_ids),
+            #     unit="conversation",
+            #     colour="green",
+            #     desc=f"Test run ({test_run.id})",
+            #     position=0,
+            # ) as progress:
+            with ThreadPoolExecutor(
+                max_workers=concurrent_conversations
+            ) as executor:
+                future_to_conversation_id = {
+                    executor.submit(
+                        self._run_conversation,
+                        test_run.id,
+                        conversation_id,
+                        test,
+                        target_agent,
+                        progress_bar_position=i + 1,
+                    ): conversation_id
+                    for i, conversation_id in enumerate(conversation_ids)
+                }
 
-                    for future in as_completed(future_to_conversation_id):
-                        conversation_id = future_to_conversation_id[future]
-                        try:
-                            future.result()
-                        except errors.ErrorBase as e:
-                            logger.error(
-                                f"Error running conversation ({conversation_id}): {e.message}"
-                            )
-                            progress.colour = "red"
-                        finally:
-                            progress.update()
+                for future in as_completed(future_to_conversation_id):
+                    conversation_id = future_to_conversation_id[future]
+                    try:
+                        future.result()
+                    except errors.ErrorBase as e:
+                        logger.error(
+                            f"Error running conversation ({conversation_id}): {e.message}"
+                        )
+                        # progress.colour = "red"
+                    # finally:
+                        # progress.update()
 
             print("\n" + "-" * 50 + "\n")
             logger.info(f"Conversation ({test_run.id}) completed!")
