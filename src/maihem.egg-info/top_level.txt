@@ -1,5 +1,0 @@
-design_maihem_new
-full_example
-maihem
-run_maihem
-test_data
