@@ -5,7 +5,8 @@ from maihem.simulator import Simulator
 
 # Set the Maihem API key as an environment variable
 # os.environ['MAIHEM_API_KEY'] = '<YOUR_API_KEY>'
-parser = argparse.ArgumentParser(description="Example script with default values")
+
+parser = argparse.ArgumentParser()
 
 # Choose identifier of the target agent, to be defined in config.yaml
 parser.add_argument("--target_agent_identifier", default="tg_ag_1_upsert_1", type=str)
@@ -52,7 +53,5 @@ if __name__ == "__main__":
         parser.parse_args().config_path
     )
     
-    # conversation.messages
-    # conversation.evaluations
-    
-    print(conversation)
+    print(conversation.messages)
+    print(conversation.evaluation)

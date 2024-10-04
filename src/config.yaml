@@ -1,5 +1,5 @@
 # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
-metric: qa_cx_helpfulness
+metric: qa_cx_goal_completion
 
 # Agent that starts the conversation (maihem or target_agent)
 initiating_agent: maihem
@@ -40,7 +40,7 @@ maihem_agent:
     behavior_prompt: Vent about stress in the workplace
 
     # Maximum number of turns for the conversation
-    conversation_turns_max: 8
+    conversation_turns_max: 4
   
   # Add more Maihem agents if needed with a different unique identifier
   mh_ag_2:
