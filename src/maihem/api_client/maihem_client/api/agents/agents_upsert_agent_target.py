@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union, cast
+from typing import Any, Dict, Optional, Union
 
 import httpx
 
@@ -36,7 +36,7 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
     if response.status_code == HTTPStatus.CREATED:
         response_201 = APISchemaAgentTarget.from_dict(response.json())
 
@@ -62,7 +62,8 @@ def _parse_response(
 
         return response_504
     if response.status_code == HTTPStatus.OK:
-        response_200 = cast(Any, None)
+        response_200 = APISchemaAgentTarget.from_dict(response.json())
+
         return response_200
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
@@ -72,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -86,7 +87,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
     """Upsert target agent by identifier
 
      Create or update a target agent by identifier
@@ -100,7 +101,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, Any, ErrorResponse]]
+        Response[Union[APISchemaAgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -120,7 +121,7 @@ def sync(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
     """Upsert target agent by identifier
 
      Create or update a target agent by identifier
@@ -134,7 +135,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, Any, ErrorResponse]
+        Union[APISchemaAgentTarget, ErrorResponse]
     """
 
     return sync_detailed(
@@ -149,7 +150,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
     """Upsert target agent by identifier
 
      Create or update a target agent by identifier
@@ -163,7 +164,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, Any, ErrorResponse]]
+        Response[Union[APISchemaAgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -181,7 +182,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, Any, ErrorResponse]]:
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
     """Upsert target agent by identifier
 
      Create or update a target agent by identifier
@@ -195,7 +196,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, Any, ErrorResponse]
+        Union[APISchemaAgentTarget, ErrorResponse]
     """
 
     return (
