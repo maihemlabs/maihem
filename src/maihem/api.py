@@ -70,6 +70,7 @@ from maihem.api_client.maihem_client.api.agents import (
 
 from maihem.errors import handle_http_errors, ErrorResponse
 from maihem.schemas.tests import TestStatusEnum
+from maihem.logger import get_logger
 
 
 class MaihemHTTPClientBase:
@@ -155,13 +156,15 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         return response.parsed
 
     def upsert_test(self, req: APISchemaTestCreateRequest) -> APISchemaTest:
+        logger = get_logger()
+        logger.info(req.to_dict())
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[APISchemaTest] = tests_upsert_test.sync_detailed(
                 client=client,
                 x_api_key=self.token,
                 body=req,
             )
-
+            logger.info(response.parsed)
         if response.status_code != 201 and response.status_code != 200:
             error_dict = json.loads(response.content)
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))

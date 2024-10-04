@@ -1,14 +1,21 @@
+import argparse
+import os
 from typing import List, Tuple
 from maihem.simulator import Simulator
 
+# Set the Maihem API key as an environment variable
+# os.environ['MAIHEM_API_KEY'] = '<YOUR_API_KEY>'
+parser = argparse.ArgumentParser(description="Example script with default values")
+
 # Choose identifier of the target agent, to be defined in config.yaml
-target_agent_identifier = "tg_ag_1"
+parser.add_argument("--target_agent_identifier", default="tg_ag_1_upsert_1", type=str)
 
 # Choose identifier of the maihem agent, to be defined in config.yaml
-maihem_agent_identifier = "mh_ag_1"
+parser.add_argument("--maihem_agent_identifier", default="mh_ag_1_upsert_1", type=str)
 
 # Path to config.yaml
-config_path = "./src/config.yaml"
+parser.add_argument("--config_path", default="./src/config.yaml", type=str)
+
 
 # Example of chat function
 def chat_function(conversation_id: str, agent_maihem_message: str) -> Tuple[str, List[str]]:
@@ -40,9 +47,9 @@ if __name__ == "__main__":
     
     conversation = Simulator.conversation(
         chat_function, 
-        target_agent_identifier, 
-        maihem_agent_identifier, 
-        config_path
+        parser.parse_args().target_agent_identifier, 
+        parser.parse_args().maihem_agent_identifier, 
+        parser.parse_args().config_path
     )
     
     # conversation.messages
