@@ -1,9 +1,12 @@
 # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
 metric: qa_cx_helpfulness
 
+# Agent that starts the conversation (maihem or target_agent)
+initiating_agent: maihem
+
 target_agent:
   # Unique identifier for the target agent.
-  tg_ag_1:
+  tg_ag_1_upsert_1:
     # (Optional) Name of the target agent to be displayed in the Maihem webapp
     name: Therapy chatbot 
 
@@ -29,7 +32,7 @@ target_agent:
 
 maihem_agent:
   # Unique identifier for the Maihem agent
-  mh_ag_1:
+  mh_ag_1_upsert_1:
     # (Optional) Name of the Maihem agent to be displayed in the Maihem webapp
     name: Maihem_Agent_1
 
@@ -37,10 +40,10 @@ maihem_agent:
     behavior_prompt: Vent about stress in the workplace
 
     # Maximum number of turns for the conversation
-    turns_max: 8
+    conversation_turns_max: 8
   
   # Add more Maihem agents if needed with a different unique identifier
   mh_ag_2:
     name: Maihem_Agent_2
     behavior_prompt: Discuss techniques for managing anxiety
-    turns_max: 10
+    conversation_turns_max: 10
