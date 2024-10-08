@@ -1,7 +1,7 @@
 import argparse
 import os
 from typing import List, Tuple
-from maihem.simulator import Simulator
+from maihem import Simulator
 
 # Set the Maihem API key as an environment variable
 # os.environ['MAIHEM_API_KEY'] = '<YOUR_API_KEY>'
@@ -9,10 +9,16 @@ from maihem.simulator import Simulator
 parser = argparse.ArgumentParser()
 
 # Choose identifier of the target agent, to be defined in config.yaml
-parser.add_argument("--target_agent_identifier", default="tg_ag_1_upsert_1", type=str)
+parser.add_argument("--mode", default="dev", choices=["dev", "test"], type=str)
+
+# Choose identifier of the target agent, to be defined in config.yaml
+parser.add_argument("--target_agent_identifier", default="tg_ag_therapy_1", type=str)
 
 # Choose identifier of the maihem agent, to be defined in config.yaml
-parser.add_argument("--maihem_agent_identifier", default="mh_ag_1_upsert_1", type=str)
+parser.add_argument("--maihem_agent_identifier", default="mh_ag_venting_1", type=str)
+
+# Choose identifier of the test, to be defined in config.yaml
+parser.add_argument("--test_identifier", default="test_a", type=str)
 
 # Path to config.yaml
 parser.add_argument("--config_path", default="./src/config.yaml", type=str)
@@ -46,12 +52,26 @@ def chat_function(conversation_id: str, agent_maihem_message: str) -> Tuple[str,
 
 if __name__ == "__main__":
     
-    conversation = Simulator.conversation(
-        chat_function, 
-        parser.parse_args().target_agent_identifier, 
-        parser.parse_args().maihem_agent_identifier, 
-        parser.parse_args().config_path
-    )
+    if parser.parse_args().mode == "dev":
+        conversation = Simulator.conversation(
+            chat_function, 
+            target_agent_identifier=parser.parse_args().target_agent_identifier, 
+            maihem_agent_identifier=parser.parse_args().maihem_agent_identifier, 
+            config_path=parser.parse_args().config_path
+        )
+        
+        print(conversation.messages)
+        print(conversation.evaluation)
+        
+    elif parser.parse_args().mode == "test":  
+        test = Simulator.test(
+            chat_function, 
+            target_agent_identifier=parser.parse_args().target_agent_identifier, 
+            test_identifier=parser.parse_args().maihem_agent_identifier, 
+            config_path=parser.parse_args().config_path
+        )
+        
+    else:
+        raise ValueError("Invalid mode. Choose 'dev' or 'test'")
     
-    print(conversation.messages)
-    print(conversation.evaluation)
+    print("END")
