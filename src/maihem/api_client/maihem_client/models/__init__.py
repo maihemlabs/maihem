@@ -25,7 +25,6 @@ from .api_schema_test_result_metric_feedback_feedback import APISchemaTestResult
 from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_conversation_counts import APISchemaTestRunConversationCounts
 from .api_schema_test_run_conversations import APISchemaTestRunConversations
-from .api_schema_test_run_create_request import APISchemaTestRunCreateRequest
 from .api_schema_test_run_result_conversations import APISchemaTestRunResultConversations
 from .api_schema_test_run_result_conversations_metric_scores_type_0 import (
     APISchemaTestRunResultConversationsMetricScoresType0,
@@ -78,7 +77,6 @@ __all__ = (
     "APISchemaTestRun",
     "APISchemaTestRunConversationCounts",
     "APISchemaTestRunConversations",
-    "APISchemaTestRunCreateRequest",
     "APISchemaTestRunResultConversations",
     "APISchemaTestRunResultConversationsMetricScoresType0",
     "APISchemaTestRunResultMetrics",
