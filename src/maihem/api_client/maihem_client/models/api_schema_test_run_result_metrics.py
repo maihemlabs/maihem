@@ -28,7 +28,6 @@ class APISchemaTestRunResultMetrics:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         test_id (str):
-        agent_target_id (str):
         status (TestStatusEnum):
         result (TestResultEnum):
         conversation_counts (APISchemaTestRunConversationCounts):
@@ -43,7 +42,6 @@ class APISchemaTestRunResultMetrics:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     test_id: str
-    agent_target_id: str
     status: TestStatusEnum
     result: TestResultEnum
     conversation_counts: "APISchemaTestRunConversationCounts"
@@ -67,8 +65,6 @@ class APISchemaTestRunResultMetrics:
         updated_at = self.updated_at.isoformat()
 
         test_id = self.test_id
-
-        agent_target_id = self.agent_target_id
 
         status = self.status.value
 
@@ -122,7 +118,6 @@ class APISchemaTestRunResultMetrics:
                 "created_at": created_at,
                 "updated_at": updated_at,
                 "test_id": test_id,
-                "agent_target_id": agent_target_id,
                 "status": status,
                 "result": result,
                 "conversation_counts": conversation_counts,
@@ -157,8 +152,6 @@ class APISchemaTestRunResultMetrics:
         updated_at = isoparse(d.pop("updated_at"))
 
         test_id = d.pop("test_id")
-
-        agent_target_id = d.pop("agent_target_id")
 
         status = TestStatusEnum(d.pop("status"))
 
@@ -248,7 +241,6 @@ class APISchemaTestRunResultMetrics:
             created_at=created_at,
             updated_at=updated_at,
             test_id=test_id,
-            agent_target_id=agent_target_id,
             status=status,
             result=result,
             conversation_counts=conversation_counts,
