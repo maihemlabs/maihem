@@ -44,8 +44,11 @@ def chat_function(conversation_id: str, agent_maihem_message: str) -> Tuple[str,
     agent_target_message = "Hi, how can I help you today?"
     
     # List of contexts for RAG evaluations, pass empty list if not needed
-    contexts = [] 
+    contexts = ["Context 1", "Context 2"] 
     # contexts = ["<Context 1>", "<Context 2>"] 
+    
+    # Delete when you have implemented your chat function
+    raise NotImplementedError("Chat function has not been implemented")
     
     return agent_target_message, contexts
 
@@ -64,14 +67,15 @@ if __name__ == "__main__":
         print(conversation.evaluation)
         
     elif parser.parse_args().mode == "test":  
-        test = Simulator.test(
+        conversations = Simulator.test(
             chat_function, 
             target_agent_identifier=parser.parse_args().target_agent_identifier, 
-            test_identifier=parser.parse_args().maihem_agent_identifier, 
+            test_identifier=parser.parse_args().test_identifier, 
             config_path=parser.parse_args().config_path
         )
         
+        print(conversations[0].messages)
+        print(conversations[0].evaluation)
+        
     else:
         raise ValueError("Invalid mode. Choose 'dev' or 'test'")
-    
-    print("END")

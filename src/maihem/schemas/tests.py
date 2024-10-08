@@ -127,15 +127,13 @@ class TestRunResultConversations(TestRun):
 
 class SimulatedConversation:
 
-    def __init__(self, conversation: TestRunResultConversations):
+    def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
+        self.conv_num = conv_num
         self.messages = self._convert_conv_to_message_list(conversation)
-        self.evaluation = conversation.conversations[0].evaluations[0].explanation
+        self.evaluation = conversation.conversations[conv_num].evaluations[0].explanation
 
     def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
-        conversation.conversations[0].conversation_turns[2].conversation_messages[
-            0
-        ].agent_type
-        conv = conversation.conversations[0]
+        conv = conversation.conversations[self.conv_num]
         message_list = []
 
         for turn in conv.conversation_turns:
