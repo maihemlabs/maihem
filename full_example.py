@@ -51,7 +51,7 @@ def chat_function(conversation_id: str, agent_maihem_message: str) -> Tuple[str,
 target_agent.set_chat_function(chat_function)
 
 # For RAG testing, add a list of documents so Maihem can generate questions from them to evaluate your Target Agent
-target_agent.add_documents(documents=["./test_data/RAG_PG_essays.pdf"])
+target_agent.add_documents(documents=["./src/test_data/RAG_PG_essays.pdf"])
 
 # Select the Metrics you want to evaluate your agent on, 
 # and how many conversations you want to run for each metric.
@@ -59,13 +59,13 @@ target_agent.add_documents(documents=["./test_data/RAG_PG_essays.pdf"])
 metrics_config = {
     "qa_cx_helpfulness": 2, # Number of conversations to run for this metric
     "qa_cx_goal_completion": 2, # Number of conversations to run for this metric
-    # "qa_rag_hallucination": 5, # Number of conversations to run for this metric
-    # "qa_rag_answer_relevance": 5, # Number of conversations to run for this metric
+    "qa_rag_hallucination": 2, # Number of conversations to run for this metric
+    "qa_rag_answer_relevance": 2, # Number of conversations to run for this metric
 }
 
 # Create a Test
 test = maihem_client.create_test(
-    identifier="test_pg_essays",
+    identifier="test_pg_essays_rag",
     metrics_config=metrics_config,
     maihem_agent_behavior_prompt="Ask questions about entrepreneurship and startups based on the essays of Paul Graham. Image you are a young entrepreneur looking for advice, deciding wheter to drop out of college to start a company.",
     conversation_turns_max=5
@@ -73,7 +73,7 @@ test = maihem_client.create_test(
 
 # # Create a Test Run from a Test and a Target Agent
 test_run = maihem_client.create_test_run(
-    test_identifier="test_pg_essays", # The identifier of the Test you want to run
+    test_identifier="test_pg_essays_rag", # The identifier of the Test you want to run
     target_agent=target_agent, # The Target Agent you want to test
     concurrent_conversations=10, # How many conversations to run concurrently
 )
