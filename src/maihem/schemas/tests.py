@@ -40,6 +40,7 @@ class Test(BaseModel):
     created_at: datetime
     updated_at: datetime
     identifier: str
+    agent_target_id: str
     name: Optional[str] = None
     initiating_agent: AgentType = AgentType.MAIHEM
     conversation_turns_max: Optional[int] = None
@@ -52,7 +53,6 @@ class TestRun(BaseModel):
     created_at: datetime
     updated_at: datetime
     test_id: str
-    agent_target_id: str
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     status: TestStatusEnum
@@ -123,23 +123,23 @@ class TestRunResultConversations(TestRun):
 
     class Config:
         arbitrary_types_allowed = True
-        
-        
+
+
 class SimulatedConversation:
-    
+
     def __init__(self, conversation: TestRunResultConversations):
         self.messages = self._convert_conv_to_message_list(conversation)
         self.evaluation = conversation.conversations[0].evaluations[0].explanation
-    
+
     def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
-        conversation.conversations[0].conversation_turns[2].conversation_messages[0].agent_type
+        conversation.conversations[0].conversation_turns[2].conversation_messages[
+            0
+        ].agent_type
         conv = conversation.conversations[0]
         message_list = []
-        
+
         for turn in conv.conversation_turns:
             for message in turn.conversation_messages:
-                message_list.append({
-                    message.agent_type.value: message.content
-                })
-                
+                message_list.append({message.agent_type.value: message.content})
+
         return message_list
