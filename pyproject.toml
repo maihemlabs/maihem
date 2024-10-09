@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "maihem"
-version = "1.5.2"
+version = "1.5.4"
 description = "LLM evaluations and synthetic data generation with the MAIHEM models"
 readme = "README.md"
 authors = [{ name = "MAIHEM"}]
