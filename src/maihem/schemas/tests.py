@@ -126,12 +126,21 @@ class TestRunResultConversations(TestRun):
 
 
 class SimulatedConversation:
-
+    """
+    Class with the response messages and evaluation from a simulated conversation
+    """
+    
     def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
         self.conv_num = conv_num
-        self.messages = self._convert_conv_to_message_list(conversation)
-        self.evaluation = conversation.conversations[conv_num].evaluations[0].explanation
-
+        try:
+            self.messages = self._convert_conv_to_message_list(conversation)
+        except Exception as e:
+            self.messages = None
+        try:
+            self.evaluation = conversation.conversations[conv_num].evaluations[0].explanation
+        except Exception as e:
+            self.evaluation = None
+    
     def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
         conv = conversation.conversations[self.conv_num]
         message_list = []
