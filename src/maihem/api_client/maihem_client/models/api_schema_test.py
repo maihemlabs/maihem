@@ -27,6 +27,7 @@ class APISchemaTest:
         updated_at (datetime.datetime):
         identifier (str):
         initiating_agent (AgentType):
+        agent_target_id (str):
         metrics_config (APISchemaTestMetricsConfig):
         name (Union[None, Unset, str]):
         conversation_turns_max (Union[None, Unset, int]):
@@ -44,6 +45,7 @@ class APISchemaTest:
     updated_at: datetime.datetime
     identifier: str
     initiating_agent: AgentType
+    agent_target_id: str
     metrics_config: "APISchemaTestMetricsConfig"
     name: Union[None, Unset, str] = UNSET
     conversation_turns_max: Union[None, Unset, int] = UNSET
@@ -66,6 +68,8 @@ class APISchemaTest:
         identifier = self.identifier
 
         initiating_agent = self.initiating_agent.value
+
+        agent_target_id = self.agent_target_id
 
         metrics_config = self.metrics_config.to_dict()
 
@@ -139,6 +143,7 @@ class APISchemaTest:
                 "updated_at": updated_at,
                 "identifier": identifier,
                 "initiating_agent": initiating_agent,
+                "agent_target_id": agent_target_id,
                 "metrics_config": metrics_config,
             }
         )
@@ -177,6 +182,8 @@ class APISchemaTest:
         identifier = d.pop("identifier")
 
         initiating_agent = AgentType(d.pop("initiating_agent"))
+
+        agent_target_id = d.pop("agent_target_id")
 
         metrics_config = APISchemaTestMetricsConfig.from_dict(d.pop("metrics_config"))
 
@@ -289,6 +296,7 @@ class APISchemaTest:
             updated_at=updated_at,
             identifier=identifier,
             initiating_agent=initiating_agent,
+            agent_target_id=agent_target_id,
             metrics_config=metrics_config,
             name=name,
             conversation_turns_max=conversation_turns_max,

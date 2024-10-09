@@ -25,7 +25,6 @@ from .api_schema_test_result_metric_feedback_feedback import APISchemaTestResult
 from .api_schema_test_run import APISchemaTestRun
 from .api_schema_test_run_conversation_counts import APISchemaTestRunConversationCounts
 from .api_schema_test_run_conversations import APISchemaTestRunConversations
-from .api_schema_test_run_create_request import APISchemaTestRunCreateRequest
 from .api_schema_test_run_result_conversations import APISchemaTestRunResultConversations
 from .api_schema_test_run_result_conversations_metric_scores_type_0 import (
     APISchemaTestRunResultConversationsMetricScoresType0,
@@ -33,6 +32,7 @@ from .api_schema_test_run_result_conversations_metric_scores_type_0 import (
 from .api_schema_test_run_result_metric_scores import APISchemaTestRunResultMetricScores
 from .api_schema_test_run_result_metrics import APISchemaTestRunResultMetrics
 from .api_schema_test_run_result_metrics_metric_scores_type_0 import APISchemaTestRunResultMetricsMetricScoresType0
+from .api_schema_test_run_status_update_request import APISchemaTestRunStatusUpdateRequest
 from .api_schema_user import APISchemaUser
 from .api_schema_user_profile import APISchemaUserProfile
 from .conversation_nested import ConversationNested
@@ -77,12 +77,12 @@ __all__ = (
     "APISchemaTestRun",
     "APISchemaTestRunConversationCounts",
     "APISchemaTestRunConversations",
-    "APISchemaTestRunCreateRequest",
     "APISchemaTestRunResultConversations",
     "APISchemaTestRunResultConversationsMetricScoresType0",
     "APISchemaTestRunResultMetrics",
     "APISchemaTestRunResultMetricScores",
     "APISchemaTestRunResultMetricsMetricScoresType0",
+    "APISchemaTestRunStatusUpdateRequest",
     "APISchemaUser",
     "APISchemaUserProfile",
     "ConversationNested",
