@@ -3,27 +3,29 @@ from typing import Any, Dict, List, Type, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="APISchemaTestRunCreateRequest")
+from ..models.test_status_enum import TestStatusEnum
+
+T = TypeVar("T", bound="APISchemaTestRunStatusUpdateRequest")
 
 
 @_attrs_define
-class APISchemaTestRunCreateRequest:
+class APISchemaTestRunStatusUpdateRequest:
     """
     Attributes:
-        agent_target_id (str):
+        status (TestStatusEnum):
     """
 
-    agent_target_id: str
+    status: TestStatusEnum
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        agent_target_id = self.agent_target_id
+        status = self.status.value
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "agent_target_id": agent_target_id,
+                "status": status,
             }
         )
 
@@ -32,14 +34,14 @@ class APISchemaTestRunCreateRequest:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        agent_target_id = d.pop("agent_target_id")
+        status = TestStatusEnum(d.pop("status"))
 
-        api_schema_test_run_create_request = cls(
-            agent_target_id=agent_target_id,
+        api_schema_test_run_status_update_request = cls(
+            status=status,
         )
 
-        api_schema_test_run_create_request.additional_properties = d
-        return api_schema_test_run_create_request
+        api_schema_test_run_status_update_request.additional_properties = d
+        return api_schema_test_run_status_update_request
 
     @property
     def additional_keys(self) -> List[str]:

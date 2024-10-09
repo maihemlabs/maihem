@@ -2,7 +2,7 @@ from enum import Enum
 
 
 class TestResultEnum(str, Enum):
-    CANCELLED = "cancelled"
+    CANCELED = "canceled"
     ERRORED = "errored"
     FAILED = "failed"
     PASSED = "passed"

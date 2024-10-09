@@ -5,14 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run import APISchemaTestRun
+from ...models.api_schema_agent_target import APISchemaAgentTarget
+from ...models.api_schema_agent_target_create_request import APISchemaAgentTargetCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    test_id: str,
     *,
+    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -20,9 +21,14 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     _kwargs: Dict[str, Any] = {
-        "method": "post",
-        "url": f"/tests/{test_id}/test-runs",
+        "method": "put",
+        "url": "/agents/target",
     }
+
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -30,9 +36,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
     if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaTestRun.from_dict(response.json())
+        response_201 = APISchemaAgentTarget.from_dict(response.json())
 
         return response_201
     if response.status_code == HTTPStatus.BAD_REQUEST:
@@ -55,6 +61,10 @@ def _parse_response(
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
+    if response.status_code == HTTPStatus.OK:
+        response_200 = APISchemaAgentTarget.from_dict(response.json())
+
+        return response_200
     if client.raise_on_unexpected_status:
         raise errors.UnexpectedStatus(response.status_code, response.content)
     else:
@@ -63,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -73,29 +83,29 @@ def _build_response(
 
 
 def sync_detailed(
-    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
+    """Upsert target agent by identifier
 
-     Create a new run of a specified test
+     Create or update a target agent by identifier
 
     Args:
-        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[APISchemaAgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
-        test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -107,58 +117,58 @@ def sync_detailed(
 
 
 def sync(
-    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
+    """Upsert target agent by identifier
 
-     Create a new run of a specified test
+     Create or update a target agent by identifier
 
     Args:
-        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[APISchemaAgentTarget, ErrorResponse]
     """
 
     return sync_detailed(
-        test_id=test_id,
         client=client,
+        body=body,
         x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
-    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
+    """Upsert target agent by identifier
 
-     Create a new run of a specified test
+     Create or update a target agent by identifier
 
     Args:
-        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[APISchemaAgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
-        test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -168,31 +178,31 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaAgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
+    """Upsert target agent by identifier
 
-     Create a new run of a specified test
+     Create or update a target agent by identifier
 
     Args:
-        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaAgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[APISchemaAgentTarget, ErrorResponse]
     """
 
     return (
         await asyncio_detailed(
-            test_id=test_id,
             client=client,
+            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

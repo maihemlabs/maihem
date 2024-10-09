@@ -5,7 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run import APISchemaTestRun
+from ...models.api_schema_test import APISchemaTest
+from ...models.api_schema_test_create_request import APISchemaTestCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -13,6 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     test_id: str,
     *,
+    body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -20,9 +22,14 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     _kwargs: Dict[str, Any] = {
-        "method": "post",
-        "url": f"/tests/{test_id}/test-runs",
+        "method": "patch",
+        "url": f"/tests/{test_id}",
     }
+
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -30,11 +37,11 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaTestRun.from_dict(response.json())
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = APISchemaTest.from_dict(response.json())
 
-        return response_201
+        return response_200
     if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
@@ -63,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,26 +83,29 @@ def sync_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
+    """Update test
 
-     Create a new run of a specified test
+     Update a test configuration
 
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[APISchemaTest, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -110,27 +120,30 @@ def sync(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
+    """Update test
 
-     Create a new run of a specified test
+     Update a test configuration
 
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[APISchemaTest, ErrorResponse]
     """
 
     return sync_detailed(
         test_id=test_id,
         client=client,
+        body=body,
         x_api_key=x_api_key,
     ).parsed
 
@@ -139,26 +152,29 @@ async def asyncio_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Response[Union[APISchemaTest, ErrorResponse]]:
+    """Update test
 
-     Create a new run of a specified test
+     Update a test configuration
 
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[APISchemaTest, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -171,28 +187,31 @@ async def asyncio(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: APISchemaTestCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    """Run a test
+) -> Optional[Union[APISchemaTest, ErrorResponse]]:
+    """Update test
 
-     Create a new run of a specified test
+     Update a test configuration
 
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (APISchemaTestCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[APISchemaTest, ErrorResponse]
     """
 
     return (
         await asyncio_detailed(
             test_id=test_id,
             client=client,
+            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

@@ -13,7 +13,6 @@ from maihem.schemas.tests import (
     TestRun,
     TestRunResultConversations,
     TestRunResultMetrics,
-    TestRunResultMetricScore,
     TestRunConversations,
 )
 from maihem.schemas.conversations import ConversationTurnCreateResponse
@@ -136,6 +135,42 @@ class Maihem(Client):
         logger.info(f"Successfully created target agent {identifier}!")
         return agent_target
 
+    def upsert_target_agent(
+        self,
+        identifier: str,
+        role: str,
+        industry: str,
+        description: str,
+        name: Optional[str] = None,
+        language: Optional[str] = "en",
+    ) -> TargetAgent:
+        logger = get_logger()
+        logger.info(f"Creating target agent {identifier}...")
+        resp = None
+        try:
+            resp = self._maihem_api_client.upsert_agent_target(
+                req=APISchemaAgentTargetCreateRequest(
+                    identifier=identifier,
+                    name=name,
+                    role=role,
+                    industry=industry,
+                    description=description,
+                    language=language,
+                )
+            )
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        agent_target = None
+
+        try:
+            agent_target = TargetAgent.model_validate(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
+        logger.info(f"Successfully created target agent {identifier}!")
+        return agent_target
+
     def get_target_agent(self, identifier: str) -> TargetAgent:
         resp = None
         try:
@@ -157,6 +192,7 @@ class Maihem(Client):
     def create_test(
         self,
         identifier: str,
+        target_agent_identifier: str,
         initiating_agent: AgentType = AgentType.MAIHEM,
         name: Optional[str] = None,
         maihem_agent_behavior_prompt: Optional[str] = None,
@@ -176,6 +212,15 @@ class Maihem(Client):
                 ) from e
 
         try:
+            target_agent = self._maihem_api_client.get_agent_target_by_identifier(
+                identifier=target_agent_identifier
+            )
+
+            if not target_agent:
+                raise errors.raise_not_found_error(
+                    f"Target agent {target_agent_identifier} not found"
+                )
+
             metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
                 metrics_config
             )
@@ -185,6 +230,7 @@ class Maihem(Client):
                     name=name,
                     initiating_agent=initiating_agent,
                     conversation_turns_max=conversation_turns_max,
+                    agent_target_id=target_agent.id,
                     agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
                     metrics_config=metrics_config,
                 )
@@ -200,6 +246,59 @@ class Maihem(Client):
             errors.handle_schema_validation_error(e)
 
         logger.info(f"Successfull created test {identifier}!")
+        return test
+
+    def upsert_test(
+        self,
+        identifier: str,
+        target_agent_identifier: str,
+        initiating_agent: AgentType = AgentType.MAIHEM,
+        name: Optional[str] = None,
+        maihem_agent_behavior_prompt: Optional[str] = None,
+        conversation_turns_max: Optional[int] = 10,
+        metrics_config: Optional[Dict] = None,
+    ) -> Test:
+        resp = None
+        logger = get_logger()
+        logger.info(f"Creating test {identifier}...")
+
+        if isinstance(initiating_agent, str):
+            try:
+                initiating_agent = AgentType[initiating_agent.upper()]
+            except KeyError as e:
+                raise errors.raise_request_validation_error(
+                    f"Invalid agent type: {initiating_agent}"
+                ) from e
+
+        try:
+            target_agent = self._maihem_api_client.get_agent_target_by_identifier(
+                identifier=target_agent_identifier
+            )
+            metrics_config = APISchemaTestCreateRequestMetricsConfig.from_dict(
+                metrics_config
+            )
+            resp = self._maihem_api_client.upsert_test(
+                req=APISchemaTestCreateRequest(
+                    identifier=identifier,
+                    name=name,
+                    initiating_agent=initiating_agent,
+                    conversation_turns_max=conversation_turns_max,
+                    agent_target_id=target_agent.id,
+                    agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
+                    metrics_config=metrics_config,
+                    is_dev_mode=True,
+                )
+            )
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        test = None
+
+        try:
+            test = Test.model_validate(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
         return test
 
     def get_test(self, identifier: str) -> Test:
@@ -224,59 +323,144 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
-        if not target_agent._chat_function:
-            errors.raise_request_validation_error(
-                "Target agent must have a chat function assigned. Use `set_chat_function` method to assign a chat function."
+        try:
+            test = self._maihem_api_client.get_test_by_identifier(test_identifier)
+
+            resp = None
+
+            logger = get_logger()
+            logger.info(f"Spawning test run for test {test.identifier}...")
+
+            try:
+                with yaspin(
+                    Spinners.arc,
+                    text="Creating Maihem Agents, this might take a minute...",
+                ) as sp:
+                    resp = self._maihem_api_client.create_test_run(test_id=test.id)
+            except errors.ErrorBase as e:
+                errors.handle_base_error(e)
+
+            test_run = None
+
+            try:
+                test_run = TestRun.model_validate(resp.to_dict())
+            except ValidationError as e:
+                errors.handle_schema_validation_error(e)
+
+            test_run_conversations = self.get_test_run_conversations(test_run.id)
+            conversation_ids = test_run_conversations.conversation_ids
+
+            logger.info(f"Test run spawned for test {test.identifier}!")
+            print("\n" + "-" * 50 + "\n")
+            logger.info(
+                f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
+            )
+            logger.info(f"Test run ID: {test_run.id}")
+            logger.info(
+                f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
             )
 
-        test = self._maihem_api_client.get_test_by_identifier(test_identifier)
+            print("\n" + "-" * 50 + "\n")
 
-        resp = None
+            with tqdm(
+                len(conversation_ids),
+                total=len(conversation_ids),
+                unit="conversation",
+                colour="green",
+                desc=f"Test run ({test_run.id})",
+                position=0,
+            ) as progress:
+                with ThreadPoolExecutor(
+                    max_workers=concurrent_conversations
+                ) as executor:
+                    future_to_conversation_id = {
+                        executor.submit(
+                            self._run_conversation,
+                            test_run.id,
+                            conversation_id,
+                            test,
+                            target_agent,
+                            progress_bar_position=i + 1,
+                        ): conversation_id
+                        for i, conversation_id in enumerate(conversation_ids)
+                    }
 
-        logger = get_logger()
-        logger.info(f"Spawning test run for test {test.identifier}...")
+                    for future in as_completed(future_to_conversation_id):
+                        conversation_id = future_to_conversation_id[future]
+                        try:
+                            future.result()
+                        except errors.ErrorBase as e:
+                            logger.error(
+                                f"Error running conversation ({conversation_id}): {e.message}"
+                            )
+                            progress.colour = "red"
+                        finally:
+                            progress.update()
 
+            print("\n" + "-" * 50 + "\n")
+            logger.info(f"Test run ({test_run.id}) completed!")
+            return test_run
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt detected. Canceling test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.CANCELED
+            )
+            logger.info("Test run canceled!")
+        except Exception as e:
+            logger.error(f"Error: {e}. Ending test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.FAILED
+            )
+
+    def create_test_run_dev_mode(
+        self,
+        test_identifier: str,
+        target_agent: TargetAgent,
+        concurrent_conversations: int = 1,
+    ) -> TestRun:
         try:
-            with yaspin(
-                Spinners.arc, text="Creating Maihem Agents, this might take a minute..."
-            ) as sp:
-                resp = self._maihem_api_client.create_test_run(
-                    test_id=test.id,
-                    agent_target_id=target_agent.id,
+            if not target_agent._chat_function:
+                errors.raise_request_validation_error(
+                    "Chat function the target agent must be passed."
                 )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
 
-        test_run = None
+            test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
-        try:
-            test_run = TestRun.model_validate(resp.to_dict())
-        except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            resp = None
 
-        test_run_conversations = self.get_test_run_conversations(test_run.id)
-        conversation_ids = test_run_conversations.conversation_ids
+            logger = get_logger()
 
-        logger.info(f"Test run spawned for test {test.identifier}!")
-        print("\n" + "-" * 50 + "\n")
-        logger.info(
-            f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
-        )
-        logger.info(f"Test run ID: {test_run.id}")
-        logger.info(
-            f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
-        )
+            try:
+                with yaspin(
+                    Spinners.arc,
+                    text="Creating Maihem Agent, this might take a minute...",
+                ) as sp:
+                    resp = self._maihem_api_client.create_test_run(test_id=test.id)
+            except errors.ErrorBase as e:
+                errors.handle_base_error(e)
 
-        print("\n" + "-" * 50 + "\n")
+            test_run = None
 
-        with tqdm(
-            len(conversation_ids),
-            total=len(conversation_ids),
-            unit="conversation",
-            colour="green",
-            desc=f"Test run ({test_run.id})",
-            position=0,
-        ) as progress:
+            try:
+                test_run = TestRun.model_validate(resp.to_dict())
+            except ValidationError as e:
+                errors.handle_schema_validation_error(e)
+
+            test_run_conversations = self.get_test_run_conversations(test_run.id)
+            conversation_ids = test_run_conversations.conversation_ids
+
+            # logger.info(
+            #     f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
+            # )
+
+            # with tqdm(
+            #     len(conversation_ids),
+            #     total=len(conversation_ids),
+            #     unit="conversation",
+            #     colour="green",
+            #     desc=f"Test run ({test_run.id})",
+            #     position=0,
+            # ) as progress:
             with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
                 future_to_conversation_id = {
                     executor.submit(
@@ -298,13 +482,24 @@ class Maihem(Client):
                         logger.error(
                             f"Error running conversation ({conversation_id}): {e.message}"
                         )
-                        progress.colour = "red"
-                    finally:
-                        progress.update()
+                        # progress.colour = "red"
+                    # finally:
+                    # progress.update()
 
-        print("\n" + "-" * 50 + "\n")
-        logger.info(f"Test run ({test_run.id}) completed!")
-        return test_run
+            print("\n" + "-" * 50 + "\n")
+            logger.info(f"Conversation ({test_run.id}) completed!")
+            return test_run
+        except KeyboardInterrupt:
+            logger.info("Keyboard interrupt detected. Canceling test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.CANCELED
+            )
+            logger.info("Test run canceled!")
+        except Exception as e:
+            logger.error(f"Error: {e}. Ending test...")
+            self._maihem_api_client.update_test_run_status(
+                test_run_id=test_run.id, status=TestStatusEnum.FAILED
+            )
 
     def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
         resp = None

@@ -1,0 +1,104 @@
+target_agent:
+  # Unique identifier for the target agent.
+  tg_ag_therapy_1:
+    # (Optional) Name of the target agent to be displayed in the Maihem webapp
+    name: Acme Therapy Agent
+
+    # Free text short description of the role of the target agent
+    role: mental health assistant
+
+    # Free text description of the industry that the target agent belongs to
+    industry: mental health
+
+    # Free text detailed description of the target agent
+    description: A chatbot for emotional support through Cognitive Behavioral Therapy (CBT)
+
+    # Language of the target agent in ISO 639-1 format
+    language: en  
+
+  # Add more target agents if needed with a different unique identifier
+  tg_ag_support_1:
+    name: Beta Corp Customer Support Agent
+    role: customer support assistant
+    industry: financial services
+    description: A chatbot that provides support with account-related inquiries
+    language: en  
+
+maihem_agent:
+  # Unique identifier for the Maihem agent
+  mh_ag_venting_1:
+    # Name of the Maihem agent to be displayed in the Maihem webapp
+    name: Vent about stress caused by high demands in the workplace
+
+    # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
+    metric: qa_rag_hallucination
+
+    # Free text prompt to guide the behavior of the Maihem Agent
+    behavior_prompt: None
+
+    # Agent that starts the conversation (maihem or target_agent)
+    initiating_agent: maihem
+
+    # Maximum number of turns for the conversation
+    conversation_turns_max: 4
+
+    # Load documents for RAG question generation
+    documents:
+      - /path_to_doc_1.pdf
+      - /path_to_doc_2.txt
+      - /path_to_doc_3.docx
+      - /path_to_doc_4.md
+  
+  # Add more Maihem agents if needed with a different unique identifier
+  mh_ag_unblock_account_1:
+    name: Unblock account
+    metric: qa_cx_goal_completion
+    behavior_prompt: Ask for help with unblocking account that got blocked during an international trip
+    initiating_agent: target
+    conversation_turns_max: 3
+
+test:
+  # Unique identifier for the test
+  test_a:
+    # Name of the Maihem agent to be displayed in the Maihem webapp
+    name: Test venting (Model A)
+
+    # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
+    metrics:
+      - qa_cx_helpfulness
+      - qa_cx_goal_completion
+      - qa_cx_retention
+      - qa_rag_hallucination
+      - qa_rag_answer_relevance
+      - sec_brand_competitor_recommendation
+      - sec_bias_race
+
+    # (Optional) Free text prompt to guide the behavior of the Maihem Agents
+    behavior_prompt: None
+
+    # Agent that starts the conversation (maihem or target_agent)
+    initiating_agent: maihem
+    
+    # Maximum number of turns for the conversation
+    conversation_turns_max: 5
+
+    # Load documents for RAG question generation
+    documents:
+      - /path_to_doc_1.pdf
+      - /path_to_doc_2.txt
+      - /path_to_doc_3.docx
+      - /path_to_doc_4.md
+  
+  # Add more Maihem agents if needed with a different unique identifier
+  test_b:
+    name: Test account support (Model B)
+    metrics:
+      - qa_cx_helpfulness
+      - qa_cx_goal_completion
+      - qa_rag_hallucination
+      - qa_rag_answer_relevance
+      - sec_bias_gender
+      - sec_overreach_financial_advice
+    behavior_prompt: Request help with your bank account
+    initiating_agent: target
+    conversation_turns_max: 16

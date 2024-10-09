@@ -15,6 +15,7 @@ class TestStatusEnum(str, Enum):
     RUNNING = "running"
     COMPLETED = "completed"
     FAILED = "failed"
+    CANCELED = "canceled"
 
 
 class TestResultEnum(str, Enum):
@@ -22,7 +23,7 @@ class TestResultEnum(str, Enum):
     PASSED = "passed"
     FAILED = "failed"
     ERRORED = "errored"
-    CANCELLED = "cancelled"
+    CANCELED = "canceled"
 
 
 class APISchemaLinks(BaseModel):
@@ -39,6 +40,7 @@ class Test(BaseModel):
     created_at: datetime
     updated_at: datetime
     identifier: str
+    agent_target_id: str
     name: Optional[str] = None
     initiating_agent: AgentType = AgentType.MAIHEM
     conversation_turns_max: Optional[int] = None
@@ -51,7 +53,6 @@ class TestRun(BaseModel):
     created_at: datetime
     updated_at: datetime
     test_id: str
-    agent_target_id: str
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     status: TestStatusEnum
@@ -122,3 +123,21 @@ class TestRunResultConversations(TestRun):
 
     class Config:
         arbitrary_types_allowed = True
+
+
+class SimulatedConversation:
+
+    def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
+        self.conv_num = conv_num
+        self.messages = self._convert_conv_to_message_list(conversation)
+        self.evaluation = conversation.conversations[conv_num].evaluations[0].explanation
+
+    def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
+        conv = conversation.conversations[self.conv_num]
+        message_list = []
+
+        for turn in conv.conversation_turns:
+            for message in turn.conversation_messages:
+                message_list.append({message.agent_type.value: message.content})
+
+        return message_list
