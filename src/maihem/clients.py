@@ -402,15 +402,17 @@ class Maihem(Client):
             return test_run
         except KeyboardInterrupt:
             logger.info("Keyboard interrupt detected. Canceling test...")
-            self._maihem_api_client.update_test_run_status(
-                test_run_id=test_run.id, status=TestStatusEnum.CANCELED
-            )
+            if test_run is not None and test_run.id is not None:
+                self._maihem_api_client.update_test_run_status(
+                    test_run_id=test_run.id, status=TestStatusEnum.CANCELED
+                )
             logger.info("Test run canceled!")
         except Exception as e:
             logger.error(f"Error: {e}. Ending test...")
-            self._maihem_api_client.update_test_run_status(
-                test_run_id=test_run.id, status=TestStatusEnum.FAILED
-            )
+            if test_run is not None and test_run.id is not None:
+                self._maihem_api_client.update_test_run_status(
+                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                )
 
     def create_test_run_dev_mode(
         self,
@@ -491,15 +493,17 @@ class Maihem(Client):
             return test_run
         except KeyboardInterrupt:
             logger.info("Keyboard interrupt detected. Canceling test...")
-            self._maihem_api_client.update_test_run_status(
-                test_run_id=test_run.id, status=TestStatusEnum.CANCELED
-            )
+            if test_run is not None and test_run.id is not None:
+                self._maihem_api_client.update_test_run_status(
+                    test_run_id=test_run.id, status=TestStatusEnum.CANCELED
+                )
             logger.info("Test run canceled!")
         except Exception as e:
             logger.error(f"Error: {e}. Ending test...")
-            self._maihem_api_client.update_test_run_status(
-                test_run_id=test_run.id, status=TestStatusEnum.FAILED
-            )
+            if test_run is not None and test_run.id is not None:
+                self._maihem_api_client.update_test_run_status(
+                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                )
 
     def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
         resp = None

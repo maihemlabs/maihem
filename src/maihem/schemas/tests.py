@@ -128,6 +128,9 @@ class TestRunResultConversations(TestRun):
 class SimulatedConversation:
     """
     Class with the response messages and evaluation from a simulated conversation
+    
+    messages: List[Dict[str, str]] - List of messages from the conversation
+    evaluation: str - Explanation of the evaluation of the conversation
     """
     
     def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
