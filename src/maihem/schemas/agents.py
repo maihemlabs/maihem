@@ -1,8 +1,8 @@
 from datetime import datetime
-from pydantic import BaseModel
-
 from enum import Enum
+import inspect
 import os
+from pydantic import BaseModel
 from pydantic_extra_types.language_code import LanguageAlpha2
 from typing import Callable, Optional, Tuple, List, Dict
 
@@ -44,10 +44,29 @@ class TargetAgent(BaseModel):
         logger.info("Testing chat function...")
         logger.info(f"Sending chatbot message: {test_message}")
         try:
-            message, contexts = chat_function(
-                str(datetime.now()),
-                test_message,
-            )
+            # Check function signature has the correct parameters
+            signature = inspect.signature(chat_function)
+            param_names = list(signature.parameters.keys())
+            assert (
+                "conversation_id" in param_names
+            ), "'conversation_id' is missing in chat_function input parameters"
+            assert (
+                "agent_maihem_message" in param_names
+            ), "'agent_maihem_message' is missing in chat_function input parameters"
+            assert (
+                "messages" in param_names
+            ), "'messages' is missing in chat_function input parameters"
+            assert (
+                signature.parameters["conversation_id"].annotation == str
+            ), "'conversation_id' in chat_function must be a string"
+            assert (
+                signature.parameters["agent_maihem_message"].annotation == str
+            ), "'agent_maihem_message' in chat_function must be a string"
+            assert (
+                signature.parameters["messages"].annotation == Dict
+            ), "'messages' in chat_function must be a dictionary (it can be empty if not needed)"
+
+            message, contexts = chat_function(str(datetime.now()), test_message, {})
             assert isinstance(message, str), "Response message must be a string"
             assert isinstance(contexts, list), "Contexts must be a list"
             for context in contexts:
@@ -88,9 +107,12 @@ class TargetAgent(BaseModel):
                 logger.error(f"Error processing document {doc_path}: {str(e)}")
 
     def _send_message(
-        self, conversation_id: str, message: Optional[str] = ""
+        self,
+        conversation_id: str,
+        message: Optional[str] = "",
+        messages: Optional[dict] = {},
     ) -> Tuple[str, List[str]]:
         if not self._chat_function:
             errors.raise_chat_function_error("Target agent chat function not set")
-        response, contexts = self._chat_function(conversation_id, message)
+        response, contexts = self._chat_function(conversation_id, message, messages)
         return response, contexts

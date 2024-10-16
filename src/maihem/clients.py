@@ -362,6 +362,8 @@ class Maihem(Client):
 
             print("\n" + "-" * 50 + "\n")
 
+            messages = {}
+
             with tqdm(
                 len(conversation_ids),
                 total=len(conversation_ids),
@@ -381,6 +383,7 @@ class Maihem(Client):
                             test,
                             target_agent,
                             progress_bar_position=i + 1,
+                            messages=messages,
                         ): conversation_id
                         for i, conversation_id in enumerate(conversation_ids)
                     }
@@ -462,6 +465,7 @@ class Maihem(Client):
             #     position=0,
             # ) as progress:
             with ThreadPoolExecutor(max_workers=concurrent_conversations) as executor:
+                messages = {}
                 future_to_conversation_id = {
                     executor.submit(
                         self._run_conversation,
@@ -470,6 +474,7 @@ class Maihem(Client):
                         test,
                         target_agent,
                         progress_bar_position=i + 1,
+                        messages=messages,
                     ): conversation_id
                     for i, conversation_id in enumerate(conversation_ids)
                 }
@@ -591,6 +596,7 @@ class Maihem(Client):
         test: Test,
         target_agent: TargetAgent,
         progress_bar_position: int,
+        messages: Optional[Dict] = {},
     ) -> str:
         is_conversation_active = True
         previous_turn_id = None
@@ -612,6 +618,7 @@ class Maihem(Client):
                 test=test,
                 target_agent=target_agent,
                 previous_turn_id=previous_turn_id,
+                messages=messages,
             )
 
             if (
@@ -636,6 +643,7 @@ class Maihem(Client):
         test: Test,
         target_agent: TargetAgent,
         previous_turn_id: Optional[str] = None,
+        messages: Optional[Dict] = {},
     ) -> ConversationTurnCreateResponse:
         agent_maihem_message = None
 
@@ -713,6 +721,7 @@ class Maihem(Client):
                 agent_maihem_message=(
                     agent_maihem_message.content if agent_maihem_message else None
                 ),
+                messages=messages,
             )
         except Exception as e:
             errors.raise_chat_function_error(
@@ -782,9 +791,10 @@ class Maihem(Client):
         target_agent: TargetAgent,
         conversation_id: str,
         agent_maihem_message: Optional[str] = None,
+        messages: Optional[Dict] = {},
     ) -> Tuple[str, List[str]]:
         target_agent_message, contexts = target_agent._send_message(
-            conversation_id, agent_maihem_message
+            conversation_id, agent_maihem_message, messages
         )
 
         return target_agent_message, contexts

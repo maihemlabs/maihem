@@ -1,6 +1,6 @@
 target_agent:
   # Unique identifier for the target agent.
-  tg_ag_therapy_1:
+  tg_ag_therapy_new_flow:
     # (Optional) Name of the target agent to be displayed in the Maihem webapp
     name: Acme Therapy Agent
 
@@ -26,12 +26,12 @@ target_agent:
 
 maihem_agent:
   # Unique identifier for the Maihem agent
-  mh_ag_venting_1:
+  mh_ag_venting_new_flow:
     # Name of the Maihem agent to be displayed in the Maihem webapp
     name: Vent about stress caused by high demands in the workplace
 
     # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
-    metric: qa_rag_hallucination
+    metric: qa_cx_goal_completion
 
     # Free text prompt to guide the behavior of the Maihem Agent
     behavior_prompt: None
@@ -43,11 +43,11 @@ maihem_agent:
     conversation_turns_max: 4
 
     # Load documents for RAG question generation
-    documents:
-      - /path_to_doc_1.pdf
-      - /path_to_doc_2.txt
-      - /path_to_doc_3.docx
-      - /path_to_doc_4.md
+    # documents:
+    #   - /path_to_doc_1.pdf
+    #   - /path_to_doc_2.txt
+    #   - /path_to_doc_3.docx
+    #   - /path_to_doc_4.md
   
   # Add more Maihem agents if needed with a different unique identifier
   mh_ag_unblock_account_1:
@@ -59,19 +59,46 @@ maihem_agent:
 
 test:
   # Unique identifier for the test
-  test_a:
+  test_new_flow:
     # Name of the Maihem agent to be displayed in the Maihem webapp
-    name: Test venting (Model A)
+    name: Test all metrics
 
     # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
     metrics:
       - qa_cx_helpfulness
       - qa_cx_goal_completion
-      - qa_cx_retention
+      # - qa_cx_nps
+      # - qa_cx_retention
+      # =================================================
       - qa_rag_hallucination
-      - qa_rag_answer_relevance
-      - sec_brand_competitor_recommendation
-      - sec_bias_race
+      # - qa_rag_context_relevance
+      # - qa_rag_answer_relevance
+      # =================================================
+      # - sec_pii_name
+      # - sec_pii_email
+      # - sec_pii_phone
+      # - sec_pii_address
+      # =================================================
+      # - safety_brand_negative_sentiment
+      # - safety_brand_competitor_recommendation
+      # =================================================
+      - safety_bias_religion
+      # - safety_bias_ethnicity
+      # - safety_bias_gender
+      # - safety_bias_physical_appearance
+      # - safety_bias_politics
+      # - safety_bias_disability
+      # =================================================
+      - safety_toxicity_hate_speech
+      # - safety_toxicity_profanity
+      # - safety_toxicity_sexual_content
+      # =================================================
+      # - sec_overreach_medical_advice
+      # - sec_overreach_financial_advice
+      # - sec_overreach_legal_advice
+      # - sec_overreach_unauthorized_access
+      # =================================================
+      - sec_system_prompt_leakage
 
     # (Optional) Free text prompt to guide the behavior of the Maihem Agents
     behavior_prompt: None
@@ -80,14 +107,14 @@ test:
     initiating_agent: maihem
     
     # Maximum number of turns for the conversation
-    conversation_turns_max: 5
+    conversation_turns_max: 3
 
     # Load documents for RAG question generation
-    documents:
-      - /path_to_doc_1.pdf
-      - /path_to_doc_2.txt
-      - /path_to_doc_3.docx
-      - /path_to_doc_4.md
+    # documents:
+    #   - /path_to_doc_1.pdf
+    #   - /path_to_doc_2.txt
+    #   - /path_to_doc_3.docx
+    #   - /path_to_doc_4.md
   
   # Add more Maihem agents if needed with a different unique identifier
   test_b:

@@ -1,1 +1,1 @@
-from maihem.simulator import Simulator
+from maihem.simulator import Simulator, SimulatorConfig
