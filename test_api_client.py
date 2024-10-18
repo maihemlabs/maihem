@@ -55,18 +55,18 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 # # target_agent.add_documents(["/Users/simon/Downloads/test1.pdf"])
 
 # test = maihem_client.create_test(
-#     identifier="test-post-refactor-2",
+#     identifier="test-summary-short",
 #     target_agent_identifier="agent-colin-local",
-#     name="Test refactor",
+#     name="Test summary short",
 #     initiating_agent="maihem",
-#     conversation_turns_max=5,
+#     conversation_turns_max=2,
 #     metrics_config={"qa_cx_helpfulness": 1, "qa_cx_goal_completion": 1},
 # )
 
-test = maihem_client.get_test("test-post-refactor-2")
+test = maihem_client.get_test("test-summary-short")
 
 test_run = maihem_client.create_test_run(
-    test_identifier="test-post-refactor-2",
+    test_identifier="test-summary-short",
     target_agent=target_agent,
     concurrent_conversations=4,
 )
