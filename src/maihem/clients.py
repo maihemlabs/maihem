@@ -323,12 +323,12 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
+        logger = get_logger()
         try:
             test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
             resp = None
 
-            logger = get_logger()
             logger.info(f"Spawning test run for test {test.identifier}...")
 
             try:
@@ -420,6 +420,7 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
+        logger = get_logger()
         try:
             if not target_agent._chat_function:
                 errors.raise_request_validation_error(
@@ -429,8 +430,6 @@ class Maihem(Client):
             test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
             resp = None
-
-            logger = get_logger()
 
             try:
                 with yaspin(
