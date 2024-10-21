@@ -324,6 +324,7 @@ class Maihem(Client):
         concurrent_conversations: int = 1,
     ) -> TestRun:
         logger = get_logger()
+        test_run = None
         try:
             test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
@@ -339,8 +340,6 @@ class Maihem(Client):
                     resp = self._maihem_api_client.create_test_run(test_id=test.id)
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
-
-            test_run = None
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
@@ -421,6 +420,7 @@ class Maihem(Client):
         concurrent_conversations: int = 1,
     ) -> TestRun:
         logger = get_logger()
+        test_run = None
         try:
             if not target_agent._chat_function:
                 errors.raise_request_validation_error(
@@ -439,8 +439,6 @@ class Maihem(Client):
                     resp = self._maihem_api_client.create_test_run(test_id=test.id)
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
-
-            test_run = None
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
@@ -542,6 +540,7 @@ class Maihem(Client):
         self, test_run_id: str
     ) -> TestRunResultConversations:
         resp = None
+        test_run = None
 
         try:
             resp = self._maihem_api_client.get_test_run_result_conversations(
@@ -549,8 +548,6 @@ class Maihem(Client):
             )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
-
-        test_run = None
 
         try:
             resp_conversations = resp.conversations
