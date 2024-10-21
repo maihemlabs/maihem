@@ -63,10 +63,10 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 #     metrics_config={"qa_cx_helpfulness": 1, "qa_cx_goal_completion": 1},
 # )
 
-test = maihem_client.get_test("test-post-refactor-2")
+test = maihem_client.get_test("test-blabs")
 
 test_run = maihem_client.create_test_run(
-    test_identifier="test-post-refactor-2",
+    test_identifier="test-blabs",
     target_agent=target_agent,
     concurrent_conversations=4,
 )
