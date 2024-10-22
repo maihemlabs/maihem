@@ -11,9 +11,12 @@ from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
     from ..models.api_schema_links import APISchemaLinks
-    from ..models.api_schema_test_run_conversation_counts import APISchemaTestRunConversationCounts
+    from ..models.api_schema_test_run_conversation_scores import APISchemaTestRunConversationScores
     from ..models.api_schema_test_run_result_conversations_metric_scores_type_0 import (
         APISchemaTestRunResultConversationsMetricScoresType0,
+    )
+    from ..models.api_schema_test_run_result_conversations_metric_summaries_type_0 import (
+        APISchemaTestRunResultConversationsMetricSummariesType0,
     )
     from ..models.conversation_nested import ConversationNested
 
@@ -30,13 +33,14 @@ class APISchemaTestRunResultConversations:
         updated_at (datetime.datetime):
         test_id (str):
         status (TestStatusEnum):
-        result (TestResultEnum):
-        conversation_counts (APISchemaTestRunConversationCounts):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
+        result (Union[None, TestResultEnum, Unset]):
         result_score (Union[None, Unset, float]):
         links (Union['APISchemaLinks', None, Unset]):
+        conversation_counts (Union['APISchemaTestRunConversationScores', None, Unset]):
         metric_scores (Union['APISchemaTestRunResultConversationsMetricScoresType0', None, Unset]):
+        metric_summaries (Union['APISchemaTestRunResultConversationsMetricSummariesType0', None, Unset]):
         conversations (Union[Unset, List['ConversationNested']]):
     """
 
@@ -45,20 +49,25 @@ class APISchemaTestRunResultConversations:
     updated_at: datetime.datetime
     test_id: str
     status: TestStatusEnum
-    result: TestResultEnum
-    conversation_counts: "APISchemaTestRunConversationCounts"
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
+    result: Union[None, TestResultEnum, Unset] = UNSET
     result_score: Union[None, Unset, float] = UNSET
     links: Union["APISchemaLinks", None, Unset] = UNSET
+    conversation_counts: Union["APISchemaTestRunConversationScores", None, Unset] = UNSET
     metric_scores: Union["APISchemaTestRunResultConversationsMetricScoresType0", None, Unset] = UNSET
+    metric_summaries: Union["APISchemaTestRunResultConversationsMetricSummariesType0", None, Unset] = UNSET
     conversations: Union[Unset, List["ConversationNested"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         from ..models.api_schema_links import APISchemaLinks
+        from ..models.api_schema_test_run_conversation_scores import APISchemaTestRunConversationScores
         from ..models.api_schema_test_run_result_conversations_metric_scores_type_0 import (
             APISchemaTestRunResultConversationsMetricScoresType0,
+        )
+        from ..models.api_schema_test_run_result_conversations_metric_summaries_type_0 import (
+            APISchemaTestRunResultConversationsMetricSummariesType0,
         )
 
         id = self.id
@@ -70,10 +79,6 @@ class APISchemaTestRunResultConversations:
         test_id = self.test_id
 
         status = self.status.value
-
-        result = self.result.value
-
-        conversation_counts = self.conversation_counts.to_dict()
 
         started_at: Union[None, Unset, str]
         if isinstance(self.started_at, Unset):
@@ -91,6 +96,14 @@ class APISchemaTestRunResultConversations:
         else:
             completed_at = self.completed_at
 
+        result: Union[None, Unset, str]
+        if isinstance(self.result, Unset):
+            result = UNSET
+        elif isinstance(self.result, TestResultEnum):
+            result = self.result.value
+        else:
+            result = self.result
+
         result_score: Union[None, Unset, float]
         if isinstance(self.result_score, Unset):
             result_score = UNSET
@@ -105,6 +118,14 @@ class APISchemaTestRunResultConversations:
         else:
             links = self.links
 
+        conversation_counts: Union[Dict[str, Any], None, Unset]
+        if isinstance(self.conversation_counts, Unset):
+            conversation_counts = UNSET
+        elif isinstance(self.conversation_counts, APISchemaTestRunConversationScores):
+            conversation_counts = self.conversation_counts.to_dict()
+        else:
+            conversation_counts = self.conversation_counts
+
         metric_scores: Union[Dict[str, Any], None, Unset]
         if isinstance(self.metric_scores, Unset):
             metric_scores = UNSET
@@ -112,6 +133,14 @@ class APISchemaTestRunResultConversations:
             metric_scores = self.metric_scores.to_dict()
         else:
             metric_scores = self.metric_scores
+
+        metric_summaries: Union[Dict[str, Any], None, Unset]
+        if isinstance(self.metric_summaries, Unset):
+            metric_summaries = UNSET
+        elif isinstance(self.metric_summaries, APISchemaTestRunResultConversationsMetricSummariesType0):
+            metric_summaries = self.metric_summaries.to_dict()
+        else:
+            metric_summaries = self.metric_summaries
 
         conversations: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.conversations, Unset):
@@ -129,20 +158,24 @@ class APISchemaTestRunResultConversations:
                 "updated_at": updated_at,
                 "test_id": test_id,
                 "status": status,
-                "result": result,
-                "conversation_counts": conversation_counts,
             }
         )
         if started_at is not UNSET:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
             field_dict["completed_at"] = completed_at
+        if result is not UNSET:
+            field_dict["result"] = result
         if result_score is not UNSET:
             field_dict["result_score"] = result_score
         if links is not UNSET:
             field_dict["links"] = links
+        if conversation_counts is not UNSET:
+            field_dict["conversation_counts"] = conversation_counts
         if metric_scores is not UNSET:
             field_dict["metric_scores"] = metric_scores
+        if metric_summaries is not UNSET:
+            field_dict["metric_summaries"] = metric_summaries
         if conversations is not UNSET:
             field_dict["conversations"] = conversations
 
@@ -151,9 +184,12 @@ class APISchemaTestRunResultConversations:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.api_schema_links import APISchemaLinks
-        from ..models.api_schema_test_run_conversation_counts import APISchemaTestRunConversationCounts
+        from ..models.api_schema_test_run_conversation_scores import APISchemaTestRunConversationScores
         from ..models.api_schema_test_run_result_conversations_metric_scores_type_0 import (
             APISchemaTestRunResultConversationsMetricScoresType0,
+        )
+        from ..models.api_schema_test_run_result_conversations_metric_summaries_type_0 import (
+            APISchemaTestRunResultConversationsMetricSummariesType0,
         )
         from ..models.conversation_nested import ConversationNested
 
@@ -167,10 +203,6 @@ class APISchemaTestRunResultConversations:
         test_id = d.pop("test_id")
 
         status = TestStatusEnum(d.pop("status"))
-
-        result = TestResultEnum(d.pop("result"))
-
-        conversation_counts = APISchemaTestRunConversationCounts.from_dict(d.pop("conversation_counts"))
 
         def _parse_started_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -206,6 +238,23 @@ class APISchemaTestRunResultConversations:
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
+        def _parse_result(data: object) -> Union[None, TestResultEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                result_type_0 = TestResultEnum(data)
+
+                return result_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, TestResultEnum, Unset], data)
+
+        result = _parse_result(d.pop("result", UNSET))
+
         def _parse_result_score(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
@@ -232,6 +281,23 @@ class APISchemaTestRunResultConversations:
 
         links = _parse_links(d.pop("links", UNSET))
 
+        def _parse_conversation_counts(data: object) -> Union["APISchemaTestRunConversationScores", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                conversation_counts_type_0 = APISchemaTestRunConversationScores.from_dict(data)
+
+                return conversation_counts_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["APISchemaTestRunConversationScores", None, Unset], data)
+
+        conversation_counts = _parse_conversation_counts(d.pop("conversation_counts", UNSET))
+
         def _parse_metric_scores(
             data: object,
         ) -> Union["APISchemaTestRunResultConversationsMetricScoresType0", None, Unset]:
@@ -251,6 +317,25 @@ class APISchemaTestRunResultConversations:
 
         metric_scores = _parse_metric_scores(d.pop("metric_scores", UNSET))
 
+        def _parse_metric_summaries(
+            data: object,
+        ) -> Union["APISchemaTestRunResultConversationsMetricSummariesType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                metric_summaries_type_0 = APISchemaTestRunResultConversationsMetricSummariesType0.from_dict(data)
+
+                return metric_summaries_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["APISchemaTestRunResultConversationsMetricSummariesType0", None, Unset], data)
+
+        metric_summaries = _parse_metric_summaries(d.pop("metric_summaries", UNSET))
+
         conversations = []
         _conversations = d.pop("conversations", UNSET)
         for conversations_item_data in _conversations or []:
@@ -264,13 +349,14 @@ class APISchemaTestRunResultConversations:
             updated_at=updated_at,
             test_id=test_id,
             status=status,
-            result=result,
-            conversation_counts=conversation_counts,
             started_at=started_at,
             completed_at=completed_at,
+            result=result,
             result_score=result_score,
             links=links,
+            conversation_counts=conversation_counts,
             metric_scores=metric_scores,
+            metric_summaries=metric_summaries,
             conversations=conversations,
         )
 

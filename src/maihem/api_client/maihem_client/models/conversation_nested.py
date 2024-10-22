@@ -25,9 +25,9 @@ class ConversationNested:
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
         status (TestStatusEnum):
-        result (TestResultEnum):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
+        result (Union[None, TestResultEnum, Unset]):
         evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
         conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
     """
@@ -36,9 +36,9 @@ class ConversationNested:
     created_at: datetime.datetime
     updated_at: datetime.datetime
     status: TestStatusEnum
-    result: TestResultEnum
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
+    result: Union[None, TestResultEnum, Unset] = UNSET
     evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
     conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -51,8 +51,6 @@ class ConversationNested:
         updated_at = self.updated_at.isoformat()
 
         status = self.status.value
-
-        result = self.result.value
 
         started_at: Union[None, Unset, str]
         if isinstance(self.started_at, Unset):
@@ -69,6 +67,14 @@ class ConversationNested:
             completed_at = self.completed_at.isoformat()
         else:
             completed_at = self.completed_at
+
+        result: Union[None, Unset, str]
+        if isinstance(self.result, Unset):
+            result = UNSET
+        elif isinstance(self.result, TestResultEnum):
+            result = self.result.value
+        else:
+            result = self.result
 
         evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
         if not isinstance(self.evaluations, Unset):
@@ -92,13 +98,14 @@ class ConversationNested:
                 "created_at": created_at,
                 "updated_at": updated_at,
                 "status": status,
-                "result": result,
             }
         )
         if started_at is not UNSET:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
             field_dict["completed_at"] = completed_at
+        if result is not UNSET:
+            field_dict["result"] = result
         if evaluations is not UNSET:
             field_dict["evaluations"] = evaluations
         if conversation_turns is not UNSET:
@@ -119,8 +126,6 @@ class ConversationNested:
         updated_at = isoparse(d.pop("updated_at"))
 
         status = TestStatusEnum(d.pop("status"))
-
-        result = TestResultEnum(d.pop("result"))
 
         def _parse_started_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -156,6 +161,23 @@ class ConversationNested:
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
+        def _parse_result(data: object) -> Union[None, TestResultEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                result_type_0 = TestResultEnum(data)
+
+                return result_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, TestResultEnum, Unset], data)
+
+        result = _parse_result(d.pop("result", UNSET))
+
         evaluations = []
         _evaluations = d.pop("evaluations", UNSET)
         for evaluations_item_data in _evaluations or []:
@@ -175,9 +197,9 @@ class ConversationNested:
             created_at=created_at,
             updated_at=updated_at,
             status=status,
-            result=result,
             started_at=started_at,
             completed_at=completed_at,
+            result=result,
             evaluations=evaluations,
             conversation_turns=conversation_turns,
         )

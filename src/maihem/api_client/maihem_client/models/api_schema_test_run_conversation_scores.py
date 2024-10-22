@@ -5,21 +5,18 @@ from attrs import field as _attrs_field
 
 from ..types import UNSET, Unset
 
-T = TypeVar("T", bound="APISchemaTestRunConversationCounts")
+T = TypeVar("T", bound="APISchemaTestRunConversationScores")
 
 
 @_attrs_define
-class APISchemaTestRunConversationCounts:
+class APISchemaTestRunConversationScores:
     """
     Attributes:
         total_conversations (int):
         result_passed (int):
         result_failed (int):
-        result_errored (int):
-        result_pending (int):
-        result_canceled (int):
         status_completed (int):
-        status_failed (int):
+        status_error (int):
         status_running (int):
         status_pending (int):
         status_paused (int):
@@ -29,11 +26,8 @@ class APISchemaTestRunConversationCounts:
     total_conversations: int
     result_passed: int
     result_failed: int
-    result_errored: int
-    result_pending: int
-    result_canceled: int
     status_completed: int
-    status_failed: int
+    status_error: int
     status_running: int
     status_pending: int
     status_paused: int
@@ -47,15 +41,9 @@ class APISchemaTestRunConversationCounts:
 
         result_failed = self.result_failed
 
-        result_errored = self.result_errored
-
-        result_pending = self.result_pending
-
-        result_canceled = self.result_canceled
-
         status_completed = self.status_completed
 
-        status_failed = self.status_failed
+        status_error = self.status_error
 
         status_running = self.status_running
 
@@ -76,11 +64,8 @@ class APISchemaTestRunConversationCounts:
                 "total_conversations": total_conversations,
                 "result_passed": result_passed,
                 "result_failed": result_failed,
-                "result_errored": result_errored,
-                "result_pending": result_pending,
-                "result_canceled": result_canceled,
                 "status_completed": status_completed,
-                "status_failed": status_failed,
+                "status_error": status_error,
                 "status_running": status_running,
                 "status_pending": status_pending,
                 "status_paused": status_paused,
@@ -100,15 +85,9 @@ class APISchemaTestRunConversationCounts:
 
         result_failed = d.pop("result_failed")
 
-        result_errored = d.pop("result_errored")
-
-        result_pending = d.pop("result_pending")
-
-        result_canceled = d.pop("result_canceled")
-
         status_completed = d.pop("status_completed")
 
-        status_failed = d.pop("status_failed")
+        status_error = d.pop("status_error")
 
         status_running = d.pop("status_running")
 
@@ -125,23 +104,20 @@ class APISchemaTestRunConversationCounts:
 
         total_score = _parse_total_score(d.pop("total_score", UNSET))
 
-        api_schema_test_run_conversation_counts = cls(
+        api_schema_test_run_conversation_scores = cls(
             total_conversations=total_conversations,
             result_passed=result_passed,
             result_failed=result_failed,
-            result_errored=result_errored,
-            result_pending=result_pending,
-            result_canceled=result_canceled,
             status_completed=status_completed,
-            status_failed=status_failed,
+            status_error=status_error,
             status_running=status_running,
             status_pending=status_pending,
             status_paused=status_paused,
             total_score=total_score,
         )
 
-        api_schema_test_run_conversation_counts.additional_properties = d
-        return api_schema_test_run_conversation_counts
+        api_schema_test_run_conversation_scores.additional_properties = d
+        return api_schema_test_run_conversation_scores
 
     @property
     def additional_keys(self) -> List[str]:

@@ -410,7 +410,7 @@ class Maihem(Client):
             logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
-                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                    test_run_id=test_run.id, status=TestStatusEnum.ERROR
                 )
 
     def create_test_run_dev_mode(
@@ -499,7 +499,7 @@ class Maihem(Client):
             logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
-                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                    test_run_id=test_run.id, status=TestStatusEnum.ERROR
                 )
 
     def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
