@@ -14,16 +14,13 @@ class TestStatusEnum(str, Enum):
     PENDING = "pending"
     RUNNING = "running"
     COMPLETED = "completed"
-    FAILED = "failed"
+    ERROR = "error"
     CANCELED = "canceled"
 
 
 class TestResultEnum(str, Enum):
-    PENDING = "pending"
     PASSED = "passed"
     FAILED = "failed"
-    ERRORED = "errored"
-    CANCELED = "canceled"
 
 
 class APISchemaLinks(BaseModel):
@@ -56,7 +53,7 @@ class TestRun(BaseModel):
     started_at: Optional[datetime] = None
     completed_at: Optional[datetime] = None
     status: TestStatusEnum
-    result: TestResultEnum
+    result: Optional[TestResultEnum] = None
     links: Optional[APISchemaLinks] = None
 
     def __str__(self):
@@ -77,15 +74,12 @@ class TestRunResultMetricScore(BaseModel):
     errored: int
 
 
-class ConversationCounts(BaseModel):
+class ConversationScores(BaseModel):
     total_conversations: int
     result_passed: int
     result_failed: int
-    result_errored: int
-    result_pending: int
-    result_cancelled: int
     status_completed: int
-    status_failed: int
+    status_error: int
     status_running: int
     status_pending: int
     status_paused: int
@@ -93,7 +87,7 @@ class ConversationCounts(BaseModel):
 
 
 class TestRunResultMetrics(TestRun):
-    conversation_counts: ConversationCounts
+    conversation_scores: ConversationScores
     metric_scores: Dict[str, TestRunResultMetricScore] = {}
 
 
@@ -128,11 +122,11 @@ class TestRunResultConversations(TestRun):
 class SimulatedConversation:
     """
     Class with the response messages and evaluation from a simulated conversation
-    
+
     messages: List[Dict[str, str]] - List of messages from the conversation
     evaluation: str - Explanation of the evaluation of the conversation
     """
-    
+
     def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
         self.conv_num = conv_num
         try:
@@ -140,10 +134,12 @@ class SimulatedConversation:
         except Exception as e:
             self.messages = None
         try:
-            self.evaluation = conversation.conversations[conv_num].evaluations[0].explanation
+            self.evaluation = (
+                conversation.conversations[conv_num].evaluations[0].explanation
+            )
         except Exception as e:
             self.evaluation = None
-    
+
     def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
         conv = conversation.conversations[self.conv_num]
         message_list = []
