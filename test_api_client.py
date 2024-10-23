@@ -55,24 +55,27 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 # # target_agent.add_documents(["/Users/simon/Downloads/test1.pdf"])
 
 # test = maihem_client.create_test(
-#     identifier="test-post-refactor-2",
-#     target_agent_identifier="agent-colin-local",
-#     name="Test refactor",
+#     identifier="test-result-refactor-2",
+#     target_agent_identifier="agent-colin-airbnb",
+#     name="Test result refactor",
 #     initiating_agent="maihem",
+#     maihem_agent_behavior_prompt="You are a customer of Airbnb having issues with your accommodation.",
 #     conversation_turns_max=5,
-#     metrics_config={"qa_cx_helpfulness": 1, "qa_cx_goal_completion": 1},
+#     metrics_config={
+#         "qa_cx_helpfulness": 2,
+#         "qa_cx_goal_completion": 2,
+#         "qa_rag_hallucination": 2,
+#     },
 # )
 
-test = maihem_client.get_test("test-post-refactor-2")
+test = maihem_client.get_test("test-result-refactor-2")
 
 test_run = maihem_client.create_test_run(
-    test_identifier="test-post-refactor-2",
+    test_identifier="test-result-refactor-2",
     target_agent=target_agent,
-    concurrent_conversations=4,
+    concurrent_conversations=2,
 )
 
-# test_run = maihem_client.get_test_run_result(
-#     test_run_id="tr_01j8jj6n8gf1dtg2fjqpn3se67"
-# )
+test_run = maihem_client.get_test_run_result(test_run_id=test_run.id)
 
 # print(test_run)

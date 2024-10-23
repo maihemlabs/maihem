@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="APISchemaMetric")
 
@@ -17,6 +19,7 @@ class APISchemaMetric:
         metric_sub_group_label (str):
         metric (str):
         metric_label (str):
+        metric_description (Union[None, Unset, str]):
     """
 
     id: str
@@ -26,6 +29,7 @@ class APISchemaMetric:
     metric_sub_group_label: str
     metric: str
     metric_label: str
+    metric_description: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -43,6 +47,12 @@ class APISchemaMetric:
 
         metric_label = self.metric_label
 
+        metric_description: Union[None, Unset, str]
+        if isinstance(self.metric_description, Unset):
+            metric_description = UNSET
+        else:
+            metric_description = self.metric_description
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -56,6 +66,8 @@ class APISchemaMetric:
                 "metric_label": metric_label,
             }
         )
+        if metric_description is not UNSET:
+            field_dict["metric_description"] = metric_description
 
         return field_dict
 
@@ -76,6 +88,15 @@ class APISchemaMetric:
 
         metric_label = d.pop("metric_label")
 
+        def _parse_metric_description(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metric_description = _parse_metric_description(d.pop("metric_description", UNSET))
+
         api_schema_metric = cls(
             id=id,
             metric_group=metric_group,
@@ -84,6 +105,7 @@ class APISchemaMetric:
             metric_sub_group_label=metric_sub_group_label,
             metric=metric,
             metric_label=metric_label,
+            metric_description=metric_description,
         )
 
         api_schema_metric.additional_properties = d

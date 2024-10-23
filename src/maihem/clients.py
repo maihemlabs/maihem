@@ -74,7 +74,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_result(test_run_id: str) -> TestRun:
+    def get_test_run_result(self, test_run_id: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
@@ -323,12 +323,13 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
+        logger = get_logger()
+        test_run = None
         try:
             test = self._maihem_api_client.get_test_by_identifier(test_identifier)
 
             resp = None
 
-            logger = get_logger()
             logger.info(f"Spawning test run for test {test.identifier}...")
 
             try:
@@ -339,8 +340,6 @@ class Maihem(Client):
                     resp = self._maihem_api_client.create_test_run(test_id=test.id)
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
-
-            test_run = None
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
@@ -357,7 +356,7 @@ class Maihem(Client):
             )
             logger.info(f"Test run ID: {test_run.id}")
             logger.info(
-                f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
+                f"Test run results (UI): {self._base_url_ui}/evaluate/test-runs/{test_run.id}"
             )
 
             print("\n" + "-" * 50 + "\n")
@@ -411,7 +410,7 @@ class Maihem(Client):
             logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
-                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                    test_run_id=test_run.id, status=TestStatusEnum.ERROR
                 )
 
     def create_test_run_dev_mode(
@@ -420,6 +419,8 @@ class Maihem(Client):
         target_agent: TargetAgent,
         concurrent_conversations: int = 1,
     ) -> TestRun:
+        logger = get_logger()
+        test_run = None
         try:
             if not target_agent._chat_function:
                 errors.raise_request_validation_error(
@@ -430,8 +431,6 @@ class Maihem(Client):
 
             resp = None
 
-            logger = get_logger()
-
             try:
                 with yaspin(
                     Spinners.arc,
@@ -440,8 +439,6 @@ class Maihem(Client):
                     resp = self._maihem_api_client.create_test_run(test_id=test.id)
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
-
-            test_run = None
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
@@ -502,7 +499,7 @@ class Maihem(Client):
             logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
-                    test_run_id=test_run.id, status=TestStatusEnum.FAILED
+                    test_run_id=test_run.id, status=TestStatusEnum.ERROR
                 )
 
     def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
@@ -543,6 +540,7 @@ class Maihem(Client):
         self, test_run_id: str
     ) -> TestRunResultConversations:
         resp = None
+        test_run = None
 
         try:
             resp = self._maihem_api_client.get_test_run_result_conversations(
@@ -550,8 +548,6 @@ class Maihem(Client):
             )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
-
-        test_run = None
 
         try:
             resp_conversations = resp.conversations
