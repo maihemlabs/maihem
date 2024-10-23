@@ -6,7 +6,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run import APISchemaTestRun
+from ...models.api_schema_test_run_result_metrics import APISchemaTestRunResultMetrics
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -44,7 +44,7 @@ def _get_kwargs(
 
     _kwargs: Dict[str, Any] = {
         "method": "get",
-        "url": f"/tests/{test_id}/test-runs",
+        "url": f"/tests/{test_id}/test-runs/results",
         "params": params,
     }
 
@@ -54,12 +54,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["APISchemaTestRun"]]]:
+) -> Optional[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
     if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = APISchemaTestRun.from_dict(response_200_item_data)
+            response_200_item = APISchemaTestRunResultMetrics.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -92,7 +92,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["APISchemaTestRun"]]]:
+) -> Response[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -108,10 +108,10 @@ def sync_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["APISchemaTestRun"]]]:
-    """Get all test runs for a test
+) -> Response[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
+    """Get all test run results for a test
 
-     Get a list of all test runs for a specified test
+     Get all test test run results for a test
 
     Args:
         test_id (str):
@@ -124,7 +124,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['APISchemaTestRun']]]
+        Response[Union[ErrorResponse, List['APISchemaTestRunResultMetrics']]]
     """
 
     kwargs = _get_kwargs(
@@ -148,10 +148,10 @@ def sync(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["APISchemaTestRun"]]]:
-    """Get all test runs for a test
+) -> Optional[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
+    """Get all test run results for a test
 
-     Get a list of all test runs for a specified test
+     Get all test test run results for a test
 
     Args:
         test_id (str):
@@ -164,7 +164,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['APISchemaTestRun']]
+        Union[ErrorResponse, List['APISchemaTestRunResultMetrics']]
     """
 
     return sync_detailed(
@@ -183,10 +183,10 @@ async def asyncio_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["APISchemaTestRun"]]]:
-    """Get all test runs for a test
+) -> Response[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
+    """Get all test run results for a test
 
-     Get a list of all test runs for a specified test
+     Get all test test run results for a test
 
     Args:
         test_id (str):
@@ -199,7 +199,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['APISchemaTestRun']]]
+        Response[Union[ErrorResponse, List['APISchemaTestRunResultMetrics']]]
     """
 
     kwargs = _get_kwargs(
@@ -221,10 +221,10 @@ async def asyncio(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["APISchemaTestRun"]]]:
-    """Get all test runs for a test
+) -> Optional[Union[ErrorResponse, List["APISchemaTestRunResultMetrics"]]]:
+    """Get all test run results for a test
 
-     Get a list of all test runs for a specified test
+     Get all test test run results for a test
 
     Args:
         test_id (str):
@@ -237,7 +237,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['APISchemaTestRun']]
+        Union[ErrorResponse, List['APISchemaTestRunResultMetrics']]
     """
 
     return (

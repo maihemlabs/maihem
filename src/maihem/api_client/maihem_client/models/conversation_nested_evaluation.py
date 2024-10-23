@@ -18,9 +18,9 @@ class ConversationNestedEvaluation:
     """
     Attributes:
         id (str):
-        result (TestResultEnum):
         metric_slug (str):
         score (Union[None, Unset, float]):
+        result (Union[None, TestResultEnum, Unset]):
         confidence (Union[None, Unset, float]):
         explanation (Union[None, Unset, str]):
         classification (Union[None, Unset, str]):
@@ -28,9 +28,9 @@ class ConversationNestedEvaluation:
     """
 
     id: str
-    result: TestResultEnum
     metric_slug: str
     score: Union[None, Unset, float] = UNSET
+    result: Union[None, TestResultEnum, Unset] = UNSET
     confidence: Union[None, Unset, float] = UNSET
     explanation: Union[None, Unset, str] = UNSET
     classification: Union[None, Unset, str] = UNSET
@@ -42,8 +42,6 @@ class ConversationNestedEvaluation:
 
         id = self.id
 
-        result = self.result.value
-
         metric_slug = self.metric_slug
 
         score: Union[None, Unset, float]
@@ -51,6 +49,14 @@ class ConversationNestedEvaluation:
             score = UNSET
         else:
             score = self.score
+
+        result: Union[None, Unset, str]
+        if isinstance(self.result, Unset):
+            result = UNSET
+        elif isinstance(self.result, TestResultEnum):
+            result = self.result.value
+        else:
+            result = self.result
 
         confidence: Union[None, Unset, float]
         if isinstance(self.confidence, Unset):
@@ -83,12 +89,13 @@ class ConversationNestedEvaluation:
         field_dict.update(
             {
                 "id": id,
-                "result": result,
                 "metric_slug": metric_slug,
             }
         )
         if score is not UNSET:
             field_dict["score"] = score
+        if result is not UNSET:
+            field_dict["result"] = result
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
         if explanation is not UNSET:
@@ -107,8 +114,6 @@ class ConversationNestedEvaluation:
         d = src_dict.copy()
         id = d.pop("id")
 
-        result = TestResultEnum(d.pop("result"))
-
         metric_slug = d.pop("metric_slug")
 
         def _parse_score(data: object) -> Union[None, Unset, float]:
@@ -119,6 +124,23 @@ class ConversationNestedEvaluation:
             return cast(Union[None, Unset, float], data)
 
         score = _parse_score(d.pop("score", UNSET))
+
+        def _parse_result(data: object) -> Union[None, TestResultEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                result_type_0 = TestResultEnum(data)
+
+                return result_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, TestResultEnum, Unset], data)
+
+        result = _parse_result(d.pop("result", UNSET))
 
         def _parse_confidence(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -147,7 +169,9 @@ class ConversationNestedEvaluation:
 
         classification = _parse_classification(d.pop("classification", UNSET))
 
-        def _parse_token_cost(data: object) -> Union["ConversationNestedTokenCost", None, Unset]:
+        def _parse_token_cost(
+            data: object,
+        ) -> Union["ConversationNestedTokenCost", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -166,9 +190,9 @@ class ConversationNestedEvaluation:
 
         conversation_nested_evaluation = cls(
             id=id,
-            result=result,
             metric_slug=metric_slug,
             score=score,
+            result=result,
             confidence=confidence,
             explanation=explanation,
             classification=classification,

@@ -4,7 +4,7 @@ from enum import Enum
 class TestStatusEnum(str, Enum):
     CANCELED = "canceled"
     COMPLETED = "completed"
-    FAILED = "failed"
+    ERROR = "error"
     PAUSED = "paused"
     PENDING = "pending"
     RUNNING = "running"

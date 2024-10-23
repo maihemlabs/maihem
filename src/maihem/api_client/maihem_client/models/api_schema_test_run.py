@@ -25,9 +25,9 @@ class APISchemaTestRun:
         updated_at (datetime.datetime):
         test_id (str):
         status (TestStatusEnum):
-        result (TestResultEnum):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
+        result (Union[None, TestResultEnum, Unset]):
         result_score (Union[None, Unset, float]):
         links (Union['APISchemaLinks', None, Unset]):
     """
@@ -37,9 +37,9 @@ class APISchemaTestRun:
     updated_at: datetime.datetime
     test_id: str
     status: TestStatusEnum
-    result: TestResultEnum
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
+    result: Union[None, TestResultEnum, Unset] = UNSET
     result_score: Union[None, Unset, float] = UNSET
     links: Union["APISchemaLinks", None, Unset] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
@@ -57,8 +57,6 @@ class APISchemaTestRun:
 
         status = self.status.value
 
-        result = self.result.value
-
         started_at: Union[None, Unset, str]
         if isinstance(self.started_at, Unset):
             started_at = UNSET
@@ -74,6 +72,14 @@ class APISchemaTestRun:
             completed_at = self.completed_at.isoformat()
         else:
             completed_at = self.completed_at
+
+        result: Union[None, Unset, str]
+        if isinstance(self.result, Unset):
+            result = UNSET
+        elif isinstance(self.result, TestResultEnum):
+            result = self.result.value
+        else:
+            result = self.result
 
         result_score: Union[None, Unset, float]
         if isinstance(self.result_score, Unset):
@@ -98,13 +104,14 @@ class APISchemaTestRun:
                 "updated_at": updated_at,
                 "test_id": test_id,
                 "status": status,
-                "result": result,
             }
         )
         if started_at is not UNSET:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
             field_dict["completed_at"] = completed_at
+        if result is not UNSET:
+            field_dict["result"] = result
         if result_score is not UNSET:
             field_dict["result_score"] = result_score
         if links is not UNSET:
@@ -126,8 +133,6 @@ class APISchemaTestRun:
         test_id = d.pop("test_id")
 
         status = TestStatusEnum(d.pop("status"))
-
-        result = TestResultEnum(d.pop("result"))
 
         def _parse_started_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -163,6 +168,23 @@ class APISchemaTestRun:
 
         completed_at = _parse_completed_at(d.pop("completed_at", UNSET))
 
+        def _parse_result(data: object) -> Union[None, TestResultEnum, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, str):
+                    raise TypeError()
+                result_type_0 = TestResultEnum(data)
+
+                return result_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union[None, TestResultEnum, Unset], data)
+
+        result = _parse_result(d.pop("result", UNSET))
+
         def _parse_result_score(data: object) -> Union[None, Unset, float]:
             if data is None:
                 return data
@@ -195,9 +217,9 @@ class APISchemaTestRun:
             updated_at=updated_at,
             test_id=test_id,
             status=status,
-            result=result,
             started_at=started_at,
             completed_at=completed_at,
+            result=result,
             result_score=result_score,
             links=links,
         )
