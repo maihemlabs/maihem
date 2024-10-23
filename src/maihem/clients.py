@@ -356,7 +356,7 @@ class Maihem(Client):
             )
             logger.info(f"Test run ID: {test_run.id}")
             logger.info(
-                f"Test run results (UI): {self._base_url_ui}/evaluations/{test_run.id}"
+                f"Test run results (UI): {self._base_url_ui}/evaluate/test-runs/{test_run.id}"
             )
 
             print("\n" + "-" * 50 + "\n")
