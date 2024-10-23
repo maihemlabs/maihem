@@ -67,15 +67,9 @@ class TestRunConversations(TestRun):
         return json.dumps(self.model_dump(), default=str, indent=4)
 
 
-class TestRunResultMetricScore(BaseModel):
-    total: int
-    passed: int
-    failed: int
-    errored: int
-
-
 class ConversationScores(BaseModel):
     total_conversations: int
+    total_score: Optional[float] = None
     result_passed: int
     result_failed: int
     status_completed: int
@@ -83,12 +77,16 @@ class ConversationScores(BaseModel):
     status_running: int
     status_pending: int
     status_paused: int
-    total_score: Optional[float] = None
+
+
+class TestRunResultMetricScore(ConversationScores):
+    result: Optional[TestResultEnum] = None
+    status: TestStatusEnum
 
 
 class TestRunResultMetrics(TestRun):
     conversation_scores: ConversationScores
-    metric_scores: Dict[str, TestRunResultMetricScore] = {}
+    metric_scores: Dict[str, TestRunResultMetricScore]
 
 
 class TestRunResultConversations(TestRun):
