@@ -48,9 +48,9 @@ def chat_function_colin(
 #     language="en",
 # )
 
-target_agent = maihem_client.get_target_agent("agent-colin-local")
+# target_agent = maihem_client.get_target_agent("agent-colin-local")
 
-target_agent.set_chat_function(chat_function=chat_function_colin)
+# target_agent.set_chat_function(chat_function=chat_function_colin)
 
 # # target_agent.add_documents(["/Users/simon/Downloads/test1.pdf"])
 
@@ -68,16 +68,16 @@ target_agent.set_chat_function(chat_function=chat_function_colin)
 #     },
 # )
 
-test = maihem_client.get_test("test-result-refactor-2")
+# test = maihem_client.get_test("test-result-refactor-2")
 
-test_run = maihem_client.create_test_run(
-    test_identifier="test-result-refactor-2",
-    target_agent=target_agent,
-    concurrent_conversations=2,
-)
-
-# test_run = maihem_client.get_test_run_result(
-#     test_run_id="tr_01j8jj6n8gf1dtg2fjqpn3se67"
+# test_run = maihem_client.create_test_run(
+#     test_identifier="test-result-refactor-2",
+#     target_agent=target_agent,
+#     concurrent_conversations=2,
 # )
+
+test_run = maihem_client.get_test_run_result(
+    test_run_id="tr_01jawgvxyyegas1e464k440prh"
+)
 
 # print(test_run)

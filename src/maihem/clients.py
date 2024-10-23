@@ -74,7 +74,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_result(test_run_id: str) -> TestRun:
+    def get_test_run_result(self, test_run_id: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
