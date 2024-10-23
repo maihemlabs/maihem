@@ -11,6 +11,8 @@ from .api_schema_conversation_turn_create_request_document_type_0 import (
 from .api_schema_conversation_turn_create_response import APISchemaConversationTurnCreateResponse
 from .api_schema_links import APISchemaLinks
 from .api_schema_metric import APISchemaMetric
+from .api_schema_module import APISchemaModule
+from .api_schema_module_metrics import APISchemaModuleMetrics
 from .api_schema_org import APISchemaOrg
 from .api_schema_test import APISchemaTest
 from .api_schema_test_create_request import APISchemaTestCreateRequest
@@ -23,15 +25,21 @@ from .api_schema_test_result_metric_feedback_create_request_feedback import (
 )
 from .api_schema_test_result_metric_feedback_feedback import APISchemaTestResultMetricFeedbackFeedback
 from .api_schema_test_run import APISchemaTestRun
-from .api_schema_test_run_conversation_counts import APISchemaTestRunConversationCounts
+from .api_schema_test_run_conversation_scores import APISchemaTestRunConversationScores
 from .api_schema_test_run_conversations import APISchemaTestRunConversations
 from .api_schema_test_run_result_conversations import APISchemaTestRunResultConversations
 from .api_schema_test_run_result_conversations_metric_scores_type_0 import (
     APISchemaTestRunResultConversationsMetricScoresType0,
 )
+from .api_schema_test_run_result_conversations_metric_summaries_type_0 import (
+    APISchemaTestRunResultConversationsMetricSummariesType0,
+)
 from .api_schema_test_run_result_metric_scores import APISchemaTestRunResultMetricScores
 from .api_schema_test_run_result_metrics import APISchemaTestRunResultMetrics
 from .api_schema_test_run_result_metrics_metric_scores_type_0 import APISchemaTestRunResultMetricsMetricScoresType0
+from .api_schema_test_run_result_metrics_metric_summaries_type_0 import (
+    APISchemaTestRunResultMetricsMetricSummariesType0,
+)
 from .api_schema_test_run_status_update_request import APISchemaTestRunStatusUpdateRequest
 from .api_schema_user import APISchemaUser
 from .api_schema_user_profile import APISchemaUserProfile
@@ -65,6 +73,8 @@ __all__ = (
     "APISchemaConversationTurnCreateResponse",
     "APISchemaLinks",
     "APISchemaMetric",
+    "APISchemaModule",
+    "APISchemaModuleMetrics",
     "APISchemaOrg",
     "APISchemaTest",
     "APISchemaTestCreateRequest",
@@ -75,13 +85,15 @@ __all__ = (
     "APISchemaTestResultMetricFeedbackCreateRequestFeedback",
     "APISchemaTestResultMetricFeedbackFeedback",
     "APISchemaTestRun",
-    "APISchemaTestRunConversationCounts",
     "APISchemaTestRunConversations",
+    "APISchemaTestRunConversationScores",
     "APISchemaTestRunResultConversations",
     "APISchemaTestRunResultConversationsMetricScoresType0",
+    "APISchemaTestRunResultConversationsMetricSummariesType0",
     "APISchemaTestRunResultMetrics",
     "APISchemaTestRunResultMetricScores",
     "APISchemaTestRunResultMetricsMetricScoresType0",
+    "APISchemaTestRunResultMetricsMetricSummariesType0",
     "APISchemaTestRunStatusUpdateRequest",
     "APISchemaUser",
     "APISchemaUserProfile",
