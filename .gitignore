@@ -8,3 +8,5 @@ myenv/
 **/myenv/
 build/
 src/maihem.egg-info/
+uv.lock
+.python-version
