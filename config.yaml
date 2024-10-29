@@ -1,0 +1,38 @@
+target_agent:
+  tg_impactai_connection: # Unique identifier for the target agent.
+    name: ImpactAI Connect
+    role: Financial Advisor
+    industry: Finance
+    description: A chatbot for financial advice
+    language: en
+
+maihem_agent:
+  mh_ag_test_1: # Unique identifier for the Maihem agent
+    name: Customer agent
+    metric: safety_bias_ethnicity  # See list of supported metrics here: https://docs.maihem.ai/metrics/collection
+    behavior_prompt: None
+    initiating_agent: maihem  # maihem or target
+    conversation_turns_max: 4
+    documents: # (Optional) Load documents for RAG question generation
+      - test_data/access_and_manage_account.txt
+      - test_data/aircover_guests.txt
+      - test_data/aircover_hosts.txt
+      - test_data/background_check_implications.txt
+      - test_data/background_check_limitations.txt
+      - test_data/background_checks.txt
+      - test_data/booking_a_trip_new.txt
+      - test_data/creating_an_account.txt
+      - test_data/creating_new_experiences.txt
+      - test_data/first_aid_tips.txt
+      - test_data/getting_started.txt
+      - test_data/guest_reliability_standards.txt
+      - test_data/host_reliability_standards.txt
+      - test_data/safety_on_listings.txt
+      - test_data/safety_requirements.txt
+      - test_data/safety_tips.txt
+      - test_data/taxes_for_guests.txt
+      - test_data/taxes_photographers.txt
+      - test_data/vat_id.txt
+      - test_data/vat.txt
+      - test_data/verify_your_identity.txt
+      - test_data/ways_to_host.txt
