@@ -66,8 +66,14 @@ class DataIntegrityError(ErrorBase):
 class ChatFunctionError(ErrorBase):
     def __init__(self, error_resp: ErrorResponse) -> None:
         super().__init__(error_resp)
-        
+
+
 class ConfigFileError(ErrorBase):
+    def __init__(self, error_resp: ErrorResponse) -> None:
+        super().__init__(error_resp)
+
+
+class DocumentsError(ErrorBase):
     def __init__(self, error_resp: ErrorResponse) -> None:
         super().__init__(error_resp)
 
@@ -140,13 +146,24 @@ def raise_chat_function_error(message: str):
             request_id=None,
         )
     )
-    
-    
+
+
 def raise_config_file_error(message: str):
     raise ConfigFileError(
         ErrorResponse(
             error=ErrorResponseError(
                 code=ErrorCodes.ERR_CONFIG_FILE, message=message, detail=None
+            ),
+            request_id=None,
+        )
+    )
+
+
+def raise_documents_error(message: str):
+    raise DocumentsError(
+        ErrorResponse(
+            error=ErrorResponseError(
+                code=ErrorCodes.ERR_DOCUMENTS, message=message, detail=None
             ),
             request_id=None,
         )
