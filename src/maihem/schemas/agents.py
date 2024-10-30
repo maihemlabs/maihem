@@ -61,8 +61,26 @@ class TargetAgent(BaseModel):
                 f"Error testing target agent chat function: {e}"
             )
 
-    def add_documents(self, documents: List[str]) -> None:
+    def add_documents(
+        self, documents: Optional[List[str]] = None, folder_path: Optional[str] = None
+    ) -> None:
         logger = get_logger()
+        if documents is None and folder_path is None:
+            errors.raise_documents_error("No documents or folder path provided")
+
+        if documents is not None and folder_path is not None:
+            errors.raise_documents_error(
+                "Both documents and folder path provided. Please provide only one."
+            )
+
+        if folder_path is not None:
+            documents = self._get_documents_from_folder(folder_path)
+
+        if not documents:
+            errors.raise_documents_error(
+                "No documents found in folder or provided documents list is empty"
+            )
+
         for doc_path in documents:
             if not os.path.exists(doc_path):
                 logger.warning(f"Document not found: {doc_path}")
@@ -86,6 +104,13 @@ class TargetAgent(BaseModel):
                 logger.info(f"Added document: {doc_path}")
             except Exception as e:
                 logger.error(f"Error processing document {doc_path}: {str(e)}")
+
+    def _get_documents_from_folder(self, folder_path: str) -> List[str]:
+        return [
+            os.path.join(folder_path, file)
+            for file in os.listdir(folder_path)
+            if os.path.isfile(os.path.join(folder_path, file))
+        ]
 
     def _send_message(
         self, conversation_id: str, message: Optional[str] = ""
