@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 from enum import Enum
 import os
+import uuid
 from pydantic_extra_types.language_code import LanguageAlpha2
 from typing import Callable, Optional, Tuple, List, Dict
 
@@ -29,6 +30,7 @@ class TargetAgent(BaseModel):
 
     _chat_function: Optional[Callable] = None
     document_paths: List[str] = []
+    uuids: Dict[str, str] = {}
 
     def set_chat_function(self, chat_function: Callable) -> None:
         logger = get_logger()
@@ -44,9 +46,10 @@ class TargetAgent(BaseModel):
         logger.info("Testing chat function...")
         logger.info(f"Sending chatbot message: {test_message}")
         try:
+
             message, contexts = chat_function(
-                str(datetime.now()),
-                test_message,
+                conversation_id=str(uuid.uuid4()),
+                agent_maihem_message=test_message,
             )
             assert isinstance(message, str), "Response message must be a string"
             assert isinstance(contexts, list), "Contexts must be a list"
@@ -61,8 +64,27 @@ class TargetAgent(BaseModel):
                 f"Error testing target agent chat function: {e}"
             )
 
-    def add_documents(self, documents: List[str]) -> None:
+    def add_documents(
+        self, documents: Optional[List[str]] = None, directory: Optional[str] = None
+    ) -> None:
         logger = get_logger()
+
+        if not documents and not directory:
+            errors.raise_documents_error("No documents or directory provided")
+
+        if documents and directory:
+            errors.raise_documents_error(
+                "Both documents and directory provided, please provide only one"
+            )
+
+        if directory:
+            documents = [
+                os.path.join(directory, file) for file in os.listdir(directory)
+            ]
+
+        if not documents:
+            errors.raise_documents_error("No documents provided")
+
         for doc_path in documents:
             if not os.path.exists(doc_path):
                 logger.warning(f"Document not found: {doc_path}")
@@ -92,5 +114,9 @@ class TargetAgent(BaseModel):
     ) -> Tuple[str, List[str]]:
         if not self._chat_function:
             errors.raise_chat_function_error("Target agent chat function not set")
-        response, contexts = self._chat_function(conversation_id, message)
+
+        if conversation_id not in self.uuids:
+            self.uuids[conversation_id] = str(uuid.uuid4())
+
+        response, contexts = self._chat_function(self.uuids[conversation_id], message)
         return response, contexts
