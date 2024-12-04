@@ -1,5 +1,4 @@
 import pymupdf  # PyMuPDF
-from docx import Document
 from PIL import Image
 import io
 import os

@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from typing import Dict, Literal, Optional, List, Tuple, Callable
+from typing import Dict, Literal, Optional, List, Tuple
 from pydantic import ValidationError
 import random
 from tqdm import tqdm
@@ -38,12 +38,48 @@ from maihem.logger import get_logger
 from maihem.utils import TextSplitter, extract_text
 
 
-class Maihem:
+class Client:
     _base_url: str = "https://api.maihem.ai"
     _base_url_ui: str = "https://cause.maihem.ai"
     _api_key: str = None
+
+    def create_target_agent(
+        self,
+        identifier: str,
+        role: str,
+        industry: str,
+        description: str,
+    ) -> TargetAgent:
+        pass
+
+    def get_target_agent(self, identifier: str) -> TargetAgent:
+        # Add implementation here
+        raise NotImplementedError("Method not implemented")
+
+    def create_test(
+        self,
+        test_identifier: str,
+        initiating_agent: Literal["maihem", "target"],
+        agent_maihem_behavior_prompt: str = None,
+        conversation_turns_max: int = 10,
+        metrics_config: Dict = None,
+    ) -> Test:
+        raise NotImplementedError("Method not implemented")
+
+    def create_test_run(
+        self,
+        test_identifier: str,
+        agent_target: TargetAgent,
+        concurrent_conversations: int,
+    ) -> TestRun:
+        raise NotImplementedError("Method not implemented")
+
+    def get_test_run_result(self, test_run_id: str) -> TestRun:
+        raise NotImplementedError("Method not implemented")
+
+
+class Maihem(Client):
     _maihem_api_client = MaihemHTTPClientSync
-    _logger = get_logger()
 
     def __init__(self, api_key: Optional[str] = None) -> None:
         self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
@@ -54,36 +90,35 @@ class Maihem:
             )
 
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
+        self._logger = get_logger()
 
     def _override_base_url(self, base_url: str) -> None:
-        """Override the base URL of the Maihem API client"""
         self._base_url = base_url
         self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
 
     def _override_base_url_ui(self, base_url_ui: str) -> None:
-        """Override the base URL of the Maihem API client for the UI"""
         self._base_url_ui = base_url_ui
 
     def create_target_agent(
         self,
-        name: str,
+        identifier: str,
+        role: str,
+        industry: str,
         description: str,
-        label: Optional[str],
-        role: Optional[str],
-        industry: Optional[str],
+        name: Optional[str] = None,
         language: Optional[str] = "en",
     ) -> TargetAgent:
-        """Create a target agent in the Maihem platform"""
-        self._logger.info(f"Creating target agent '{name}'...")
-
+        logger = get_logger()
+        logger.info(f"Creating target agent {identifier}...")
+        resp = None
         try:
             resp = self._maihem_api_client.create_agent_target(
                 req=APISchemaAgentTargetCreateRequest(
+                    identifier=identifier,
                     name=name,
-                    description=description,
-                    label=label,
                     role=role,
                     industry=industry,
+                    description=description,
                     language=language,
                 )
             )
@@ -91,13 +126,13 @@ class Maihem:
             errors.handle_base_error(e)
 
         agent_target = None
+
         try:
             agent_target = TargetAgent.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        self._logger.info(f"Successfully created target agent '{name}'")
-
+        logger.info(f"Successfully created target agent {identifier}!")
         return agent_target
 
     def upsert_target_agent(

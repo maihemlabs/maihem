@@ -1,9 +1,12 @@
+import docx2txt
 import os
 import pymupdf
-import docx2txt
-
 from typing import List, Iterable, Optional
 import re
+
+from maihem.logger import get_logger
+
+logger = get_logger()
 
 
 def extract_text(file_path):

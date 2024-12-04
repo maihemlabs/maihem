@@ -12,40 +12,39 @@ T = TypeVar("T", bound="APISchemaAgentTargetCreateRequest")
 class APISchemaAgentTargetCreateRequest:
     """
     Attributes:
-        identifier (str):
-        role (str):
-        name (Union[None, Unset, str]):
-        description (Union[None, Unset, str]):
+        name (str):
+        description (str):
+        label (Union[None, Unset, str]):
+        role (Union[None, Unset, str]):
         industry (Union[None, Unset, str]):
         language (Union[None, Unset, str]):  Default: 'en'.
         url (Union[None, Unset, str]):
     """
 
-    identifier: str
-    role: str
-    name: Union[None, Unset, str] = UNSET
-    description: Union[None, Unset, str] = UNSET
+    name: str
+    description: str
+    label: Union[None, Unset, str] = UNSET
+    role: Union[None, Unset, str] = UNSET
     industry: Union[None, Unset, str] = UNSET
     language: Union[None, Unset, str] = "en"
     url: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        identifier = self.identifier
+        name = self.name
+        description = self.description
 
-        role = self.role
-
-        name: Union[None, Unset, str]
+        label: Union[None, Unset, str]
         if isinstance(self.name, Unset):
-            name = UNSET
+            label = UNSET
         else:
-            name = self.name
+            label = self.label
 
-        description: Union[None, Unset, str]
-        if isinstance(self.description, Unset):
-            description = UNSET
+        role: Union[None, Unset, str]
+        if isinstance(self.role, Unset):
+            role = UNSET
         else:
-            description = self.description
+            role = self.role
 
         industry: Union[None, Unset, str]
         if isinstance(self.industry, Unset):
@@ -69,14 +68,14 @@ class APISchemaAgentTargetCreateRequest:
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
-                "identifier": identifier,
-                "role": role,
+                "name": name,
+                "description": description,
             }
         )
-        if name is not UNSET:
-            field_dict["name"] = name
-        if description is not UNSET:
-            field_dict["description"] = description
+        if label is not UNSET:
+            field_dict["label"] = label
+        if role is not UNSET:
+            field_dict["role"] = role
         if industry is not UNSET:
             field_dict["industry"] = industry
         if language is not UNSET:
@@ -89,27 +88,26 @@ class APISchemaAgentTargetCreateRequest:
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         d = src_dict.copy()
-        identifier = d.pop("identifier")
+        name = d.pop("name")
+        description = d.pop("description")
 
-        role = d.pop("role")
-
-        def _parse_name(data: object) -> Union[None, Unset, str]:
+        def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        name = _parse_name(d.pop("name", UNSET))
+        label = _parse_label(d.pop("label", UNSET))
 
-        def _parse_description(data: object) -> Union[None, Unset, str]:
+        def _parse_role(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        description = _parse_description(d.pop("description", UNSET))
+        role = _parse_role(d.pop("role", UNSET))
 
         def _parse_industry(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -139,10 +137,10 @@ class APISchemaAgentTargetCreateRequest:
         url = _parse_url(d.pop("url", UNSET))
 
         api_schema_agent_target_create_request = cls(
-            identifier=identifier,
-            role=role,
             name=name,
             description=description,
+            label=label,
+            role=role,
             industry=industry,
             language=language,
             url=url,

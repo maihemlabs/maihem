@@ -1,5 +1,6 @@
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Callable
 import json
+
 from maihem.api_client.maihem_client.client import Client as MaihemHTTPClient
 from maihem.api_client.maihem_client.types import Response
 from maihem.api_client.maihem_client.models.api_schema_agent_target_create_request import (
@@ -30,7 +31,6 @@ from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
     tests_get_tests,
-    tests_upsert_test,
 )
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
@@ -60,10 +60,7 @@ from maihem.api_client.maihem_client.api.conversations import (
 )
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
-from maihem.api_client.maihem_client.api.agents import (
-    agents_get_agent_targets,
-    agents_upsert_agent_target,
-)
+from maihem.api_client.maihem_client.api.agents import agents_get_agent_targets
 
 from maihem.errors import handle_http_errors, ErrorResponse
 from maihem.schemas.tests import TestStatusEnum
@@ -74,12 +71,13 @@ class MaihemHTTPClientBase:
     def __init__(self, base_url: str, token: str):
         self.base_url = base_url
         self.token = token
+        self._logger = get_logger()
 
 
 class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def whoami(self) -> Dict[str, str]:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response = whoami_who_am_i.sync_detailed(
+            response: Response = self._retry(whoami_who_am_i.sync_detailed)(
                 client=client, x_api_key=self.token
             )
 
@@ -87,16 +85,38 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=response.parsed)
         return response.parsed
 
+    def _retry(self, function: Callable) -> Callable:
+        def wrapper(*args, **kwargs):
+            retries = 3
+            for r in range(1, retries + 1):
+                try:
+                    return function(*args, **kwargs)
+                except Exception as e:
+                    if r < retries:
+                        # self._logger.warning(
+                        #     f"An error occurred in {function.__name__}. Retry {r}. Error: {e}"
+                        # )
+                        pass
+                    else:
+                        self._logger.error(
+                            f"An error occurred in {function.__name__} after {retries} retries. Error: {e}"
+                        )
+                        raise e
+
+            return None
+
+        return wrapper
+
     def create_agent_target(
         self, req: APISchemaAgentTargetCreateRequest
     ) -> APISchemaAgentTarget:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaAgentTarget] = (
-                agents_create_agent_target.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    body=req,
-                )
+            response: Response[APISchemaAgentTarget] = self._retry(
+                agents_create_agent_target.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                body=req,
             )
 
         if response.status_code != 201:
@@ -104,32 +124,15 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
-    def upsert_agent_target(
-        self, req: APISchemaAgentTargetCreateRequest
-    ) -> APISchemaAgentTarget:
-        with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaAgentTarget] = (
-                agents_upsert_agent_target.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    body=req,
-                )
-            )
-
-        if response.status_code != 201 and response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
-
     def get_agent_target_by_identifier(self, identifier: str) -> APISchemaAgentTarget:
 
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[List[APISchemaAgentTarget]] = (
-                agents_get_agent_targets.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    identifier=identifier,
-                )
+            response: Response[List[APISchemaAgentTarget]] = self._retry(
+                agents_get_agent_targets.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                identifier=identifier,
             )
 
         if response.status_code != 200:
@@ -140,7 +143,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def create_test(self, req: APISchemaTestCreateRequest) -> APISchemaTest:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTest] = tests_create_test.sync_detailed(
+            response: Response[APISchemaTest] = self._retry(
+                tests_create_test.sync_detailed
+            )(
                 client=client,
                 x_api_key=self.token,
                 body=req,
@@ -152,22 +157,11 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return response.parsed
 
-    def upsert_test(self, req: APISchemaTestCreateRequest) -> APISchemaTest:
-        with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTest] = tests_upsert_test.sync_detailed(
-                client=client,
-                x_api_key=self.token,
-                body=req,
-            )
-        if response.status_code != 201 and response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-
-        return response.parsed
-
     def get_test_by_identifier(self, identifier: str) -> APISchemaTest:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[List[APISchemaTest]] = tests_get_tests.sync_detailed(
+            response: Response[List[APISchemaTest]] = self._retry(
+                tests_get_tests.sync_detailed
+            )(
                 client=client,
                 x_api_key=self.token,
                 identifier=identifier,
@@ -181,9 +175,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def create_test_run(self, test_id: str) -> APISchemaTestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRun] = tests_create_test_run.sync_detailed(
-                client=client, x_api_key=self.token, test_id=test_id
-            )
+            response: Response[APISchemaTestRun] = self._retry(
+                tests_create_test_run.sync_detailed
+            )(client=client, x_api_key=self.token, test_id=test_id)
 
         if response.status_code != 201:
             error_dict = json.loads(response.content)
@@ -194,13 +188,13 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         self, test_run_id: str, status: TestStatusEnum
     ) -> APISchemaTestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRun] = (
-                test_runs_update_test_run_status.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    test_run_id=test_run_id,
-                    body=APISchemaTestRunStatusUpdateRequest(status=status),
-                )
+            response: Response[APISchemaTestRun] = self._retry(
+                test_runs_update_test_run_status.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                test_run_id=test_run_id,
+                body=APISchemaTestRunStatusUpdateRequest(status=status),
             )
 
         if response.status_code != 200:
@@ -234,14 +228,14 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 )
             )
 
-            response: Response[APISchemaConversationTurnCreateResponse] = (
-                test_runs_create_conversation_turn.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    test_run_id=test_run_id,
-                    conversation_id=conversation_id,
-                    body=req,
-                )
+            response: Response[APISchemaConversationTurnCreateResponse] = self._retry(
+                test_runs_create_conversation_turn.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                test_run_id=test_run_id,
+                conversation_id=conversation_id,
+                body=req,
             )
 
         if response.status_code != 201:
@@ -251,12 +245,12 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def get_conversation(self, conversation_id: str) -> ConversationNested:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[ConversationNested] = (
-                conversations_get_conversation.sync_detailed(
-                    client=client,
-                    x_api_key=self.token,
-                    conversation_id=conversation_id,
-                )
+            response: Response[ConversationNested] = self._retry(
+                conversations_get_conversation.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                conversation_id=conversation_id,
             )
 
         if response.status_code != 200:
@@ -266,9 +260,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def get_test_run(self, test_run_id: str) -> APISchemaTestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRun] = test_runs_get_test_run.sync_detailed(
-                client=client, x_api_key=self.token, test_run_id=test_run_id
-            )
+            response: Response[APISchemaTestRun] = self._retry(
+                test_runs_get_test_run.sync_detailed
+            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
         if response.status_code != 200:
             error_dict = json.loads(response.content)
@@ -279,11 +273,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         self, test_run_id: str
     ) -> APISchemaTestRunConversations:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRunConversations] = (
-                test_runs_get_test_run_conversations.sync_detailed(
-                    client=client, x_api_key=self.token, test_run_id=test_run_id
-                )
-            )
+            response: Response[APISchemaTestRunConversations] = self._retry(
+                test_runs_get_test_run_conversations.sync_detailed
+            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
         if response.status_code != 200:
             error_dict = json.loads(response.content)
@@ -292,11 +284,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
     def get_test_run_result(self, test_run_id: str) -> APISchemaTestRunResultMetrics:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRunResultMetrics] = (
-                test_runs_get_test_run_result.sync_detailed(
-                    client=client, x_api_key=self.token, test_run_id=test_run_id
-                )
-            )
+            response: Response[APISchemaTestRunResultMetrics] = self._retry(
+                test_runs_get_test_run_result.sync_detailed
+            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
         if response.status_code != 200:
             error_dict = json.loads(response.content)
@@ -307,11 +297,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         self, test_run_id: str
     ) -> APISchemaTestRunResultConversations:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[APISchemaTestRunResultConversations] = (
-                test_runs_get_test_run_result_with_conversations.sync_detailed(
-                    client=client, x_api_key=self.token, test_run_id=test_run_id
-                )
-            )
+            response: Response[APISchemaTestRunResultConversations] = self._retry(
+                test_runs_get_test_run_result_with_conversations.sync_detailed
+            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
         if response.status_code != 200:
             error_dict = json.loads(response.content)
