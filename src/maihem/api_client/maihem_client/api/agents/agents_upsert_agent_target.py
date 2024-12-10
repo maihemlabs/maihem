@@ -5,15 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_agent_target import APISchemaAgentTarget
-from ...models.api_schema_agent_target_create_request import APISchemaAgentTargetCreateRequest
+from ...models.agent_target import AgentTarget
+from ...models.agent_target_create_request import AgentTargetCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     *,
-    body: APISchemaAgentTargetCreateRequest,
+    body: AgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -36,33 +36,33 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaAgentTarget.from_dict(response.json())
+) -> Optional[Union[AgentTarget, ErrorResponse]]:
+    if response.status_code == 201:
+        response_201 = AgentTarget.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
-    if response.status_code == HTTPStatus.OK:
-        response_200 = APISchemaAgentTarget.from_dict(response.json())
+    if response.status_code == 200:
+        response_200 = AgentTarget.from_dict(response.json())
 
         return response_200
     if client.raise_on_unexpected_status:
@@ -73,7 +73,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
+) -> Response[Union[AgentTarget, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,23 +85,23 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
+    body: AgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Upsert target agent by identifier
+) -> Response[Union[AgentTarget, ErrorResponse]]:
+    """Upsert target agent by name
 
-     Create or update a target agent by identifier
+     Create or update a target agent by name
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
+        body (AgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, ErrorResponse]]
+        Response[Union[AgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -119,23 +119,23 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
+    body: AgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Upsert target agent by identifier
+) -> Optional[Union[AgentTarget, ErrorResponse]]:
+    """Upsert target agent by name
 
-     Create or update a target agent by identifier
+     Create or update a target agent by name
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
+        body (AgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, ErrorResponse]
+        Union[AgentTarget, ErrorResponse]
     """
 
     return sync_detailed(
@@ -148,23 +148,23 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
+    body: AgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Upsert target agent by identifier
+) -> Response[Union[AgentTarget, ErrorResponse]]:
+    """Upsert target agent by name
 
-     Create or update a target agent by identifier
+     Create or update a target agent by name
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
+        body (AgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaAgentTarget, ErrorResponse]]
+        Response[Union[AgentTarget, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -180,23 +180,23 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: APISchemaAgentTargetCreateRequest,
+    body: AgentTargetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaAgentTarget, ErrorResponse]]:
-    """Upsert target agent by identifier
+) -> Optional[Union[AgentTarget, ErrorResponse]]:
+    """Upsert target agent by name
 
-     Create or update a target agent by identifier
+     Create or update a target agent by name
 
     Args:
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaAgentTargetCreateRequest):
+        body (AgentTargetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaAgentTarget, ErrorResponse]
+        Union[AgentTarget, ErrorResponse]
     """
 
     return (

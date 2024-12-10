@@ -1,1 +1,1 @@
-from maihem.clients_old import Client
+from maihem.clients import Maihem

@@ -7,13 +7,13 @@ from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
 from ...models.org import Org
-from ...models.org_base import OrgBase
+from ...models.org_create_request import OrgCreateRequest
 from ...types import Response
 
 
 def _get_kwargs(
     *,
-    body: OrgBase,
+    body: OrgCreateRequest,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
 
@@ -34,27 +34,27 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[ErrorResponse, Org]]:
-    if response.status_code == HTTPStatus.CREATED:
+    if response.status_code == 201:
         response_201 = Org.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -78,14 +78,14 @@ def _build_response(
 def sync_detailed(
     *,
     client: AuthenticatedClient,
-    body: OrgBase,
+    body: OrgCreateRequest,
 ) -> Response[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
 
     Args:
-        body (OrgBase):
+        body (OrgCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -109,14 +109,14 @@ def sync_detailed(
 def sync(
     *,
     client: AuthenticatedClient,
-    body: OrgBase,
+    body: OrgCreateRequest,
 ) -> Optional[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
 
     Args:
-        body (OrgBase):
+        body (OrgCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -135,14 +135,14 @@ def sync(
 async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
-    body: OrgBase,
+    body: OrgCreateRequest,
 ) -> Response[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
 
     Args:
-        body (OrgBase):
+        body (OrgCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
@@ -164,14 +164,14 @@ async def asyncio_detailed(
 async def asyncio(
     *,
     client: AuthenticatedClient,
-    body: OrgBase,
+    body: OrgCreateRequest,
 ) -> Optional[Union[ErrorResponse, Org]]:
     """Create organization
 
      Create a new organization
 
     Args:
-        body (OrgBase):
+        body (OrgCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.

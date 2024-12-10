@@ -20,9 +20,9 @@ class TargetAgent(BaseModel):
     id: str
     created_at: datetime
     updated_at: datetime
-    identifier: str
-    name: Optional[str] = None
-    role: str
+    name: str
+    label: Optional[str] = None
+    role: Optional[str] = None
     description: Optional[str] = None
     industry: Optional[str] = None
     language: Optional[LanguageAlpha2] = "en"
@@ -30,21 +30,21 @@ class TargetAgent(BaseModel):
     _chat_function: Optional[Callable] = None
     document_paths: List[str] = []
 
-    def set_chat_function(self, chat_function: Callable) -> None:
+    def set_wrapper_function(self, wrapper_function: Callable) -> None:
         logger = get_logger()
-        is_test_success = self.test_chat_function(chat_function)
+        is_test_success = self.test_wrapper_function(wrapper_function)
 
         if is_test_success:
-            self._chat_function = chat_function
-            logger.info("Chat function tested and added successfully!")
+            self._wrapper_function = wrapper_function
+            logger.info("Wrapper function tested and added successfully")
 
-    def test_chat_function(self, chat_function: Callable) -> bool:
+    def test_wrapper_function(self, wrapper_function: Callable) -> bool:
         logger = get_logger()
         test_message = "Hi, it's the Maihem agent. Ready for testing?"
         logger.info("Testing chat function...")
         logger.info(f"Sending chatbot message: {test_message}")
         try:
-            message, contexts = chat_function(
+            message, contexts = wrapper_function(
                 str(datetime.now()),
                 test_message,
             )
@@ -57,8 +57,8 @@ class TargetAgent(BaseModel):
 
             return True
         except Exception as e:
-            errors.raise_chat_function_error(
-                f"Error testing target agent chat function: {e}"
+            errors.raise_wrapper_function_error(
+                f"Error testing target agent wrapper function: {e}"
             )
 
     def add_documents(self, documents: List[str]) -> None:
@@ -90,7 +90,7 @@ class TargetAgent(BaseModel):
     def _send_message(
         self, conversation_id: str, message: Optional[str] = ""
     ) -> Tuple[str, List[str]]:
-        if not self._chat_function:
-            errors.raise_chat_function_error("Target agent chat function not set")
-        response, contexts = self._chat_function(conversation_id, message)
+        if not self._wrapper_function:
+            errors.raise_wrapper_function_error("Target agent wrapper function not set")
+        response, contexts = self._wrapper_function(conversation_id, message)
         return response, contexts

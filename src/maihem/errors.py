@@ -13,7 +13,7 @@ from maihem.logger import get_logger
 
 
 class ErrorCodes(str, Enum):
-    ERR_CHAT_FUNCTION = "err_chat_function"
+    ERR_WRAPPER_FUNCTION = "err_wrapper_function"
     ERR_CONFIG_FILE = "err_config_file"
     ERR_INTERNAL_SERVER = ErrorCodesAPI.ERR_INTERNAL_SERVER
     ERR_NOT_FOUND = ErrorCodesAPI.ERR_NOT_FOUND
@@ -63,10 +63,11 @@ class DataIntegrityError(ErrorBase):
         super().__init__(error_resp)
 
 
-class ChatFunctionError(ErrorBase):
+class WrapperFunctionError(ErrorBase):
     def __init__(self, error_resp: ErrorResponse) -> None:
         super().__init__(error_resp)
-        
+
+
 class ConfigFileError(ErrorBase):
     def __init__(self, error_resp: ErrorResponse) -> None:
         super().__init__(error_resp)
@@ -131,17 +132,17 @@ def raise_not_found_error(message: str):
     )
 
 
-def raise_chat_function_error(message: str):
-    raise ChatFunctionError(
+def raise_wrapper_function_error(message: str):
+    raise WrapperFunctionError(
         ErrorResponse(
             error=ErrorResponseError(
-                code=ErrorCodes.ERR_CHAT_FUNCTION, message=message, detail=None
+                code=ErrorCodes.ERR_WRAPPER_FUNCTION, message=message, detail=None
             ),
             request_id=None,
         )
     )
-    
-    
+
+
 def raise_config_file_error(message: str):
     raise ConfigFileError(
         ErrorResponse(

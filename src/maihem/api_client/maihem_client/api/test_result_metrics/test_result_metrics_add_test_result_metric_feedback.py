@@ -5,18 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_result_metric_feedback import APISchemaTestResultMetricFeedback
-from ...models.api_schema_test_result_metric_feedback_create_request import (
-    APISchemaTestResultMetricFeedbackCreateRequest,
-)
 from ...models.error_response import ErrorResponse
+from ...models.test_result_metric_feedback import TestResultMetricFeedback
+from ...models.test_result_metric_feedback_create_request import TestResultMetricFeedbackCreateRequest
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    trm_id: str,
     *,
-    body: APISchemaTestResultMetricFeedbackCreateRequest,
+    body: TestResultMetricFeedbackCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -25,7 +22,7 @@ def _get_kwargs(
 
     _kwargs: Dict[str, Any] = {
         "method": "post",
-        "url": f"/test-result-metrics/{trm_id}/feedback",
+        "url": "/test-result-metrics/feedback",
     }
 
     _body = body.to_dict()
@@ -39,28 +36,28 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaTestResultMetricFeedback.from_dict(response.json())
+) -> Optional[Union[ErrorResponse, TestResultMetricFeedback]]:
+    if response.status_code == 201:
+        response_201 = TestResultMetricFeedback.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -72,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestResultMetricFeedback]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -82,31 +79,28 @@ def _build_response(
 
 
 def sync_detailed(
-    trm_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaTestResultMetricFeedbackCreateRequest,
+    body: TestResultMetricFeedbackCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestResultMetricFeedback]]:
     """Add test result metric feedback
 
      Add feedback to a test result metric
 
     Args:
-        trm_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaTestResultMetricFeedbackCreateRequest):
+        body (TestResultMetricFeedbackCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]
+        Response[Union[ErrorResponse, TestResultMetricFeedback]]
     """
 
     kwargs = _get_kwargs(
-        trm_id=trm_id,
         body=body,
         x_api_key=x_api_key,
     )
@@ -119,31 +113,28 @@ def sync_detailed(
 
 
 def sync(
-    trm_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaTestResultMetricFeedbackCreateRequest,
+    body: TestResultMetricFeedbackCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
+) -> Optional[Union[ErrorResponse, TestResultMetricFeedback]]:
     """Add test result metric feedback
 
      Add feedback to a test result metric
 
     Args:
-        trm_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaTestResultMetricFeedbackCreateRequest):
+        body (TestResultMetricFeedbackCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestResultMetricFeedback, ErrorResponse]
+        Union[ErrorResponse, TestResultMetricFeedback]
     """
 
     return sync_detailed(
-        trm_id=trm_id,
         client=client,
         body=body,
         x_api_key=x_api_key,
@@ -151,31 +142,28 @@ def sync(
 
 
 async def asyncio_detailed(
-    trm_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaTestResultMetricFeedbackCreateRequest,
+    body: TestResultMetricFeedbackCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestResultMetricFeedback]]:
     """Add test result metric feedback
 
      Add feedback to a test result metric
 
     Args:
-        trm_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaTestResultMetricFeedbackCreateRequest):
+        body (TestResultMetricFeedbackCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]
+        Response[Union[ErrorResponse, TestResultMetricFeedback]]
     """
 
     kwargs = _get_kwargs(
-        trm_id=trm_id,
         body=body,
         x_api_key=x_api_key,
     )
@@ -186,32 +174,29 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    trm_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaTestResultMetricFeedbackCreateRequest,
+    body: TestResultMetricFeedbackCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestResultMetricFeedback, ErrorResponse]]:
+) -> Optional[Union[ErrorResponse, TestResultMetricFeedback]]:
     """Add test result metric feedback
 
      Add feedback to a test result metric
 
     Args:
-        trm_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaTestResultMetricFeedbackCreateRequest):
+        body (TestResultMetricFeedbackCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestResultMetricFeedback, ErrorResponse]
+        Union[ErrorResponse, TestResultMetricFeedback]
     """
 
     return (
         await asyncio_detailed(
-            trm_id=trm_id,
             client=client,
             body=body,
             x_api_key=x_api_key,

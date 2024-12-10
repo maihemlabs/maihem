@@ -36,12 +36,14 @@ class Test(BaseModel):
     id: str
     created_at: datetime
     updated_at: datetime
-    identifier: str
+    name: str
     agent_target_id: str
-    name: Optional[str] = None
+    label: Optional[str] = None
     initiating_agent: AgentType = AgentType.MAIHEM
     conversation_turns_max: Optional[int] = None
     agent_maihem_behavior_prompt: Optional[str] = None
+    agent_maihem_goal_prompt: Optional[str] = None
+    agent_maihem_population_prompt: Optional[str] = None
     metrics_config: Dict[str, int] = {}
 
 

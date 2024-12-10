@@ -5,8 +5,8 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_conversation_turn_create_request import APISchemaConversationTurnCreateRequest
-from ...models.api_schema_conversation_turn_create_response import APISchemaConversationTurnCreateResponse
+from ...models.conversation_turn_create_request import ConversationTurnCreateRequest
+from ...models.conversation_turn_create_response import ConversationTurnCreateResponse
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
 
@@ -15,7 +15,7 @@ def _get_kwargs(
     test_run_id: str,
     conversation_id: str,
     *,
-    body: APISchemaConversationTurnCreateRequest,
+    body: ConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -38,28 +38,28 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaConversationTurnCreateResponse.from_dict(response.json())
+) -> Optional[Union[ConversationTurnCreateResponse, ErrorResponse]]:
+    if response.status_code == 201:
+        response_201 = ConversationTurnCreateResponse.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -71,7 +71,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
+) -> Response[Union[ConversationTurnCreateResponse, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -85,9 +85,9 @@ def sync_detailed(
     conversation_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaConversationTurnCreateRequest,
+    body: ConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
+) -> Response[Union[ConversationTurnCreateResponse, ErrorResponse]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -96,14 +96,14 @@ def sync_detailed(
         test_run_id (str):
         conversation_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaConversationTurnCreateRequest):
+        body (ConversationTurnCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]
+        Response[Union[ConversationTurnCreateResponse, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -125,9 +125,9 @@ def sync(
     conversation_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaConversationTurnCreateRequest,
+    body: ConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
+) -> Optional[Union[ConversationTurnCreateResponse, ErrorResponse]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -136,14 +136,14 @@ def sync(
         test_run_id (str):
         conversation_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaConversationTurnCreateRequest):
+        body (ConversationTurnCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaConversationTurnCreateResponse, ErrorResponse]
+        Union[ConversationTurnCreateResponse, ErrorResponse]
     """
 
     return sync_detailed(
@@ -160,9 +160,9 @@ async def asyncio_detailed(
     conversation_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaConversationTurnCreateRequest,
+    body: ConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
+) -> Response[Union[ConversationTurnCreateResponse, ErrorResponse]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -171,14 +171,14 @@ async def asyncio_detailed(
         test_run_id (str):
         conversation_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaConversationTurnCreateRequest):
+        body (ConversationTurnCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]
+        Response[Union[ConversationTurnCreateResponse, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -198,9 +198,9 @@ async def asyncio(
     conversation_id: str,
     *,
     client: AuthenticatedClient,
-    body: APISchemaConversationTurnCreateRequest,
+    body: ConversationTurnCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaConversationTurnCreateResponse, ErrorResponse]]:
+) -> Optional[Union[ConversationTurnCreateResponse, ErrorResponse]]:
     """Create a conversation turn
 
      Create a new turn in a specified conversation
@@ -209,14 +209,14 @@ async def asyncio(
         test_run_id (str):
         conversation_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (APISchemaConversationTurnCreateRequest):
+        body (ConversationTurnCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaConversationTurnCreateResponse, ErrorResponse]
+        Union[ConversationTurnCreateResponse, ErrorResponse]
     """
 
     return (

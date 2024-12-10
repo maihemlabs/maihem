@@ -7,7 +7,7 @@ from ..models.test_result_enum import TestResultEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
-    from ..models.conversation_nested_token_cost import ConversationNestedTokenCost
+    from ..models.conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 
 
 T = TypeVar("T", bound="ConversationNestedEvaluation")
@@ -18,31 +18,31 @@ class ConversationNestedEvaluation:
     """
     Attributes:
         id (str):
-        metric_slug (str):
         score (Union[None, Unset, float]):
         result (Union[None, TestResultEnum, Unset]):
+        metric_slug (Union[None, Unset, str]):
+        criteria (Union[None, Unset, str]):
         confidence (Union[None, Unset, float]):
         explanation (Union[None, Unset, str]):
         classification (Union[None, Unset, str]):
-        token_cost (Union['ConversationNestedTokenCost', None, Unset]):
+        token_cost (Union['ConversationNestedTokenCostBase', None, Unset]):
     """
 
     id: str
-    metric_slug: str
     score: Union[None, Unset, float] = UNSET
     result: Union[None, TestResultEnum, Unset] = UNSET
+    metric_slug: Union[None, Unset, str] = UNSET
+    criteria: Union[None, Unset, str] = UNSET
     confidence: Union[None, Unset, float] = UNSET
     explanation: Union[None, Unset, str] = UNSET
     classification: Union[None, Unset, str] = UNSET
-    token_cost: Union["ConversationNestedTokenCost", None, Unset] = UNSET
+    token_cost: Union["ConversationNestedTokenCostBase", None, Unset] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
-        from ..models.conversation_nested_token_cost import ConversationNestedTokenCost
+        from ..models.conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 
         id = self.id
-
-        metric_slug = self.metric_slug
 
         score: Union[None, Unset, float]
         if isinstance(self.score, Unset):
@@ -57,6 +57,18 @@ class ConversationNestedEvaluation:
             result = self.result.value
         else:
             result = self.result
+
+        metric_slug: Union[None, Unset, str]
+        if isinstance(self.metric_slug, Unset):
+            metric_slug = UNSET
+        else:
+            metric_slug = self.metric_slug
+
+        criteria: Union[None, Unset, str]
+        if isinstance(self.criteria, Unset):
+            criteria = UNSET
+        else:
+            criteria = self.criteria
 
         confidence: Union[None, Unset, float]
         if isinstance(self.confidence, Unset):
@@ -79,7 +91,7 @@ class ConversationNestedEvaluation:
         token_cost: Union[Dict[str, Any], None, Unset]
         if isinstance(self.token_cost, Unset):
             token_cost = UNSET
-        elif isinstance(self.token_cost, ConversationNestedTokenCost):
+        elif isinstance(self.token_cost, ConversationNestedTokenCostBase):
             token_cost = self.token_cost.to_dict()
         else:
             token_cost = self.token_cost
@@ -89,13 +101,16 @@ class ConversationNestedEvaluation:
         field_dict.update(
             {
                 "id": id,
-                "metric_slug": metric_slug,
             }
         )
         if score is not UNSET:
             field_dict["score"] = score
         if result is not UNSET:
             field_dict["result"] = result
+        if metric_slug is not UNSET:
+            field_dict["metric_slug"] = metric_slug
+        if criteria is not UNSET:
+            field_dict["criteria"] = criteria
         if confidence is not UNSET:
             field_dict["confidence"] = confidence
         if explanation is not UNSET:
@@ -109,12 +124,10 @@ class ConversationNestedEvaluation:
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
-        from ..models.conversation_nested_token_cost import ConversationNestedTokenCost
+        from ..models.conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 
         d = src_dict.copy()
         id = d.pop("id")
-
-        metric_slug = d.pop("metric_slug")
 
         def _parse_score(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -141,6 +154,24 @@ class ConversationNestedEvaluation:
             return cast(Union[None, TestResultEnum, Unset], data)
 
         result = _parse_result(d.pop("result", UNSET))
+
+        def _parse_metric_slug(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        metric_slug = _parse_metric_slug(d.pop("metric_slug", UNSET))
+
+        def _parse_criteria(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        criteria = _parse_criteria(d.pop("criteria", UNSET))
 
         def _parse_confidence(data: object) -> Union[None, Unset, float]:
             if data is None:
@@ -169,9 +200,7 @@ class ConversationNestedEvaluation:
 
         classification = _parse_classification(d.pop("classification", UNSET))
 
-        def _parse_token_cost(
-            data: object,
-        ) -> Union["ConversationNestedTokenCost", None, Unset]:
+        def _parse_token_cost(data: object) -> Union["ConversationNestedTokenCostBase", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -179,20 +208,21 @@ class ConversationNestedEvaluation:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                token_cost_type_0 = ConversationNestedTokenCost.from_dict(data)
+                token_cost_type_0 = ConversationNestedTokenCostBase.from_dict(data)
 
                 return token_cost_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["ConversationNestedTokenCost", None, Unset], data)
+            return cast(Union["ConversationNestedTokenCostBase", None, Unset], data)
 
         token_cost = _parse_token_cost(d.pop("token_cost", UNSET))
 
         conversation_nested_evaluation = cls(
             id=id,
-            metric_slug=metric_slug,
             score=score,
             result=result,
+            metric_slug=metric_slug,
+            criteria=criteria,
             confidence=confidence,
             explanation=explanation,
             classification=classification,
