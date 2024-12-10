@@ -38,7 +38,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from maihem.utils import TextSplitter, extract_text
+from maihem.utils import TextSplitter, extract_text, parse_documents
 
 
 class Client:
@@ -192,6 +192,7 @@ class Maihem(Client):
         maihem_agent_population_prompt: Optional[str] = None,
         conversation_turns_max: Optional[int] = 10,
         metrics_config: Optional[Dict] = None,
+        documents_path: Optional[str] = None,
     ) -> Test:
         resp = None
         logger = get_logger()
@@ -215,6 +216,11 @@ class Maihem(Client):
                     f"Target agent '{target_agent_name}' not found"
                 )
 
+            if documents_path:
+                documents = parse_documents(documents_path)
+            else:
+                documents = None
+
             with yaspin(
                 Spinners.arc,
                 text="Creating Maihem Agents, this might take a minute...",
@@ -233,6 +239,7 @@ class Maihem(Client):
                         agent_maihem_goal_prompt=maihem_agent_goal_prompt,
                         agent_maihem_population_prompt=maihem_agent_population_prompt,
                         metrics_config=metrics_config,
+                        documents=documents if documents else None,
                     )
                 )
         except errors.ErrorBase as e:
@@ -545,7 +552,6 @@ class Maihem(Client):
                 conversation_id=conversation_id,
                 target_agent_message=None,
                 contexts=[],
-                document={document_key: text} if document_key else None,
             )
 
             agent_maihem_message = self._get_conversation_message_from_conversation(
@@ -589,7 +595,6 @@ class Maihem(Client):
             conversation_id=conversation_id,
             target_agent_message=target_agent_message,
             contexts=contexts,
-            document={document_key: text} if document_key else None,
         )
 
         return turn_resp
@@ -600,7 +605,6 @@ class Maihem(Client):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
-        document: Optional[Dict] = None,
     ) -> ConversationTurnCreateResponse:
         try:
             resp = self._maihem_api_client.create_conversation_turn(

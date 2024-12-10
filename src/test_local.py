@@ -16,7 +16,8 @@ def wrapper_function(
     """Callable wrapper function to wrap your target agent to be tested."""
 
     # Replace with the message from your target agent
-    target_agent_message = "Hi, how can I help you?"
+    print(maihem_agent_message)
+    target_agent_message = input("Enter your message: ")
 
     # List of retrieved contexts for RAG evaluations, pass empty list if not needed
     contexts = []
@@ -24,32 +25,37 @@ def wrapper_function(
     return target_agent_message, contexts
 
 
-maihem_client.create_target_agent(
-    name="ta_local_3",
-    # label="label",
-    role="role",
-    description="description",
-)
+try:
+    maihem_client.create_target_agent(
+        name="ta_local_3",
+        # label="label",
+        role="role",
+        description="description",
+    )
+except Exception as e:
+    pass
 
-maihem_client.create_test(
-    name="test_local_4",
-    target_agent_name="ta_local_3",
-    initiating_agent="target",
-    # label="Test Staging #2",
-    maihem_agent_behavior_prompt="behavior prompt",
-    maihem_agent_goal_prompt="goal prompt",
-    maihem_agent_population_prompt="population prompt",
-    conversation_turns_max=4,
-    metrics_config={
-        "qa_cx_helpfulness": 3,
-        "qa_cx_goal_completion": 4,
-    },
-)
+try:
+    maihem_client.create_test(
+        name="test_local_10",
+        target_agent_name="ta_local_3",
+        initiating_agent="maihem",
+        maihem_agent_behavior_prompt="behavior prompt",
+        maihem_agent_goal_prompt="goal prompt",
+        maihem_agent_population_prompt="population prompt",
+        conversation_turns_max=3,
+        metrics_config={
+            "qa_rag_answer_relevance": 1,
+        },
+        documents_path="documents",
+    )
+except Exception as e:
+    pass
 
 results = maihem_client.run_test(
-    name="test_run_local_4",
+    name="test_run_local_11",
     label="test run 1 label 2",
-    test_name="test_local_4",
+    test_name="test_local_10",
     wrapper_function=wrapper_function,
     concurrent_conversations=3,
 )
