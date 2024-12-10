@@ -7,6 +7,7 @@ from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 
+from maihem.modules_map import map_module_list_to_metrics
 from maihem.schemas.agents import TargetAgent, AgentType
 from maihem.schemas.tests import (
     Test,
@@ -72,11 +73,13 @@ class Client:
         target_agent_name: str,
         initiating_agent: Literal["maihem", "target"],
         label: Optional[str] = None,
+        modules: str = None,
+        metrics_config: Dict = None,
         maihem_agent_behavior_prompt: str = None,
         maihem_agent_goal_prompt: str = None,
         maihem_agent_population_prompt: str = None,
         conversation_turns_max: int = 10,
-        metrics_config: Dict = None,
+        number_conversations: int = 12,
     ) -> Test:
         raise NotImplementedError("Method not implemented")
 
@@ -118,7 +121,7 @@ class Maihem(Client):
             self._override_base_url(self._staging_url)
             self._override_base_url_ui(self._staging_url_ui)
         elif env == "local":
-            self._api_key = api_key or os.getenv("MAIHEM_API_KEY_STAGING")
+            self._api_key = api_key or os.getenv("MAIHEM_API_KEY_LOCAL")
             if not self._api_key:
                 raise errors.raise_request_validation_error("Local API key missing")
             self._override_base_url(self._local_url)
@@ -185,17 +188,44 @@ class Maihem(Client):
         self,
         name: str,
         target_agent_name: str,
-        initiating_agent: AgentType = AgentType.MAIHEM,
+        initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
+        modules: Optional[List[str]] = None,
+        metrics_config: Optional[Dict] = None,
         maihem_agent_behavior_prompt: Optional[str] = None,
         maihem_agent_goal_prompt: Optional[str] = None,
         maihem_agent_population_prompt: Optional[str] = None,
         conversation_turns_max: Optional[int] = 10,
-        metrics_config: Optional[Dict] = None,
+        number_conversations: Optional[int] = 12,
     ) -> Test:
         resp = None
         logger = get_logger()
         logger.info(f"Creating test '{name}'...")
+
+        # Validate inputs (modules or metrics_config must be provided)
+        try:
+            assert bool(modules is None) != bool(
+                metrics_config is None
+            ), "Either modules or metrics_config must be provided, but not both"
+            if modules is not None:
+                assert len(modules) > 0, "Modules list must not be empty"
+                metrics_config = map_module_list_to_metrics(
+                    modules, number_conversations
+                )
+            else:  # metric_config was passed
+                assert len(metrics_config) > 0, "Metrics config must not be empty"
+                for metric in metrics_config:
+                    assert isinstance(
+                        metrics_config[metric], int
+                    ), "Metrics config values must be integers"
+                    assert (
+                        metrics_config[metric] > 0
+                    ), "Metrics config values must not be empty"
+                    # assert (
+                    #     sum(metrics_config.values()) <= number_conversations
+                    # ), "The sum of metric_config conversations must not exceed number_conversations"
+        except Exception as e:
+            raise ValueError(e) from e
 
         if isinstance(initiating_agent, str):
             try:
@@ -219,7 +249,7 @@ class Maihem(Client):
                 Spinners.arc,
                 text="Creating Maihem Agents, this might take a minute...",
             ) as _:
-                metrics_config = TestCreateRequestMetricsConfig.from_dict(
+                metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
                     metrics_config
                 )
                 resp = self._maihem_api_client.create_test(
@@ -232,7 +262,7 @@ class Maihem(Client):
                         agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
                         agent_maihem_goal_prompt=maihem_agent_goal_prompt,
                         agent_maihem_population_prompt=maihem_agent_population_prompt,
-                        metrics_config=metrics_config,
+                        metrics_config=metrics_config_req,
                     )
                 )
         except errors.ErrorBase as e:
@@ -308,6 +338,8 @@ class Maihem(Client):
 
             print("\n" + "-" * 50 + "\n")
 
+            conversation_history = {}
+
             with tqdm(
                 len(conversation_ids),
                 total=len(conversation_ids),
@@ -327,6 +359,7 @@ class Maihem(Client):
                             test,
                             target_agent,
                             progress_bar_position=i + 1,
+                            conversation_history=conversation_history,
                         ): conversation_id
                         for i, conversation_id in enumerate(conversation_ids)
                     }
@@ -449,6 +482,7 @@ class Maihem(Client):
         test: Test,
         target_agent: TargetAgent,
         progress_bar_position: int,
+        conversation_history: Dict,
     ) -> str:
         is_conversation_active = True
         previous_turn_id = None
@@ -470,6 +504,7 @@ class Maihem(Client):
                 test=test,
                 target_agent=target_agent,
                 previous_turn_id=previous_turn_id,
+                conversation_history=conversation_history,
             )
 
             if (
@@ -493,6 +528,7 @@ class Maihem(Client):
         conversation_id: str,
         test: Test,
         target_agent: TargetAgent,
+        conversation_history: Dict,
         previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
         agent_maihem_message = None
@@ -565,12 +601,11 @@ class Maihem(Client):
             )
 
         try:
-            target_agent_message, contexts = self._send_target_agent_message(
-                target_agent,
-                conversation_id,
-                agent_maihem_message=(
-                    agent_maihem_message.content if agent_maihem_message else None
-                ),
+            agent_maihem_message = (
+                agent_maihem_message.content if agent_maihem_message else None
+            )
+            target_agent_message, contexts = target_agent._send_message(
+                conversation_id, agent_maihem_message, conversation_history
             )
         except Exception as e:
             errors.raise_wrapper_function_error(
@@ -633,15 +668,3 @@ class Maihem(Client):
                         return message
 
         errors.raise_not_found_error(f"Could not retrieve {agent_type} agent message")
-
-    def _send_target_agent_message(
-        self,
-        target_agent: TargetAgent,
-        conversation_id: str,
-        agent_maihem_message: Optional[str] = None,
-    ) -> Tuple[str, List[str]]:
-        target_agent_message, contexts = target_agent._send_message(
-            conversation_id, agent_maihem_message
-        )
-
-        return target_agent_message, contexts

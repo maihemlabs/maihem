@@ -90,12 +90,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 try:
                     return function(*args, **kwargs)
                 except Exception as e:
-                    if r < retries:
-                        # self._logger.warning(
-                        #     f"An error occurred in {function.__name__}. Retry {r}. Error: {e}"
-                        # )
-                        pass
-                    else:
+                    if r == retries:
                         self._logger.error(
                             f"An error occurred in {function.__name__} after {retries} retries. Error: {e}"
                         )
