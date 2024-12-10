@@ -1,7 +1,7 @@
 from typing import List, Dict, Any
 
 import maihem.errors as errors
-from maihem.utils import spread_n_into_buckets
+from maihem.utils.utils import spread_n_into_buckets
 
 
 def map_module_list_to_metrics(

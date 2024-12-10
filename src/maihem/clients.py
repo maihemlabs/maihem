@@ -39,7 +39,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from maihem.utils import TextSplitter, extract_text
+from maihem.utils.documents import TextSplitter, extract_text
 
 
 class Client:
@@ -245,26 +245,22 @@ class Maihem(Client):
                     f"Target agent '{target_agent_name}' not found"
                 )
 
-            with yaspin(
-                Spinners.arc,
-                text="Creating Maihem Agents, this might take a minute...",
-            ) as _:
-                metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
-                    metrics_config
+            metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
+                metrics_config
+            )
+            resp = self._maihem_api_client.create_test(
+                req=TestCreateRequest(
+                    name=name,
+                    label=label,
+                    initiating_agent=initiating_agent,
+                    conversation_turns_max=conversation_turns_max,
+                    agent_target_id=target_agent.id,
+                    agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
+                    agent_maihem_goal_prompt=maihem_agent_goal_prompt,
+                    agent_maihem_population_prompt=maihem_agent_population_prompt,
+                    metrics_config=metrics_config_req,
                 )
-                resp = self._maihem_api_client.create_test(
-                    req=TestCreateRequest(
-                        name=name,
-                        label=label,
-                        initiating_agent=initiating_agent,
-                        conversation_turns_max=conversation_turns_max,
-                        agent_target_id=target_agent.id,
-                        agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
-                        agent_maihem_goal_prompt=maihem_agent_goal_prompt,
-                        agent_maihem_population_prompt=maihem_agent_population_prompt,
-                        metrics_config=metrics_config_req,
-                    )
-                )
+            )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
@@ -312,9 +308,14 @@ class Maihem(Client):
             resp = None
 
             try:
-                resp = self._maihem_api_client.create_test_run(
-                    test_id=test.id, req=CreateTestRunRequest(name=name, label=label)
-                )
+                with yaspin(
+                    Spinners.arc,
+                    text="Creating Maihem Agents, this might take a minute...",
+                ) as _:
+                    resp = self._maihem_api_client.create_test_run(
+                        test_id=test.id,
+                        req=CreateTestRunRequest(name=name, label=label),
+                    )
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
 

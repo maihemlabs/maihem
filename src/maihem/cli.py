@@ -1,8 +1,7 @@
 import argparse
 
 from maihem.clients import Maihem
-from maihem.modules_map import map_module_list_to_metrics
-from maihem.utils import import_wrapper_function
+from maihem.utils.utils import import_wrapper_function, create_project_folder
 
 
 def create_target_agent(target_agent_subparsers):
@@ -155,6 +154,9 @@ def main():
             description=args.description,
             language=args.language,
         )
+
+        create_project_folder(args.name)
+
     elif args.command == "test" and args.action == "create":
         module_list = args.modules.split(",").replace(" ", "")
 

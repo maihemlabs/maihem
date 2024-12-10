@@ -1,33 +1,12 @@
 import docx2txt
-import importlib.util
 import os
 import pymupdf
-from typing import List, Iterable, Optional, Callable
+from typing import List, Iterable, Optional
 import re
 
 from maihem.logger import get_logger
 
 logger = get_logger()
-
-
-def spread_n_into_buckets(n: int, buckets: int) -> List[int]:
-    assert n >= 1, "n must be greater than or equal to 1"
-    assert buckets >= 1, "buckets must be greater than or equal to 1"
-
-    return [
-        max(1, n // buckets + (1 if x < n % buckets else 0)) for x in range(buckets)
-    ]
-
-
-def import_wrapper_function(path: str = "wrapper_function.py") -> Callable:
-    spec = importlib.util.spec_from_file_location(
-        "wrapper_function", os.path.abspath(path)
-    )
-    wrapper_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(wrapper_module)
-    wrapper_function = wrapper_module.wrapper_function
-
-    return wrapper_function
 
 
 def extract_text(file_path):

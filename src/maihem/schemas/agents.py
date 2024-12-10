@@ -8,7 +8,6 @@ from typing import Callable, Optional, Tuple, List, Dict
 
 import maihem.errors as errors
 from maihem.logger import get_logger
-from maihem.utils import extract_text
 
 logger = get_logger()
 
