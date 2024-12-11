@@ -184,8 +184,9 @@ def main():
             wrapper_function=wrapper_function,
         )
     elif args.command == "test_run" and args.action == "get":
-        maihem_client.get_test_run_result(
+        test_run_results = maihem_client.get_test_run_result(
             test_name=args.test_name, test_run_name=args.test_run_name
         )
+        print(test_run_results)
     else:
         parser.print_help()

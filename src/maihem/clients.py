@@ -304,7 +304,7 @@ class Maihem(Client):
         wrapper_function: Callable,
         label: Optional[str] = None,
         concurrent_conversations: int = 10,
-    ) -> TestRun:
+    ) -> ResultTestRun:
         logger = get_logger()
         test_run = None
         try:
@@ -385,8 +385,9 @@ class Maihem(Client):
                             progress.update()
 
             print("\n" + "-" * 50 + "\n")
-            logger.info(f"Test run '{test_run.id}' completed")
-            return test_run
+            logger.info(f"Test run '{name}' completed")
+            return self.get_test_run_result(test_name=test_name, test_run_name=name)
+
         except KeyboardInterrupt:
             logger.info("Keyboard interrupt detected. Canceling test...")
             if test_run is not None and test_run.id is not None:
@@ -418,9 +419,7 @@ class Maihem(Client):
 
         return test_run
 
-    def get_test_run_result(
-        self, test_name: str, test_run_name: str
-    ):  # -> ResultTestRun:
+    def get_test_run_result(self, test_name: str, test_run_name: str) -> ResultTestRun:
         try:
             test = self.get_test(test_name)
         except errors.ErrorBase as e:
