@@ -2,6 +2,7 @@ import importlib.util
 import os
 from typing import List, Callable
 
+import maihem.errors as errors
 from maihem.logger import get_logger
 
 logger = get_logger()
@@ -17,14 +18,19 @@ def spread_n_into_buckets(n: int, buckets: int) -> List[int]:
 
 
 def import_wrapper_function(path: str = "wrapper_function.py") -> Callable:
-    spec = importlib.util.spec_from_file_location(
-        "wrapper_function", os.path.abspath(path)
-    )
-    wrapper_module = importlib.util.module_from_spec(spec)
-    spec.loader.exec_module(wrapper_module)
-    wrapper_function = wrapper_module.wrapper_function
+    try:
+        spec = importlib.util.spec_from_file_location(
+            "wrapper_function", os.path.abspath(path)
+        )
+        wrapper_module = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(wrapper_module)
+        wrapper_function = wrapper_module.wrapper_function
 
-    return wrapper_function
+        return wrapper_function
+    except Exception as e:
+        errors.raise_not_found_error(
+            f"Wrapper function coudl not be imported. Error: {e}"
+        )
 
 
 def create_project_folder(name: str) -> None:
