@@ -1,12 +1,26 @@
 import docx2txt
 import os
 import pymupdf
-from typing import List, Iterable, Optional
+from typing import List, Iterable, Optional, Dict
 import re
 
 from maihem.logger import get_logger
 
 logger = get_logger()
+
+
+def parse_documents(documents_path: str) -> Dict[str, str]:
+    """Parse documents from a directory and return a list of strings."""
+    documents = {}
+    for file in os.listdir(documents_path):
+        if (
+            file.endswith(".pdf")
+            or file.endswith(".docx")
+            or file.endswith(".txt")
+            or file.endswith(".md")
+        ):
+            documents[file] = extract_text(os.path.join(documents_path, file))
+    return documents
 
 
 def extract_text(file_path):
