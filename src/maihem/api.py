@@ -18,21 +18,18 @@ from maihem.api_client.maihem_client.models.test import (
 from maihem.api_client.maihem_client.models.test_run import (
     TestRun,
 )
-from maihem.api_client.maihem_client.models.test_run_conversations import (
-    TestRunConversations,
+from maihem.api_client.maihem_client.models.test_run_results_conversations import (
+    TestRunResultsConversations,
 )
 from maihem.api_client.maihem_client.api.tests import tests_create_test
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
     tests_get_tests,
+    tests_get_test_test_runs,
 )
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
 )
-from maihem.api_client.maihem_client.models.test_run_metrics import (
-    TestRunMetrics,
-)
-
 from maihem.api_client.maihem_client.models.conversation_turn_create_request import (
     ConversationTurnCreateRequest,
 )
@@ -42,10 +39,9 @@ from maihem.api_client.maihem_client.models.conversation_turn_create_response im
 from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_get_test_run,
     test_runs_get_test_run_conversations,
-    test_runs_get_test_run_result_with_conversations,
     test_runs_create_conversation_turn,
-    test_runs_get_test_run_result,
     test_runs_update_test_run_status,
+    test_runs_get_test_run_result_with_conversations,
 )
 from maihem.api_client.maihem_client.models.create_test_run_request import (
     CreateTestRunRequest,
@@ -249,9 +245,27 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
-    def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
+    def get_test_test_runs(self, test_id: str, test_run_name: str) -> List[TestRun]:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[TestRunConversations] = self._retry(
+            response: Response[List[TestRun]] = self._retry(
+                tests_get_test_test_runs.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                test_id=test_id,
+                name=test_run_name,
+            )
+
+        if response.status_code != 200:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return response.parsed
+
+    def get_test_run_conversations(
+        self, test_run_id: str
+    ) -> TestRunResultsConversations:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[TestRunResultsConversations] = self._retry(
                 test_runs_get_test_run_conversations.sync_detailed
             )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
@@ -260,22 +274,20 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
         return response.parsed
 
-    def get_test_run_result(self, test_run_id: str) -> TestRunMetrics:
-        with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[TestRunMetrics] = self._retry(
-                test_runs_get_test_run_result.sync_detailed
-            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
+    # def get_test_run_result(self, name: str) -> TestRunResults:
+    #     with MaihemHTTPClient(base_url=self.base_url) as client:
+    #         response: Response[TestRunResults] = self._retry(
+    #             test_runs_get_test_run_result.sync_detailed
+    #         )(client=client, x_api_key=self.token, name=name)
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+    #     if response.status_code != 200:
+    #         error_dict = json.loads(response.content)
+    #         handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+    #     return response.parsed
 
-    def get_test_run_result_conversations(
-        self, test_run_id: str
-    ) -> TestRunConversations:
+    def get_test_run_result(self, test_run_id: str) -> TestRunResultsConversations:
         with MaihemHTTPClient(base_url=self.base_url) as client:
-            response: Response[TestRunConversations] = self._retry(
+            response: Response[TestRunResultsConversations] = self._retry(
                 test_runs_get_test_run_result_with_conversations.sync_detailed
             )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 

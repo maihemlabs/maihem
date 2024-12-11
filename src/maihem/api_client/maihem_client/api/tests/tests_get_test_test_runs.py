@@ -14,6 +14,7 @@ from ...types import UNSET, Response, Unset
 def _get_kwargs(
     test_id: str,
     *,
+    name: Union[None, Unset, str] = UNSET,
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
@@ -23,6 +24,13 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     params: Dict[str, Any] = {}
+
+    json_name: Union[None, Unset, str]
+    if isinstance(name, Unset):
+        json_name = UNSET
+    else:
+        json_name = name
+    params["name"] = json_name
 
     json_before_datetime: Union[None, Unset, str]
     if isinstance(before_datetime, Unset):
@@ -105,6 +113,7 @@ def sync_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    name: Union[None, Unset, str] = UNSET,
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
@@ -115,6 +124,7 @@ def sync_detailed(
 
     Args:
         test_id (str):
+        name (Union[None, Unset, str]):
         before_datetime (Union[None, Unset, datetime.datetime]):
         limit (Union[None, Unset, int]):
         x_api_key (Union[None, Unset, str]):
@@ -129,6 +139,7 @@ def sync_detailed(
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        name=name,
         before_datetime=before_datetime,
         limit=limit,
         x_api_key=x_api_key,
@@ -145,6 +156,7 @@ def sync(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    name: Union[None, Unset, str] = UNSET,
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
@@ -155,6 +167,7 @@ def sync(
 
     Args:
         test_id (str):
+        name (Union[None, Unset, str]):
         before_datetime (Union[None, Unset, datetime.datetime]):
         limit (Union[None, Unset, int]):
         x_api_key (Union[None, Unset, str]):
@@ -170,6 +183,7 @@ def sync(
     return sync_detailed(
         test_id=test_id,
         client=client,
+        name=name,
         before_datetime=before_datetime,
         limit=limit,
         x_api_key=x_api_key,
@@ -180,6 +194,7 @@ async def asyncio_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    name: Union[None, Unset, str] = UNSET,
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
@@ -190,6 +205,7 @@ async def asyncio_detailed(
 
     Args:
         test_id (str):
+        name (Union[None, Unset, str]):
         before_datetime (Union[None, Unset, datetime.datetime]):
         limit (Union[None, Unset, int]):
         x_api_key (Union[None, Unset, str]):
@@ -204,6 +220,7 @@ async def asyncio_detailed(
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        name=name,
         before_datetime=before_datetime,
         limit=limit,
         x_api_key=x_api_key,
@@ -218,6 +235,7 @@ async def asyncio(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    name: Union[None, Unset, str] = UNSET,
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
@@ -228,6 +246,7 @@ async def asyncio(
 
     Args:
         test_id (str):
+        name (Union[None, Unset, str]):
         before_datetime (Union[None, Unset, datetime.datetime]):
         limit (Union[None, Unset, int]):
         x_api_key (Union[None, Unset, str]):
@@ -244,6 +263,7 @@ async def asyncio(
         await asyncio_detailed(
             test_id=test_id,
             client=client,
+            name=name,
             before_datetime=before_datetime,
             limit=limit,
             x_api_key=x_api_key,

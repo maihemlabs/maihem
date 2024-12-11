@@ -7,7 +7,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.test_run_metrics import TestRunMetrics
+from ...models.test_run_results import TestRunResults
 from ...types import UNSET, Response, Unset
 
 
@@ -54,12 +54,12 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Optional[Union[ErrorResponse, List["TestRunResults"]]]:
     if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = TestRunMetrics.from_dict(response_200_item_data)
+            response_200_item = TestRunResults.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
@@ -92,7 +92,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Response[Union[ErrorResponse, List["TestRunResults"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -108,7 +108,7 @@ def sync_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Response[Union[ErrorResponse, List["TestRunResults"]]]:
     """Get all test run results for a test
 
      Get all test test run results for a test
@@ -124,7 +124,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['TestRunMetrics']]]
+        Response[Union[ErrorResponse, List['TestRunResults']]]
     """
 
     kwargs = _get_kwargs(
@@ -148,7 +148,7 @@ def sync(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Optional[Union[ErrorResponse, List["TestRunResults"]]]:
     """Get all test run results for a test
 
      Get all test test run results for a test
@@ -164,7 +164,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['TestRunMetrics']]
+        Union[ErrorResponse, List['TestRunResults']]
     """
 
     return sync_detailed(
@@ -183,7 +183,7 @@ async def asyncio_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Response[Union[ErrorResponse, List["TestRunResults"]]]:
     """Get all test run results for a test
 
      Get all test test run results for a test
@@ -199,7 +199,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['TestRunMetrics']]]
+        Response[Union[ErrorResponse, List['TestRunResults']]]
     """
 
     kwargs = _get_kwargs(
@@ -221,7 +221,7 @@ async def asyncio(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["TestRunMetrics"]]]:
+) -> Optional[Union[ErrorResponse, List["TestRunResults"]]]:
     """Get all test run results for a test
 
      Get all test test run results for a test
@@ -237,7 +237,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['TestRunMetrics']]
+        Union[ErrorResponse, List['TestRunResults']]
     """
 
     return (

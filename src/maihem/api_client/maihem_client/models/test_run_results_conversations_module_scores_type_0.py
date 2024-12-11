@@ -7,11 +7,11 @@ if TYPE_CHECKING:
     from ..models.test_run_metric_scores import TestRunMetricScores
 
 
-T = TypeVar("T", bound="TestRunMetricsModulesModuleGroupScoresType0")
+T = TypeVar("T", bound="TestRunResultsConversationsModuleScoresType0")
 
 
 @_attrs_define
-class TestRunMetricsModulesModuleGroupScoresType0:
+class TestRunResultsConversationsModuleScoresType0:
     """ """
 
     additional_properties: Dict[str, "TestRunMetricScores"] = _attrs_field(init=False, factory=dict)
@@ -28,7 +28,7 @@ class TestRunMetricsModulesModuleGroupScoresType0:
         from ..models.test_run_metric_scores import TestRunMetricScores
 
         d = src_dict.copy()
-        test_run_metrics_modules_module_group_scores_type_0 = cls()
+        test_run_results_conversations_module_scores_type_0 = cls()
 
         additional_properties = {}
         for prop_name, prop_dict in d.items():
@@ -36,8 +36,8 @@ class TestRunMetricsModulesModuleGroupScoresType0:
 
             additional_properties[prop_name] = additional_property
 
-        test_run_metrics_modules_module_group_scores_type_0.additional_properties = additional_properties
-        return test_run_metrics_modules_module_group_scores_type_0
+        test_run_results_conversations_module_scores_type_0.additional_properties = additional_properties
+        return test_run_results_conversations_module_scores_type_0
 
     @property
     def additional_keys(self) -> List[str]:

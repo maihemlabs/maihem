@@ -44,14 +44,16 @@ from .test_result_metric_feedback_feedback import TestResultMetricFeedbackFeedba
 from .test_run import TestRun
 from .test_run_conversation_i_ds import TestRunConversationIDs
 from .test_run_conversation_scores import TestRunConversationScores
-from .test_run_conversations import TestRunConversations
 from .test_run_metric_scores import TestRunMetricScores
 from .test_run_metric_scores_criteria_failures_type_0 import TestRunMetricScoresCriteriaFailuresType0
-from .test_run_metrics import TestRunMetrics
-from .test_run_metrics_modules import TestRunMetricsModules
-from .test_run_metrics_modules_metric_scores_type_0 import TestRunMetricsModulesMetricScoresType0
-from .test_run_metrics_modules_module_group_scores_type_0 import TestRunMetricsModulesModuleGroupScoresType0
-from .test_run_metrics_modules_module_scores_type_0 import TestRunMetricsModulesModuleScoresType0
+from .test_run_results import TestRunResults
+from .test_run_results_conversations import TestRunResultsConversations
+from .test_run_results_conversations_metric_scores_type_0 import TestRunResultsConversationsMetricScoresType0
+from .test_run_results_conversations_module_group_scores_type_0 import TestRunResultsConversationsModuleGroupScoresType0
+from .test_run_results_conversations_module_scores_type_0 import TestRunResultsConversationsModuleScoresType0
+from .test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
+from .test_run_results_module_group_scores_type_0 import TestRunResultsModuleGroupScoresType0
+from .test_run_results_module_scores_type_0 import TestRunResultsModuleScoresType0
 from .test_run_status_update_request import TestRunStatusUpdateRequest
 from .test_status_enum import TestStatusEnum
 from .user import User
@@ -104,15 +106,17 @@ __all__ = (
     "TestResultMetricFeedbackFeedback",
     "TestRun",
     "TestRunConversationIDs",
-    "TestRunConversations",
     "TestRunConversationScores",
-    "TestRunMetrics",
     "TestRunMetricScores",
     "TestRunMetricScoresCriteriaFailuresType0",
-    "TestRunMetricsModules",
-    "TestRunMetricsModulesMetricScoresType0",
-    "TestRunMetricsModulesModuleGroupScoresType0",
-    "TestRunMetricsModulesModuleScoresType0",
+    "TestRunResults",
+    "TestRunResultsConversations",
+    "TestRunResultsConversationsMetricScoresType0",
+    "TestRunResultsConversationsModuleGroupScoresType0",
+    "TestRunResultsConversationsModuleScoresType0",
+    "TestRunResultsMetricScoresType0",
+    "TestRunResultsModuleGroupScoresType0",
+    "TestRunResultsModuleScoresType0",
     "TestRunStatusUpdateRequest",
     "TestStatusEnum",
     "User",

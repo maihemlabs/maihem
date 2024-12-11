@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.test_run_conversations import TestRunConversations
+from ...models.test_run_results_conversations import TestRunResultsConversations
 from ...types import UNSET, Response, Unset
 
 
@@ -51,9 +51,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, TestRunConversations]]:
+) -> Optional[Union[ErrorResponse, TestRunResultsConversations]]:
     if response.status_code == 200:
-        response_200 = TestRunConversations.from_dict(response.json())
+        response_200 = TestRunResultsConversations.from_dict(response.json())
 
         return response_200
     if response.status_code == 400:
@@ -84,7 +84,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, TestRunConversations]]:
+) -> Response[Union[ErrorResponse, TestRunResultsConversations]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -100,7 +100,7 @@ def sync_detailed(
     metric_id: Union[None, Unset, str] = UNSET,
     metric_result: Union[None, Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, TestRunConversations]]:
+) -> Response[Union[ErrorResponse, TestRunResultsConversations]]:
     """Get test run result with conversations
 
      Get a test run result including agent conversations
@@ -116,7 +116,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TestRunConversations]]
+        Response[Union[ErrorResponse, TestRunResultsConversations]]
     """
 
     kwargs = _get_kwargs(
@@ -140,7 +140,7 @@ def sync(
     metric_id: Union[None, Unset, str] = UNSET,
     metric_result: Union[None, Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, TestRunConversations]]:
+) -> Optional[Union[ErrorResponse, TestRunResultsConversations]]:
     """Get test run result with conversations
 
      Get a test run result including agent conversations
@@ -156,7 +156,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TestRunConversations]
+        Union[ErrorResponse, TestRunResultsConversations]
     """
 
     return sync_detailed(
@@ -175,7 +175,7 @@ async def asyncio_detailed(
     metric_id: Union[None, Unset, str] = UNSET,
     metric_result: Union[None, Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, TestRunConversations]]:
+) -> Response[Union[ErrorResponse, TestRunResultsConversations]]:
     """Get test run result with conversations
 
      Get a test run result including agent conversations
@@ -191,7 +191,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, TestRunConversations]]
+        Response[Union[ErrorResponse, TestRunResultsConversations]]
     """
 
     kwargs = _get_kwargs(
@@ -213,7 +213,7 @@ async def asyncio(
     metric_id: Union[None, Unset, str] = UNSET,
     metric_result: Union[None, Unset, str] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, TestRunConversations]]:
+) -> Optional[Union[ErrorResponse, TestRunResultsConversations]]:
     """Get test run result with conversations
 
      Get a test run result including agent conversations
@@ -229,7 +229,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, TestRunConversations]
+        Union[ErrorResponse, TestRunResultsConversations]
     """
 
     return (

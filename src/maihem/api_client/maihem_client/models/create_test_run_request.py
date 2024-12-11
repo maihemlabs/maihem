@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="CreateTestRunRequest")
 
@@ -11,26 +13,31 @@ class CreateTestRunRequest:
     """
     Attributes:
         name (str):
-        label (str):
+        label (Union[None, Unset, str]):
     """
 
     name: str
-    label: str
+    label: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         name = self.name
 
-        label = self.label
+        label: Union[None, Unset, str]
+        if isinstance(self.label, Unset):
+            label = UNSET
+        else:
+            label = self.label
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "name": name,
-                "label": label,
             }
         )
+        if label is not UNSET:
+            field_dict["label"] = label
 
         return field_dict
 
@@ -39,7 +46,14 @@ class CreateTestRunRequest:
         d = src_dict.copy()
         name = d.pop("name")
 
-        label = d.pop("label")
+        def _parse_label(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        label = _parse_label(d.pop("label", UNSET))
 
         create_test_run_request = cls(
             name=name,

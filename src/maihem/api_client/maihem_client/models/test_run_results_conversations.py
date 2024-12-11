@@ -10,15 +10,25 @@ from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
+    from ..models.conversation_nested import ConversationNested
     from ..models.links import Links
     from ..models.test_run_conversation_scores import TestRunConversationScores
+    from ..models.test_run_results_conversations_metric_scores_type_0 import (
+        TestRunResultsConversationsMetricScoresType0,
+    )
+    from ..models.test_run_results_conversations_module_group_scores_type_0 import (
+        TestRunResultsConversationsModuleGroupScoresType0,
+    )
+    from ..models.test_run_results_conversations_module_scores_type_0 import (
+        TestRunResultsConversationsModuleScoresType0,
+    )
 
 
-T = TypeVar("T", bound="TestRunMetrics")
+T = TypeVar("T", bound="TestRunResultsConversations")
 
 
 @_attrs_define
-class TestRunMetrics:
+class TestRunResultsConversations:
     """
     Attributes:
         id (str):
@@ -40,6 +50,10 @@ class TestRunMetrics:
         result_score_change (Union[None, Unset, float]):
         links (Union['Links', None, Unset]):
         conversation_scores (Union['TestRunConversationScores', None, Unset]):
+        metric_scores (Union['TestRunResultsConversationsMetricScoresType0', None, Unset]):
+        module_scores (Union['TestRunResultsConversationsModuleScoresType0', None, Unset]):
+        module_group_scores (Union['TestRunResultsConversationsModuleGroupScoresType0', None, Unset]):
+        conversations (Union[Unset, List['ConversationNested']]):
     """
 
     id: str
@@ -61,11 +75,24 @@ class TestRunMetrics:
     result_score_change: Union[None, Unset, float] = UNSET
     links: Union["Links", None, Unset] = UNSET
     conversation_scores: Union["TestRunConversationScores", None, Unset] = UNSET
+    metric_scores: Union["TestRunResultsConversationsMetricScoresType0", None, Unset] = UNSET
+    module_scores: Union["TestRunResultsConversationsModuleScoresType0", None, Unset] = UNSET
+    module_group_scores: Union["TestRunResultsConversationsModuleGroupScoresType0", None, Unset] = UNSET
+    conversations: Union[Unset, List["ConversationNested"]] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
+        from ..models.test_run_results_conversations_metric_scores_type_0 import (
+            TestRunResultsConversationsMetricScoresType0,
+        )
+        from ..models.test_run_results_conversations_module_group_scores_type_0 import (
+            TestRunResultsConversationsModuleGroupScoresType0,
+        )
+        from ..models.test_run_results_conversations_module_scores_type_0 import (
+            TestRunResultsConversationsModuleScoresType0,
+        )
 
         id = self.id
 
@@ -155,6 +182,37 @@ class TestRunMetrics:
         else:
             conversation_scores = self.conversation_scores
 
+        metric_scores: Union[Dict[str, Any], None, Unset]
+        if isinstance(self.metric_scores, Unset):
+            metric_scores = UNSET
+        elif isinstance(self.metric_scores, TestRunResultsConversationsMetricScoresType0):
+            metric_scores = self.metric_scores.to_dict()
+        else:
+            metric_scores = self.metric_scores
+
+        module_scores: Union[Dict[str, Any], None, Unset]
+        if isinstance(self.module_scores, Unset):
+            module_scores = UNSET
+        elif isinstance(self.module_scores, TestRunResultsConversationsModuleScoresType0):
+            module_scores = self.module_scores.to_dict()
+        else:
+            module_scores = self.module_scores
+
+        module_group_scores: Union[Dict[str, Any], None, Unset]
+        if isinstance(self.module_group_scores, Unset):
+            module_group_scores = UNSET
+        elif isinstance(self.module_group_scores, TestRunResultsConversationsModuleGroupScoresType0):
+            module_group_scores = self.module_group_scores.to_dict()
+        else:
+            module_group_scores = self.module_group_scores
+
+        conversations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        if not isinstance(self.conversations, Unset):
+            conversations = []
+            for conversations_item_data in self.conversations:
+                conversations_item = conversations_item_data.to_dict()
+                conversations.append(conversations_item)
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -190,13 +248,31 @@ class TestRunMetrics:
             field_dict["links"] = links
         if conversation_scores is not UNSET:
             field_dict["conversation_scores"] = conversation_scores
+        if metric_scores is not UNSET:
+            field_dict["metric_scores"] = metric_scores
+        if module_scores is not UNSET:
+            field_dict["module_scores"] = module_scores
+        if module_group_scores is not UNSET:
+            field_dict["module_group_scores"] = module_group_scores
+        if conversations is not UNSET:
+            field_dict["conversations"] = conversations
 
         return field_dict
 
     @classmethod
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+        from ..models.conversation_nested import ConversationNested
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
+        from ..models.test_run_results_conversations_metric_scores_type_0 import (
+            TestRunResultsConversationsMetricScoresType0,
+        )
+        from ..models.test_run_results_conversations_module_group_scores_type_0 import (
+            TestRunResultsConversationsModuleGroupScoresType0,
+        )
+        from ..models.test_run_results_conversations_module_scores_type_0 import (
+            TestRunResultsConversationsModuleScoresType0,
+        )
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -347,7 +423,67 @@ class TestRunMetrics:
 
         conversation_scores = _parse_conversation_scores(d.pop("conversation_scores", UNSET))
 
-        test_run_metrics = cls(
+        def _parse_metric_scores(data: object) -> Union["TestRunResultsConversationsMetricScoresType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                metric_scores_type_0 = TestRunResultsConversationsMetricScoresType0.from_dict(data)
+
+                return metric_scores_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["TestRunResultsConversationsMetricScoresType0", None, Unset], data)
+
+        metric_scores = _parse_metric_scores(d.pop("metric_scores", UNSET))
+
+        def _parse_module_scores(data: object) -> Union["TestRunResultsConversationsModuleScoresType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                module_scores_type_0 = TestRunResultsConversationsModuleScoresType0.from_dict(data)
+
+                return module_scores_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["TestRunResultsConversationsModuleScoresType0", None, Unset], data)
+
+        module_scores = _parse_module_scores(d.pop("module_scores", UNSET))
+
+        def _parse_module_group_scores(
+            data: object,
+        ) -> Union["TestRunResultsConversationsModuleGroupScoresType0", None, Unset]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            try:
+                if not isinstance(data, dict):
+                    raise TypeError()
+                module_group_scores_type_0 = TestRunResultsConversationsModuleGroupScoresType0.from_dict(data)
+
+                return module_group_scores_type_0
+            except:  # noqa: E722
+                pass
+            return cast(Union["TestRunResultsConversationsModuleGroupScoresType0", None, Unset], data)
+
+        module_group_scores = _parse_module_group_scores(d.pop("module_group_scores", UNSET))
+
+        conversations = []
+        _conversations = d.pop("conversations", UNSET)
+        for conversations_item_data in _conversations or []:
+            conversations_item = ConversationNested.from_dict(conversations_item_data)
+
+            conversations.append(conversations_item)
+
+        test_run_results_conversations = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
@@ -367,10 +503,14 @@ class TestRunMetrics:
             result_score_change=result_score_change,
             links=links,
             conversation_scores=conversation_scores,
+            metric_scores=metric_scores,
+            module_scores=module_scores,
+            module_group_scores=module_group_scores,
+            conversations=conversations,
         )
 
-        test_run_metrics.additional_properties = d
-        return test_run_metrics
+        test_run_results_conversations.additional_properties = d
+        return test_run_results_conversations
 
     @property
     def additional_keys(self) -> List[str]:

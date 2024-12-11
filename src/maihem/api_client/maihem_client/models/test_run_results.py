@@ -12,16 +12,16 @@ from ..types import UNSET, Unset
 if TYPE_CHECKING:
     from ..models.links import Links
     from ..models.test_run_conversation_scores import TestRunConversationScores
-    from ..models.test_run_metrics_modules_metric_scores_type_0 import TestRunMetricsModulesMetricScoresType0
-    from ..models.test_run_metrics_modules_module_group_scores_type_0 import TestRunMetricsModulesModuleGroupScoresType0
-    from ..models.test_run_metrics_modules_module_scores_type_0 import TestRunMetricsModulesModuleScoresType0
+    from ..models.test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
+    from ..models.test_run_results_module_group_scores_type_0 import TestRunResultsModuleGroupScoresType0
+    from ..models.test_run_results_module_scores_type_0 import TestRunResultsModuleScoresType0
 
 
-T = TypeVar("T", bound="TestRunMetricsModules")
+T = TypeVar("T", bound="TestRunResults")
 
 
 @_attrs_define
-class TestRunMetricsModules:
+class TestRunResults:
     """
     Attributes:
         id (str):
@@ -43,9 +43,9 @@ class TestRunMetricsModules:
         result_score_change (Union[None, Unset, float]):
         links (Union['Links', None, Unset]):
         conversation_scores (Union['TestRunConversationScores', None, Unset]):
-        metric_scores (Union['TestRunMetricsModulesMetricScoresType0', None, Unset]):
-        module_scores (Union['TestRunMetricsModulesModuleScoresType0', None, Unset]):
-        module_group_scores (Union['TestRunMetricsModulesModuleGroupScoresType0', None, Unset]):
+        metric_scores (Union['TestRunResultsMetricScoresType0', None, Unset]):
+        module_scores (Union['TestRunResultsModuleScoresType0', None, Unset]):
+        module_group_scores (Union['TestRunResultsModuleGroupScoresType0', None, Unset]):
     """
 
     id: str
@@ -67,19 +67,17 @@ class TestRunMetricsModules:
     result_score_change: Union[None, Unset, float] = UNSET
     links: Union["Links", None, Unset] = UNSET
     conversation_scores: Union["TestRunConversationScores", None, Unset] = UNSET
-    metric_scores: Union["TestRunMetricsModulesMetricScoresType0", None, Unset] = UNSET
-    module_scores: Union["TestRunMetricsModulesModuleScoresType0", None, Unset] = UNSET
-    module_group_scores: Union["TestRunMetricsModulesModuleGroupScoresType0", None, Unset] = UNSET
+    metric_scores: Union["TestRunResultsMetricScoresType0", None, Unset] = UNSET
+    module_scores: Union["TestRunResultsModuleScoresType0", None, Unset] = UNSET
+    module_group_scores: Union["TestRunResultsModuleGroupScoresType0", None, Unset] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
-        from ..models.test_run_metrics_modules_metric_scores_type_0 import TestRunMetricsModulesMetricScoresType0
-        from ..models.test_run_metrics_modules_module_group_scores_type_0 import (
-            TestRunMetricsModulesModuleGroupScoresType0,
-        )
-        from ..models.test_run_metrics_modules_module_scores_type_0 import TestRunMetricsModulesModuleScoresType0
+        from ..models.test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
+        from ..models.test_run_results_module_group_scores_type_0 import TestRunResultsModuleGroupScoresType0
+        from ..models.test_run_results_module_scores_type_0 import TestRunResultsModuleScoresType0
 
         id = self.id
 
@@ -172,7 +170,7 @@ class TestRunMetricsModules:
         metric_scores: Union[Dict[str, Any], None, Unset]
         if isinstance(self.metric_scores, Unset):
             metric_scores = UNSET
-        elif isinstance(self.metric_scores, TestRunMetricsModulesMetricScoresType0):
+        elif isinstance(self.metric_scores, TestRunResultsMetricScoresType0):
             metric_scores = self.metric_scores.to_dict()
         else:
             metric_scores = self.metric_scores
@@ -180,7 +178,7 @@ class TestRunMetricsModules:
         module_scores: Union[Dict[str, Any], None, Unset]
         if isinstance(self.module_scores, Unset):
             module_scores = UNSET
-        elif isinstance(self.module_scores, TestRunMetricsModulesModuleScoresType0):
+        elif isinstance(self.module_scores, TestRunResultsModuleScoresType0):
             module_scores = self.module_scores.to_dict()
         else:
             module_scores = self.module_scores
@@ -188,7 +186,7 @@ class TestRunMetricsModules:
         module_group_scores: Union[Dict[str, Any], None, Unset]
         if isinstance(self.module_group_scores, Unset):
             module_group_scores = UNSET
-        elif isinstance(self.module_group_scores, TestRunMetricsModulesModuleGroupScoresType0):
+        elif isinstance(self.module_group_scores, TestRunResultsModuleGroupScoresType0):
             module_group_scores = self.module_group_scores.to_dict()
         else:
             module_group_scores = self.module_group_scores
@@ -241,11 +239,9 @@ class TestRunMetricsModules:
     def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
-        from ..models.test_run_metrics_modules_metric_scores_type_0 import TestRunMetricsModulesMetricScoresType0
-        from ..models.test_run_metrics_modules_module_group_scores_type_0 import (
-            TestRunMetricsModulesModuleGroupScoresType0,
-        )
-        from ..models.test_run_metrics_modules_module_scores_type_0 import TestRunMetricsModulesModuleScoresType0
+        from ..models.test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
+        from ..models.test_run_results_module_group_scores_type_0 import TestRunResultsModuleGroupScoresType0
+        from ..models.test_run_results_module_scores_type_0 import TestRunResultsModuleScoresType0
 
         d = src_dict.copy()
         id = d.pop("id")
@@ -396,7 +392,7 @@ class TestRunMetricsModules:
 
         conversation_scores = _parse_conversation_scores(d.pop("conversation_scores", UNSET))
 
-        def _parse_metric_scores(data: object) -> Union["TestRunMetricsModulesMetricScoresType0", None, Unset]:
+        def _parse_metric_scores(data: object) -> Union["TestRunResultsMetricScoresType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -404,16 +400,16 @@ class TestRunMetricsModules:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                metric_scores_type_0 = TestRunMetricsModulesMetricScoresType0.from_dict(data)
+                metric_scores_type_0 = TestRunResultsMetricScoresType0.from_dict(data)
 
                 return metric_scores_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["TestRunMetricsModulesMetricScoresType0", None, Unset], data)
+            return cast(Union["TestRunResultsMetricScoresType0", None, Unset], data)
 
         metric_scores = _parse_metric_scores(d.pop("metric_scores", UNSET))
 
-        def _parse_module_scores(data: object) -> Union["TestRunMetricsModulesModuleScoresType0", None, Unset]:
+        def _parse_module_scores(data: object) -> Union["TestRunResultsModuleScoresType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -421,18 +417,16 @@ class TestRunMetricsModules:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                module_scores_type_0 = TestRunMetricsModulesModuleScoresType0.from_dict(data)
+                module_scores_type_0 = TestRunResultsModuleScoresType0.from_dict(data)
 
                 return module_scores_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["TestRunMetricsModulesModuleScoresType0", None, Unset], data)
+            return cast(Union["TestRunResultsModuleScoresType0", None, Unset], data)
 
         module_scores = _parse_module_scores(d.pop("module_scores", UNSET))
 
-        def _parse_module_group_scores(
-            data: object,
-        ) -> Union["TestRunMetricsModulesModuleGroupScoresType0", None, Unset]:
+        def _parse_module_group_scores(data: object) -> Union["TestRunResultsModuleGroupScoresType0", None, Unset]:
             if data is None:
                 return data
             if isinstance(data, Unset):
@@ -440,16 +434,16 @@ class TestRunMetricsModules:
             try:
                 if not isinstance(data, dict):
                     raise TypeError()
-                module_group_scores_type_0 = TestRunMetricsModulesModuleGroupScoresType0.from_dict(data)
+                module_group_scores_type_0 = TestRunResultsModuleGroupScoresType0.from_dict(data)
 
                 return module_group_scores_type_0
             except:  # noqa: E722
                 pass
-            return cast(Union["TestRunMetricsModulesModuleGroupScoresType0", None, Unset], data)
+            return cast(Union["TestRunResultsModuleGroupScoresType0", None, Unset], data)
 
         module_group_scores = _parse_module_group_scores(d.pop("module_group_scores", UNSET))
 
-        test_run_metrics_modules = cls(
+        test_run_results = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
@@ -474,8 +468,8 @@ class TestRunMetricsModules:
             module_group_scores=module_group_scores,
         )
 
-        test_run_metrics_modules.additional_properties = d
-        return test_run_metrics_modules
+        test_run_results.additional_properties = d
+        return test_run_results
 
     @property
     def additional_keys(self) -> List[str]:

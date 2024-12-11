@@ -119,33 +119,114 @@ class TestRunResultConversations(TestRun):
         arbitrary_types_allowed = True
 
 
-class SimulatedConversation:
-    """
-    Class with the response messages and evaluation from a simulated conversation
+class ResultEvaluation(BaseModel):
+    criteria: str
+    is_failure: bool
+    explanation: Optional[str] = None
 
-    messages: List[Dict[str, str]] - List of messages from the conversation
-    evaluation: str - Explanation of the evaluation of the conversation
-    """
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
 
-    def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
-        self.conv_num = conv_num
-        try:
-            self.messages = self._convert_conv_to_message_list(conversation)
-        except Exception as e:
-            self.messages = None
-        try:
-            self.evaluation = (
-                conversation.conversations[conv_num].evaluations[0].explanation
+
+class ResultConversationMessage(BaseModel):
+    role: str
+    content: str
+    failed_evaluations: Optional[List[ResultEvaluation]] = None
+
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
+
+
+class ResultConversation(BaseModel):
+    messages: List[ResultConversationMessage]
+    failed_evaluations: Optional[List[ResultEvaluation]] = None
+
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
+
+
+class ResultTestRun(BaseModel):
+    result: Optional[TestResultEnum] = None
+    score: Optional[float] = None
+    conversations: Optional[List[ResultConversation]] = None
+
+    def __str__(self):
+        return json.dumps(self.model_dump(), default=str, indent=4)
+
+    def __init__(self, test_run_api: TestRunResultConversations):
+        super().__init__()
+
+        conversations = []
+        for conv in test_run_api.conversations:
+            messages = []
+            for turn in conv.conversation_turns:
+                for msg in turn.conversation_messages:
+                    evaluations_msg = []
+                    for evl in msg.evaluations:
+                        is_failure = evl.result.value == "failed"
+                        if is_failure:
+                            evaluation_msg = ResultEvaluation(
+                                criteria=evl.criteria,
+                                is_failure=is_failure,
+                                explanation=evl.explanation,
+                            )
+                            evaluations_msg.append(evaluation_msg)
+
+                    message = ResultConversationMessage(
+                        role=msg.agent_type.value,
+                        content=msg.content,
+                        failed_evaluations=evaluations_msg,
+                    )
+                    messages.append(message)
+
+            evaluations = []
+            for evl in conv.evaluations:
+                is_failure = evl.result.value == "failed"
+                if is_failure:
+                    evaluation = ResultEvaluation(
+                        criteria=evl.criteria,
+                        is_failure=is_failure,
+                        explanation=evl.explanation,
+                    )
+                    evaluations.append(evaluation)
+
+            conversation = ResultConversation(
+                messages=messages, failed_evaluations=evaluations
             )
-        except Exception as e:
-            self.evaluation = None
+            conversations.append(conversation)
 
-    def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
-        conv = conversation.conversations[self.conv_num]
-        message_list = []
+        self.result = test_run_api.result
+        self.score = test_run_api.result_score
+        self.conversations = conversations
 
-        for turn in conv.conversation_turns:
-            for message in turn.conversation_messages:
-                message_list.append({message.agent_type.value: message.content})
 
-        return message_list
+# class SimulatedConversation:
+#     """
+#     Class with the response messages and evaluation from a simulated conversation
+
+#     messages: List[Dict[str, str]] - List of messages from the conversation
+#     evaluation: str - Explanation of the evaluation of the conversation
+#     """
+
+#     def __init__(self, conversation: TestRunResultConversations, conv_num: int = 0):
+#         self.conv_num = conv_num
+#         try:
+#             self.messages = self._convert_conv_to_message_list(conversation)
+#         except Exception as e:
+#             self.messages = None
+#         try:
+#             self.evaluation = (
+#                 conversation.conversations[conv_num].evaluations[0].explanation
+#             )
+#         except Exception as e:
+#             self.evaluation = None
+
+#     def _convert_conv_to_message_list(self, conversation: TestRunResultConversations):
+#         conv = conversation.conversations[self.conv_num]
+#         message_list = []
+
+#         for turn in conv.conversation_turns:
+#             for message in turn.conversation_messages:
+#                 message_list.append({message.agent_type.value: message.content})
+
+#         return message_list

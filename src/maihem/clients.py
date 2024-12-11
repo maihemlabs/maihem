@@ -1,6 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from typing import Dict, Literal, Optional, List, Tuple, Callable
+from typing import Dict, Literal, Optional, List, Callable
 from pydantic import ValidationError
 import random
 from tqdm import tqdm
@@ -12,9 +12,8 @@ from maihem.schemas.agents import TargetAgent, AgentType
 from maihem.schemas.tests import (
     Test,
     TestRun,
-    TestRunResultConversations,
-    TestRunResultMetrics,
     TestRunConversations,
+    ResultTestRun,
 )
 from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.models.agent_target_create_request import (
@@ -93,7 +92,7 @@ class Client:
     ) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
-    def get_test_run_result(self, test_run_name: str) -> TestRun:
+    def get_test_run_result(self, test_name: str, test_run_name: str) -> TestRun:
         raise NotImplementedError("Method not implemented")
 
 
@@ -411,56 +410,74 @@ class Maihem(Client):
 
         return test_run
 
-    def get_test_run_result(self, test_run_id: str) -> TestRunResultMetrics:
-        resp = None
+    def get_test_run_result(
+        self, test_name: str, test_run_name: str
+    ):  # -> ResultTestRun:
+        try:
+            test = self.get_test(test_name)
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
 
         try:
-            resp = self._maihem_api_client.get_test_run_result(test_run_id)
+            test_runs = self._maihem_api_client.get_test_test_runs(
+                test_id=test.id, test_run_name=test_run_name
+            )
+            if test_runs is None or len(test_runs) == 0:
+                errors.raise_not_found_error(
+                    f"Test run '{test_run_name}' not found for test '{test_name}'"
+                )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
         test_run = None
 
         try:
-            test_run = TestRunResultMetrics.model_validate(resp.to_dict())
-        except ValidationError as e:
-            errors.handle_schema_validation_error(e)
-
-        return test_run
-
-    def get_test_run_result_conversations(
-        self, test_run_id: str
-    ) -> TestRunResultConversations:
-        resp = None
-        test_run = None
-
-        try:
-            resp = self._maihem_api_client.get_test_run_result_conversations(
-                test_run_id
+            test_run_api = self._maihem_api_client.get_test_run_result(
+                test_run_id=test_runs[0].id
             )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
         try:
-            resp_conversations = resp.conversations
-            resp_dict = resp.to_dict()
-            resp_dict["conversations"] = []
-
-            conversation_nesteds: ConversationNested = []
-            for conv in resp_conversations:
-                conv_dict = conv.to_dict()
-                try:
-                    conv = ConversationNested.from_dict(conv_dict)
-                    conversation_nesteds.append(conv)
-                except ValidationError as e:
-                    errors.handle_schema_validation_error(e)
-
-            test_run = TestRunResultConversations.model_validate(resp_dict)
-            test_run.conversations = conversation_nesteds
+            test_run = ResultTestRun(test_run_api=test_run_api)
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
         return test_run
+
+    # def get_test_run_result_conversations(
+    #     self, test_run_id: str
+    # ) -> TestRunResultConversations:
+    #     resp = None
+    #     test_run = None
+
+    #     try:
+    #         resp = self._maihem_api_client.get_test_run_result_conversations(
+    #             test_run_id
+    #         )
+    #     except errors.ErrorBase as e:
+    #         errors.handle_base_error(e)
+
+    #     try:
+    #         resp_conversations = resp.conversations
+    #         resp_dict = resp.to_dict()
+    #         resp_dict["conversations"] = []
+
+    #         conversation_nesteds: ConversationNested = []
+    #         for conv in resp_conversations:
+    #             conv_dict = conv.to_dict()
+    #             try:
+    #                 conv = ConversationNested.from_dict(conv_dict)
+    #                 conversation_nesteds.append(conv)
+    #             except ValidationError as e:
+    #                 errors.handle_schema_validation_error(e)
+
+    #         test_run = TestRunResultConversations.model_validate(resp_dict)
+    #         test_run.conversations = conversation_nesteds
+    #     except ValidationError as e:
+    #         errors.handle_schema_validation_error(e)
+
+    #     return test_run
 
     def get_conversation(self, conversation_id: str) -> ConversationNested:
         resp = None
