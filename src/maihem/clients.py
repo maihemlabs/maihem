@@ -316,9 +316,14 @@ class Maihem(Client):
             resp = None
 
             try:
-                resp = self._maihem_api_client.create_test_run(
-                    test_id=test.id, req=CreateTestRunRequest(name=name, label=label)
-                )
+                with yaspin(
+                    Spinners.arc,
+                    text="Creating Maihem Agents, this might take a minute...",
+                ) as _:
+                    resp = self._maihem_api_client.create_test_run(
+                        test_id=test.id,
+                        req=CreateTestRunRequest(name=name, label=label),
+                    )
             except errors.ErrorBase as e:
                 errors.handle_base_error(e)
 

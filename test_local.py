@@ -21,7 +21,7 @@ def wrapper_function(
     target_agent_message = input("Enter your message: ")
 
     # List of retrieved contexts for RAG evaluations, pass empty list if not needed
-    contexts = []
+    contexts = ["Hi", "Context 2"]
 
     return target_agent_message, contexts
 
@@ -32,32 +32,31 @@ def wrapper_function(
 #     description="description",
 # )
 
-test_name = "test_staging_10dec_cx_2"
+test_name = "test_staging_10dec_cx_rag"
 
-# maihem_client.create_test(
-#     name=test_name,
-#     target_agent_name="ta_local_10dic",
-#     initiating_agent="maihem",
-#     # label="Test Staging #2",
-#     maihem_agent_behavior_prompt="behavior prompt",
-#     maihem_agent_goal_prompt="goal prompt",
-#     maihem_agent_population_prompt="population prompt",
-#     conversation_turns_max=4,
-#     # modules=["cx"],
-#     metrics_config={
-#         "qa_cx_helpfulness": 4,
-#         "qa_cx_goal_completion": 4,
-#     },
-#     # number_conversations=5,
-# )
+maihem_client.create_test(
+    name=test_name,
+    target_agent_name="ta_staging_1",
+    initiating_agent="target",
+    # label="Test Staging #2",
+    maihem_agent_behavior_prompt="behavior prompt",
+    maihem_agent_goal_prompt="goal prompt",
+    maihem_agent_population_prompt="population prompt",
+    conversation_turns_max=4,
+    modules=["rag"],
+    # metrics_config={
+    #     "qa_cx_helpfulness": 4,
+    #     "qa_cx_goal_completion": 4,
+    # },
+    number_conversations=7,
+)
 
 results = maihem_client.run_test(
-    name="testrun5",
-    # name=datetime.now().strftime("%Y%m%d_%H%M%S"),
-    # label="test run 1 label 2",
+    name=datetime.now().strftime("%Y%m%d_%H%M%S"),
+    label="test run 1 label 2",
     test_name=test_name,
     wrapper_function=wrapper_function,
     concurrent_conversations=5,
 )
 
-# print(results)
+print(results)
