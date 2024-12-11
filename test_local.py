@@ -17,13 +17,13 @@ def wrapper_function(
     """Callable wrapper function to wrap your target agent to be tested."""
 
     # Replace with the message from your target agent
-    target_agent_message = "Hi, how can I help you?"
+    print(maihem_agent_message)
+    target_agent_message = input("Enter your message: ")
 
     # List of retrieved contexts for RAG evaluations, pass empty list if not needed
     contexts = ["Hi", "Context 2"]
 
     return target_agent_message, contexts
-
 
 # maihem_client.create_target_agent(
 #     name="ta_local_10dic",

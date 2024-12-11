@@ -39,7 +39,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from maihem.utils.documents import TextSplitter, extract_text
+from maihem.utils import TextSplitter, extract_text, parse_documents
 
 
 class Client:
@@ -197,43 +197,41 @@ class Maihem(Client):
         maihem_agent_population_prompt: Optional[str] = None,
         conversation_turns_max: Optional[int] = 10,
         number_conversations: Optional[int] = 12,
+        documents_path: Optional[str] = None,
     ) -> Test:
-        resp = None
         logger = get_logger()
         logger.info(f"Creating test '{name}'...")
 
-        # Validate inputs (modules or metrics_config must be provided)
-        try:
-            assert bool(modules is None) != bool(
-                metrics_config is None
-            ), "Either modules or metrics_config must be provided, but not both"
-            if modules is not None:
-                assert len(modules) > 0, "Modules list must not be empty"
+        # Input validation using pattern matching
+        match (modules, metrics_config):
+            case (None, None):
+                raise ValueError("Either modules or metrics_config must be provided")
+            case (list(), dict()):
+                raise ValueError("Cannot provide both modules and metrics_config")
+            case (list(), None):
+                if not modules:
+                    raise ValueError("Modules list must not be empty")
                 metrics_config = map_module_list_to_metrics(
                     modules, number_conversations
                 )
-            else:  # metric_config was passed
-                assert len(metrics_config) > 0, "Metrics config must not be empty"
-                for metric in metrics_config:
-                    assert isinstance(
-                        metrics_config[metric], int
-                    ), "Metrics config values must be integers"
-                    assert (
-                        metrics_config[metric] > 0
-                    ), "Metrics config values must not be empty"
-                    # assert (
-                    #     sum(metrics_config.values()) <= number_conversations
-                    # ), "The sum of metric_config conversations must not exceed number_conversations"
-        except Exception as e:
-            raise ValueError(e) from e
+            case (None, dict()):
+                if not metrics_config:
+                    raise ValueError("Metrics config must not be empty")
+                if not all(
+                    isinstance(v, int) and v > 0 for v in metrics_config.values()
+                ):
+                    raise ValueError("Metrics config values must be positive integers")
+            case _:
+                raise ValueError("Invalid configuration for modules or metrics_config")
 
+        # Convert string initiating_agent to enum if needed
         if isinstance(initiating_agent, str):
             try:
                 initiating_agent = AgentType[initiating_agent.upper()]
-            except KeyError as e:
+            except KeyError:
                 raise errors.raise_request_validation_error(
                     f"Invalid agent type: {initiating_agent}"
-                ) from e
+                )
 
         try:
             target_agent = self._maihem_api_client.get_agent_target_by_name(
@@ -245,22 +243,32 @@ class Maihem(Client):
                     f"Target agent '{target_agent_name}' not found"
                 )
 
-            metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
-                metrics_config
-            )
-            resp = self._maihem_api_client.create_test(
-                req=TestCreateRequest(
-                    name=name,
-                    label=label,
-                    initiating_agent=initiating_agent,
-                    conversation_turns_max=conversation_turns_max,
-                    agent_target_id=target_agent.id,
-                    agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
-                    agent_maihem_goal_prompt=maihem_agent_goal_prompt,
-                    agent_maihem_population_prompt=maihem_agent_population_prompt,
-                    metrics_config=metrics_config_req,
+            if documents_path:
+                documents = parse_documents(documents_path)
+            else:
+                documents = None
+
+            with yaspin(
+                Spinners.arc,
+                text="Creating Maihem Agents, this might take a minute...",
+            ) as _:
+                metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
+                    metrics_config
                 )
-            )
+                resp = self._maihem_api_client.create_test(
+                    req=TestCreateRequest(
+                        name=name,
+                        label=label,
+                        initiating_agent=initiating_agent,
+                        conversation_turns_max=conversation_turns_max,
+                        agent_target_id=target_agent.id,
+                        agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
+                        agent_maihem_goal_prompt=maihem_agent_goal_prompt,
+                        agent_maihem_population_prompt=maihem_agent_population_prompt,
+                        metrics_config=metrics_config_req,
+                        documents=documents if documents else None,
+                    )
+                )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
@@ -582,7 +590,6 @@ class Maihem(Client):
                 conversation_id=conversation_id,
                 target_agent_message=None,
                 contexts=[],
-                document={document_key: text} if document_key else None,
             )
 
             agent_maihem_message = self._get_conversation_message_from_conversation(
@@ -625,7 +632,6 @@ class Maihem(Client):
             conversation_id=conversation_id,
             target_agent_message=target_agent_message,
             contexts=contexts,
-            document={document_key: text} if document_key else None,
         )
 
         return turn_resp
@@ -636,7 +642,6 @@ class Maihem(Client):
         conversation_id: str,
         target_agent_message: Optional[str] = None,
         contexts: Optional[List[str]] = None,
-        document: Optional[Dict] = None,
     ) -> ConversationTurnCreateResponse:
         try:
             resp = self._maihem_api_client.create_conversation_turn(
