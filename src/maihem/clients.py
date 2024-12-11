@@ -39,7 +39,7 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.logger import get_logger
-from maihem.utils import TextSplitter, extract_text, parse_documents
+from maihem.utils.documents import TextSplitter, extract_text, parse_documents
 
 
 class Client:
