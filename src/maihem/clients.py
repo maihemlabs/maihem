@@ -199,42 +199,39 @@ class Maihem(Client):
         number_conversations: Optional[int] = 12,
         documents_path: Optional[str] = None,
     ) -> Test:
-        resp = None
         logger = get_logger()
         logger.info(f"Creating test '{name}'...")
 
-        # Validate inputs (modules or metrics_config must be provided)
-        try:
-            assert bool(modules is None) != bool(
-                metrics_config is None
-            ), "Either modules or metrics_config must be provided, but not both"
-            if modules is not None:
-                assert len(modules) > 0, "Modules list must not be empty"
+        # Input validation using pattern matching
+        match (modules, metrics_config):
+            case (None, None):
+                raise ValueError("Either modules or metrics_config must be provided")
+            case (list(), dict()):
+                raise ValueError("Cannot provide both modules and metrics_config")
+            case (list(), None):
+                if not modules:
+                    raise ValueError("Modules list must not be empty")
                 metrics_config = map_module_list_to_metrics(
                     modules, number_conversations
                 )
-            else:  # metric_config was passed
-                assert len(metrics_config) > 0, "Metrics config must not be empty"
-                for metric in metrics_config:
-                    assert isinstance(
-                        metrics_config[metric], int
-                    ), "Metrics config values must be integers"
-                    assert (
-                        metrics_config[metric] > 0
-                    ), "Metrics config values must not be empty"
-                    # assert (
-                    #     sum(metrics_config.values()) <= number_conversations
-                    # ), "The sum of metric_config conversations must not exceed number_conversations"
-        except Exception as e:
-            raise ValueError(e) from e
+            case (None, dict()):
+                if not metrics_config:
+                    raise ValueError("Metrics config must not be empty")
+                if not all(
+                    isinstance(v, int) and v > 0 for v in metrics_config.values()
+                ):
+                    raise ValueError("Metrics config values must be positive integers")
+            case _:
+                raise ValueError("Invalid configuration for modules or metrics_config")
 
+        # Convert string initiating_agent to enum if needed
         if isinstance(initiating_agent, str):
             try:
                 initiating_agent = AgentType[initiating_agent.upper()]
-            except KeyError as e:
+            except KeyError:
                 raise errors.raise_request_validation_error(
                     f"Invalid agent type: {initiating_agent}"
-                ) from e
+                )
 
         try:
             target_agent = self._maihem_api_client.get_agent_target_by_name(
@@ -268,7 +265,7 @@ class Maihem(Client):
                         agent_maihem_behavior_prompt=maihem_agent_behavior_prompt,
                         agent_maihem_goal_prompt=maihem_agent_goal_prompt,
                         agent_maihem_population_prompt=maihem_agent_population_prompt,
-                        metrics_config=metrics_config,
+                        metrics_config=metrics_config_req,
                         documents=documents if documents else None,
                     )
                 )
