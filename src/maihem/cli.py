@@ -94,14 +94,17 @@ def run_test(test_subparsers):
     )
 
 
-def get_test_run_results(test_run_subparsers):
+def test_run_get(test_run_subparsers):
     """Get test run results in CLI"""
 
     get_test_run_results_parser = test_run_subparsers.add_parser(
-        "results", help="Get test run results"
+        "get", help="Get test run results"
     )
     get_test_run_results_parser.add_argument(
-        "--name", type=str, required=True, help="Name of the test run"
+        "--test_name", type=str, required=True, help="Name of the test"
+    )
+    get_test_run_results_parser.add_argument(
+        "--test_run_name", type=str, required=True, help="Name of the test run"
     )
 
 
@@ -137,7 +140,7 @@ def main():
     test_run_subparsers = test_run_parser.add_subparsers(
         dest="action", help="Test run actions"
     )
-    get_test_run_results(test_run_subparsers)
+    test_run_get(test_run_subparsers)
 
     # Parse arguments
     args = parser.parse_args()
@@ -180,7 +183,9 @@ def main():
             test_name=args.test_name,
             wrapper_function=wrapper_function,
         )
-    # elif args.command == "test_run" and args.action == "get":
-    #     maihem_client.get_test_run_result(name=args.name)
+    elif args.command == "test_run" and args.action == "get":
+        maihem_client.get_test_run_result(
+            test_name=args.test_name, test_run_name=args.test_run_name
+        )
     else:
         parser.print_help()
