@@ -21,7 +21,7 @@ dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_t
 requires-python = ">=3.9"
 
 [project.scripts]
-maihem = "maihem.cli:main"
+maihem = "maihem.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
