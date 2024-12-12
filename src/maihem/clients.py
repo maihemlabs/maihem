@@ -395,6 +395,8 @@ class Maihem(Client):
                     test_run_id=test_run.id, status=TestStatusEnum.CANCELED
                 )
             logger.info("Test run canceled!")
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
         except Exception as e:
             logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
