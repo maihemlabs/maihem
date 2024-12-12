@@ -40,21 +40,20 @@ def create_project_folder(name: str) -> None:
     )
 
     file_content = """import requests
+from typing import List, Tuple
 
 def wrapper_function(
-    conversation_id: str, maihem_agent_message: str, conversation_history
-):
+	conversation_id: str,
+	maihem_agent_message: str | None,
+	conversation_history: dict,
+) -> Tuple[str, List[str]]:
     \"\"\"Callable function to wrap your target agent to be tested.\"\"\"
 
-    # Call demo Maihem target agent for quickstart
-    url = "http://api.maihem.ai/demo"
-    payload = {"conversation_id": conversation_id, "message": maihem_agent_message}
-    target_agent_message = requests.request("POST", url, data=payload).json()["message"]
-
-    # (Optional) List of contexts for RAG evaluations, pass empty list if not needed
-    contexts = []
-
-    return target_agent_message, contexts
+	# Call demo Maihem target agent for quickstart
+	url = "https://demo-agent.maihem.ai/chat"
+	payload = {"message": maihem_agent_message if maihem_agent_message else ""}
+	response = requests.request("POST", url, json=payload).json()
+	return response["message"], response["contexts"]
 """
 
     # Write the content to a Python file
