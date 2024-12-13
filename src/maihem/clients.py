@@ -194,8 +194,8 @@ class Maihem(Client):
         maihem_behavior_prompt: Optional[str] = None,
         maihem_goal_prompt: Optional[str] = None,
         maihem_population_prompt: Optional[str] = None,
-        conversation_turns_max: Optional[int] = 10,
-        number_conversations: Optional[int] = 12,
+        conversation_turns_max: Optional[int] = 4,
+        number_conversations: Optional[int] = 10,
         documents_path: Optional[str] = None,
     ) -> Test:
         logger = get_logger()

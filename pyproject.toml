@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
-dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio", "pymupdf", "docx2txt", "yaspin", "pyyaml", "pillow"]
+dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio", "pymupdf", "docx2txt", "yaspin", "pyyaml", "pillow", "click"]
 requires-python = ">=3.9"
 
 [project.scripts]
@@ -25,3 +25,19 @@ maihem = "maihem.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
+
+maihem test create \
+--name "test-1" \ 
+--target-agent-name "demo-tutor-agent" \
+--modules "cx" \
+--maihem-behavior-prompt "Request quizz-style questions and deep dives in bullet points for identified gaps" \
+--number-conversations 4
+
+
+maihem test create \
+--name "test-1" \
+--target-agent-name "demo-tutor-agent" \
+--modules "cx" \
+--maihem-behavior-prompt "Request quizz-style questions and deep dives in bullet points for identified gaps" \
+--number-conversations 4
+
