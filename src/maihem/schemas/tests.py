@@ -149,6 +149,7 @@ class ResultTestRun(BaseModel):
     result: Optional[TestResultEnum] = None
     score: Optional[float] = None
     conversations: Optional[List[ResultConversation]] = None
+    id: Optional[str] = None
 
     def __str__(self):
         return json.dumps(self.model_dump(), default=str, indent=4)
@@ -195,6 +196,7 @@ class ResultTestRun(BaseModel):
             )
             conversations.append(conversation)
 
+        self.id = test_run_api.id
         self.result = test_run_api.result
         self.score = test_run_api.result_score
         self.conversations = conversations

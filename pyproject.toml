@@ -25,19 +25,3 @@ maihem = "maihem.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
-
-maihem test create \
---name "test-1" \ 
---target-agent-name "demo-tutor-agent" \
---modules "cx" \
---maihem-behavior-prompt "Request quizz-style questions and deep dives in bullet points for identified gaps" \
---number-conversations 4
-
-
-maihem test create \
---name "test-1" \
---target-agent-name "demo-tutor-agent" \
---modules "cx" \
---maihem-behavior-prompt "Request quizz-style questions and deep dives in bullet points for identified gaps" \
---number-conversations 4
-

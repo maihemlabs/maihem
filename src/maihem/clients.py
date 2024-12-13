@@ -249,7 +249,7 @@ class Maihem(Client):
 
             with yaspin(
                 Spinners.arc,
-                text="Creating Maihem Agents, this might take a minute...",
+                text="Creating Test, this might take a minute...",
             ) as _:
                 metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
                     metrics_config
@@ -308,16 +308,19 @@ class Maihem(Client):
         logger = get_logger()
         test_run = None
         try:
-            logger.info(f"Preparing test run '{test_name}...")
-            test = self._maihem_api_client.get_test_by_name(name=test_name)
-            target_agent = self.get_target_agent(name=test.agent_target_name)
-            target_agent.set_wrapper_function(wrapper_function=wrapper_function)
-            resp = None
+            with yaspin(
+                Spinners.arc,
+                text=f"Preparing test run '{test_name}...",
+            ) as _:
+                test = self._maihem_api_client.get_test_by_name(name=test_name)
+                target_agent = self.get_target_agent(name=test.agent_target_name)
+                target_agent.set_wrapper_function(wrapper_function=wrapper_function)
+                resp = None
 
             try:
                 with yaspin(
                     Spinners.arc,
-                    text="Creating Maihem Agents, this might take a minute...",
+                    text="Creating Test Run, this might take a minute...",
                 ) as _:
                     resp = self._maihem_api_client.create_test_run(
                         test_id=test.id,

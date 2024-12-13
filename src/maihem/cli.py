@@ -144,14 +144,16 @@ def run(
 ):
     """Run a test"""
     wrapper_function = import_wrapper_function(wrapper_function_path)
-    maihem_client.run_test(
+    test_run = maihem_client.run_test(
         name=name,
         label=label,
         test_name=test_name,
         wrapper_function=wrapper_function,
         concurrent_conversations=concurrent_conversations,
     )
-
+    url_results = f"https://cause.maihem.ai/evaluate/test-runs/{test_run.id}"
+    click.echo(f"See test run results: {url_results}")
+    
 
 # Test run commands
 @cli.group()
