@@ -11,11 +11,14 @@ def map_module_list_to_metrics(
     metrics_config = {}
     for module in modules:
         if module == "cx":
-            convs_list = spread_n_into_buckets(number_conversations, 4)
-            metrics_config["qa_cx_goal_completion"] = convs_list[0]
-            metrics_config["qa_cx_helpfulness"] = convs_list[1]
-            metrics_config["qa_cx_retention"] = convs_list[2]
-            metrics_config["qa_cx_nps"] = convs_list[3]
+            if 0 < number_conversations <= 4:
+                metrics_config["qa_cx_goal_completion"] = number_conversations
+            else:
+                convs_list = spread_n_into_buckets(number_conversations, 4)
+                metrics_config["qa_cx_goal_completion"] = convs_list[0]
+                metrics_config["qa_cx_helpfulness"] = convs_list[1]
+                metrics_config["qa_cx_retention"] = convs_list[2]
+                metrics_config["qa_cx_nps"] = convs_list[3]
         elif module == "rag":
             convs_list = spread_n_into_buckets(number_conversations, 3)
             metrics_config["qa_rag_hallucination"] = convs_list[0]
