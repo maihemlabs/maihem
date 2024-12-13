@@ -30,6 +30,7 @@ class ConversationNested:
         result (Union[None, TestResultEnum, Unset]):
         evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
         conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
+        result_score (Union[None, Unset, float]):
     """
 
     id: str
@@ -41,6 +42,7 @@ class ConversationNested:
     result: Union[None, TestResultEnum, Unset] = UNSET
     evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
     conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
+    result_score: Union[None, Unset, float] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -90,6 +92,12 @@ class ConversationNested:
                 conversation_turns_item = conversation_turns_item_data.to_dict()
                 conversation_turns.append(conversation_turns_item)
 
+        result_score: Union[None, Unset, float]
+        if isinstance(self.result_score, Unset):
+            result_score = UNSET
+        else:
+            result_score = self.result_score
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -110,6 +118,8 @@ class ConversationNested:
             field_dict["evaluations"] = evaluations
         if conversation_turns is not UNSET:
             field_dict["conversation_turns"] = conversation_turns
+        if result_score is not UNSET:
+            field_dict["result_score"] = result_score
 
         return field_dict
 
@@ -192,6 +202,15 @@ class ConversationNested:
 
             conversation_turns.append(conversation_turns_item)
 
+        def _parse_result_score(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        result_score = _parse_result_score(d.pop("result_score", UNSET))
+
         conversation_nested = cls(
             id=id,
             created_at=created_at,
@@ -202,6 +221,7 @@ class ConversationNested:
             result=result,
             evaluations=evaluations,
             conversation_turns=conversation_turns,
+            result_score=result_score,
         )
 
         conversation_nested.additional_properties = d
