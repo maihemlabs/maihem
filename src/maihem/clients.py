@@ -389,6 +389,10 @@ class Maihem(Client):
 
             print("\n" + "-" * 50 + "\n")
             logger.info(f"Test run '{name}' completed")
+
+            url_results = f"https://cause.maihem.ai/evaluate/test-runs/{test_run.id}"
+            logger.info(f"See test run results: {url_results}")
+
             return self.get_test_run_result(test_name=test_name, test_run_name=name)
 
         except KeyboardInterrupt:
