@@ -54,29 +54,37 @@ def test():
 @test.command()
 @click.option("--name", required=True, help="Name of the test")
 @click.option("--label", help="Label for the test (optional)")
-@click.option("--target_agent_name", required=True, help="Name of the target agent")
+@click.option("--target-agent-name", required=True, help="Name of the target agent")
 @click.option(
-    "--initiating_agent",
+    "--initiating-agent",
     type=click.Choice(["maihem", "target"]),
     default="maihem",
     help="Initiating agent (maihem or target)",
 )
 @click.option("--modules", required=True, help="Modules to use")
 @click.option(
-    "--documents_path", required=False, help="Path to the folder with documents"
+    "--documents-path", required=False, help="Path to the folder with documents"
 )
 @click.option(
-    "--number_conversations", type=int, required=True, help="Number of conversations"
+    "--number-conversations", type=int, required=True, help="Number of conversations"
 )
 @click.option(
-    "--conversation_turns_max",
+    "--conversation-turns-max",
     type=int,
     default=10,
     help="Max turns per conversation (default: 10)",
 )
 @click.option(
-    "--maihem_behavior_prompt",
+    "--maihem-behavior-prompt",
     help="Prompt for the maihem agent behavior",
+)
+@click.option(
+    "--maihem-goal-prompt",
+    help="Describes the goal of the simulated personas",
+)
+@click.option(
+    "--maihem-population-prompt",
+    help="Describes the desired population of simulated personas",
 )
 @click.pass_obj
 def create(
@@ -90,9 +98,11 @@ def create(
     number_conversations,
     conversation_turns_max,
     maihem_behavior_prompt,
+    maihem_goal_prompt,
+    maihem_population_prompt,
 ):
     """Create a test"""
-    module_list = modules.split(",").replace(" ", "")
+    module_list = [m.strip() for m in modules.split(",")]
     maihem_client.create_test(
         name=name,
         label=label,
@@ -102,25 +112,44 @@ def create(
         documents_path=documents_path,
         conversation_turns_max=conversation_turns_max,
         number_conversations=number_conversations,
-        maihem_agent_behavior_prompt=maihem_behavior_prompt,
+        maihem_behavior_prompt=maihem_behavior_prompt,
+        maihem_goal_prompt=maihem_goal_prompt,
+        maihem_population_prompt=maihem_population_prompt,
     )
 
 
 @test.command()
 @click.option("--name", required=True, help="Name of the test run")
 @click.option("--label", help="Label for the test run (optional)")
-@click.option("--test_name", required=True, help="Name of the test")
+@click.option("--test-name", required=True, help="Name of the test")
 @click.option(
-    "--wrapper_function_path",
+    "--wrapper-function-path",
     default="wrapper_function.py",
     help="Path to the wrapper function",
 )
+@click.option(
+    "--concurrent-conversations",
+    type=int,
+    default=10,
+    help="Number of concurrent conversations",
+)
 @click.pass_obj
-def run(maihem_client, name, label, test_name, wrapper_function_path):
+def run(
+    maihem_client,
+    name,
+    label,
+    test_name,
+    wrapper_function_path,
+    concurrent_conversations,
+):
     """Run a test"""
     wrapper_function = import_wrapper_function(wrapper_function_path)
     maihem_client.run_test(
-        name=name, label=label, test_name=test_name, wrapper_function=wrapper_function
+        name=name,
+        label=label,
+        test_name=test_name,
+        wrapper_function=wrapper_function,
+        concurrent_conversations=concurrent_conversations,
     )
 
 
@@ -132,8 +161,8 @@ def test_run():
 
 
 @test_run.command()
-@click.option("--test_name", required=True, help="Name of the test")
-@click.option("--test_run_name", required=True, help="Name of the test run")
+@click.option("--test-name", required=True, help="Name of the test")
+@click.option("--test-run-name", required=True, help="Name of the test run")
 @click.pass_obj
 def get(maihem_client, test_name, test_run_name):
     """Get test run results"""
