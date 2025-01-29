@@ -4,7 +4,7 @@ from maihem.utils.utils import validate_attributes_testing
 from typing import Optional, Callable, Any
 import inspect
 from functools import wraps
-import json
+import orjson as json
 
 
 def observe(
