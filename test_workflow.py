@@ -44,13 +44,11 @@ async def rephrase_query(input_text: str) -> str:  # Different parameter name
 
 @maihem.observe(
     evaluator=MaihemRetrieval(
-        inputs=MaihemRetrieval.Inputs(query="search_query", entities="named_entities"),
+        inputs=MaihemRetrieval.Inputs(query="search_query"),
         output_fn=lambda x: x["documents"],  # Extract just the documents
     )
 )
-async def retrieval(
-    search_query: str, named_entities: list[str]  # Different parameter names
-) -> dict:
+async def retrieval(search_query: str) -> dict:  # Different parameter names
     # Return richer data
     return {
         "documents": [
@@ -109,9 +107,7 @@ async def generate_message(query: str) -> str:
     intent = await intent_recognition(user_input=query)
     entities = await name_entity_recognition(text=query)
     rephrased_query = await rephrase_query(input_text=query)
-    retrieval_results = await retrieval(
-        search_query=rephrased_query, named_entities=entities
-    )
+    retrieval_results = await retrieval(search_query=rephrased_query)
     reranking_results = await reranking(docs=retrieval_results["documents"])
     filtered_results = await filtering(documents=reranking_results)
     result = await answer(question=rephrased_query, context=filtered_results)
@@ -120,7 +116,7 @@ async def generate_message(query: str) -> str:
 
 if __name__ == "__main__":
     #### MONITORING
-    # asyncio.run(generate_message("What is six times nine"))
+    asyncio.run(generate_message("What is six times lol"))
 
     #### TESTING
     setattr(generate_message, "conversation_id", "c_01jjm9yr56fe0vckf989vecn1a")
