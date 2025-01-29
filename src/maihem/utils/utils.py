@@ -86,3 +86,10 @@ def wrapper_function(
     except OSError as e:
         logger.error(f"Failed to create project folder: {e}")
         raise
+
+
+def validate_attributes_testing(func: Callable) -> None:
+    required_attrs = ["agent_target_id", "test_run_id", "conversation_id", "message_id"]
+    missing_attrs = [attr for attr in required_attrs if not getattr(func, attr, None)]
+    if missing_attrs:
+        raise ValueError(f"Missing required attributes: {', '.join(missing_attrs)}")

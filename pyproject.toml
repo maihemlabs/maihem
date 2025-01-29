@@ -17,7 +17,27 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
-dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio", "pymupdf", "docx2txt", "yaspin", "pyyaml", "pillow", "click"]
+dependencies = [
+    "requests", 
+    "pandas", 
+    "pydantic", 
+    "pycountry", 
+    "pydantic_extra_types", 
+    "httpx", 
+    "attrs", 
+    "loguru", 
+    "tqdm", 
+    "anyio", 
+    "pymupdf", 
+    "docx2txt", 
+    "yaspin", 
+    "pyyaml", 
+    "pillow", 
+    "click", 
+    "opentelemetry-api", 
+    "opentelemetry-sdk",
+    "opentelemetry-exporter-otlp-proto-http"
+]
 requires-python = ">=3.9"
 
 [project.scripts]
