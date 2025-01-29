@@ -10,7 +10,7 @@ def observe(
     name: Optional[str] = None,
     workflow_name: Optional[str] = None,
     external_conversation_id: Optional[str] = None,
-    external_message_id: Optional[str] = None,
+    external_conversation_message_id: Optional[str] = None,
     evaluator: Optional[MaihemEvaluator] = None,
 ):
     def decorator(func: Callable) -> Callable:
@@ -47,9 +47,11 @@ def observe(
                             "conversation_id": getattr(
                                 async_wrapper, "conversation_id", None
                             ),
-                            "message_id": getattr(async_wrapper, "message_id", None),
+                            "conversation_message_id": getattr(
+                                async_wrapper, "conversation_message_id", None
+                            ),
                             "external_conversation_id": external_conversation_id,
-                            "external_message_id": external_message_id,
+                            "external_conversation_message_id": external_conversation_message_id,
                         }
                         for key, value in monitoring_attrs.items():
                             if value is not None:
@@ -121,9 +123,11 @@ def observe(
                             "conversation_id": getattr(
                                 sync_wrapper, "conversation_id", None
                             ),
-                            "message_id": getattr(sync_wrapper, "message_id", None),
+                            "conversation_message_id": getattr(
+                                sync_wrapper, "message_id", None
+                            ),
                             "external_conversation_id": external_conversation_id,
-                            "external_message_id": external_message_id,
+                            "external_conversation_message_id": external_conversation_message_id,
                         }
                         for key, value in monitoring_attrs.items():
                             if value is not None:

@@ -120,11 +120,13 @@ async def generate_message(query: str) -> str:
 
 if __name__ == "__main__":
     #### MONITORING
-    asyncio.run(generate_message("What is six times nine"))
+    # asyncio.run(generate_message("What is six times nine"))
 
     #### TESTING
     setattr(generate_message, "conversation_id", "c_01j8t83j5cfd0ryaf2t7m48bcn")
-    setattr(generate_message, "message_id", "cm_01j8t83q8nfets2cfstw3c94q5")
+    setattr(
+        generate_message, "conversation_message_id", "cm_01j8t83q8nfets2cfstw3c94q5"
+    )
     setattr(generate_message, "agent_target_id", "at_01j8t818wae9hs9xhcjbt66shv")
     setattr(generate_message, "test_run_id", "tr_01j8t7vg9xf46rjs71yw6k2n66")
     setattr(generate_message, "testing", True)
