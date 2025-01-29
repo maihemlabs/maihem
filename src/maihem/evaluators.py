@@ -118,11 +118,11 @@ class MaihemQA(MaihemEvaluator):
     """
 
     NAME = "question_answering"
-    EXPECTED_INPUTS = {"query", "context"}
+    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
         query: str
-        context: list[str]
+        documents: list[str]
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
         return {"answer": result}
@@ -168,7 +168,7 @@ class MaihemNER(MaihemEvaluator):
         entities: list[str]  # List of extracted entities
     """
 
-    NAME = "named_entity_recognition"
+    NAME = "name_entity_recognition"
     EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
