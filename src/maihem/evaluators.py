@@ -213,12 +213,11 @@ class MaihemRetrieval(MaihemEvaluator):
             evaluator=MaihemRetrieval(
                 inputs=InputMapping(
                     query='search_query',
-                    entities='named_entities'
                 ),
                 output_fn=lambda x: x['documents']  # Extract documents from response
             )
         )
-        async def my_retrieval(search_query: str, named_entities: list[str]) -> dict:
+        async def my_retrieval(search_query: str) -> dict:
             return {
                 "documents": ["doc1", "doc2"],
                 "scores": [0.9, 0.8]
@@ -226,11 +225,10 @@ class MaihemRetrieval(MaihemEvaluator):
     """
 
     NAME = "document_retrieval"
-    EXPECTED_INPUTS = {"query", "entities"}
+    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
         query: str
-        entities: list[str]
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
         return {"documents": result}
@@ -243,7 +241,7 @@ class MaihemReranking(MaihemEvaluator):
         - documents: list[str]  # List of documents to rerank
 
     Output Format:
-        reranked_chunks: list[str]  # Reranked documents
+        reranked_documents: list[str]  # Reranked documents
     """
 
     NAME = "document_reranking"
@@ -253,7 +251,7 @@ class MaihemReranking(MaihemEvaluator):
         documents: list[str]
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
-        return {"reranked_chunks": result}
+        return {"reranked_documents": result}
 
 
 class MaihemFiltering(MaihemEvaluator):
@@ -263,7 +261,7 @@ class MaihemFiltering(MaihemEvaluator):
         - documents: list[str]  # List of documents to filter
 
     Output Format:
-        filtered_chunks: list[str]  # Filtered documents
+        filtered_documents: list[str]  # Filtered documents
     """
 
     NAME = "document_filtering"
@@ -273,7 +271,7 @@ class MaihemFiltering(MaihemEvaluator):
         documents: list[str]
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
-        return {"filtered_chunks": result}
+        return {"filtered_documents": result}
 
 
 class MaihemFinalAnswer(MaihemEvaluator):
