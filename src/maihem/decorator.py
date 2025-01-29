@@ -67,9 +67,7 @@ def observe(
                             input_payload = evaluator.map_inputs(**bound_args.arguments)
                         else:
                             input_payload = dict(bound_args.arguments)
-                        span.set_attribute(
-                            "input_payload", str(json.dumps(input_payload))
-                        )
+                        span.set_attribute("input_payload", json.dumps(input_payload))
 
                         result = await func(*args, **kwargs)
 
@@ -78,9 +76,7 @@ def observe(
                             output_payload = evaluator.map_outputs(result)
                         else:
                             output_payload = result
-                        span.set_attribute(
-                            "output_payload", str(json.dumps(output_payload))
-                        )
+                        span.set_attribute("output_payload", json.dumps(output_payload))
 
                         return result
                     except Exception as e:

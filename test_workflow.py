@@ -116,7 +116,7 @@ async def generate_message(query: str) -> str:
 
 if __name__ == "__main__":
     #### MONITORING
-    asyncio.run(generate_message("What is six times lol"))
+    # asyncio.run(generate_message("What is six times lol"))
 
     #### TESTING
     setattr(generate_message, "conversation_id", "c_01jjm9yr56fe0vckf989vecn1a")
