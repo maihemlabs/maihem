@@ -4,6 +4,7 @@ from maihem.utils.utils import validate_attributes_testing
 from typing import Optional, Callable, Any
 import inspect
 from functools import wraps
+import json
 
 
 def observe(
@@ -66,7 +67,9 @@ def observe(
                             input_payload = evaluator.map_inputs(**bound_args.arguments)
                         else:
                             input_payload = dict(bound_args.arguments)
-                        span.set_attribute("input_payload", repr(input_payload))
+                        span.set_attribute(
+                            "input_payload", str(json.dumps(input_payload))
+                        )
 
                         result = await func(*args, **kwargs)
 
@@ -75,7 +78,9 @@ def observe(
                             output_payload = evaluator.map_outputs(result)
                         else:
                             output_payload = result
-                        span.set_attribute("output_payload", repr(output_payload))
+                        span.set_attribute(
+                            "output_payload", str(json.dumps(output_payload))
+                        )
 
                         return result
                     except Exception as e:
