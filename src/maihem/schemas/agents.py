@@ -5,6 +5,7 @@ from enum import Enum
 import os
 from pydantic_extra_types.language_code import LanguageAlpha2
 from typing import Callable, Optional, Tuple, List, Dict
+import json
 
 import maihem.errors as errors
 from maihem.logger import get_logger
@@ -87,13 +88,48 @@ class TargetAgent(BaseModel):
         conversation_id: str,
         message: Optional[str] = "",
         conversation_history: Dict = {},
+        test_run_id: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
             errors.raise_wrapper_function_error("Target agent wrapper function not set")
         for retry in range(3):
             try:
+                if True:  # TODO FOR TESTING ONLY
+                    data = {
+                        "query": message,
+                        "maihem_ids": {
+                            "conversation_id": conversation_id,
+                            "conversation_message_id": "MOCKMOCKMOCK",
+                            "agent_target_id": self.id,
+                            "test_run_id": test_run_id,
+                        },
+                    }
+                    message_with_ids = json.dumps(data)
+                    print(message_with_ids + "\n")
+                else:
+                    setattr(
+                        self._wrapper_function,
+                        "conversation_id",
+                        conversation_id,
+                    )
+                    setattr(
+                        self._wrapper_function,
+                        "conversation_message_id",
+                        "MOCKMOCKMOCK",
+                    )
+                    setattr(
+                        self._wrapper_function,
+                        "agent_target_id",
+                        self.id,
+                    )
+                    setattr(
+                        self._wrapper_function,
+                        "test_run_id",
+                        test_run_id,
+                    )
+                    setattr(self._wrapper_function, "testing", True)
                 response, contexts = self._wrapper_function(
-                    conversation_id, message, conversation_history
+                    conversation_id, message_with_ids or message, conversation_history
                 )
                 return response, contexts
             except Exception as e:

@@ -638,7 +638,7 @@ class Maihem(Client):
                 agent_maihem_message.content if agent_maihem_message else None
             )
             target_agent_message, contexts = target_agent._send_message(
-                conversation_id, agent_maihem_message, conversation_history
+                conversation_id, agent_maihem_message, conversation_history, test_run_id
             )
         except Exception as e:
             errors.raise_wrapper_function_error(

@@ -1,6 +1,6 @@
 from maihem.evaluators import MaihemEvaluator
 from maihem.otel_client import Tracer, trace
-from maihem.utils.utils import validate_attributes_testing
+from maihem.utils.utils import validate_attributes_testing, extract_ids_from_query
 from typing import Optional, Callable, Any
 import inspect
 from functools import wraps
@@ -67,6 +67,36 @@ def observe(
                             input_payload = evaluator.map_inputs(**bound_args.arguments)
                         else:
                             input_payload = dict(bound_args.arguments)
+                        if "query" in input_payload.keys():
+                            clean_query, ids = extract_ids_from_query(
+                                input_payload["query"]
+                            )
+
+                            for key, value in ids.items():
+                                span.set_attribute(key, value)
+
+                            # now we can replace the clean query in the input_payload and in args
+
+                            # Convert args tuple to list for modification
+                            args_list = list(args)
+                            for i, arg in enumerate(args_list):
+                                if arg == input_payload["query"]:
+                                    args_list[i] = clean_query
+
+                            # Convert back to tuple
+                            args = tuple(args_list)
+
+                            # look for kwarg name in eval mapping
+                            arg_name = None
+                            for k, v in evaluator.input_mapping.items():
+                                if v == "query":
+                                    arg_name = k
+
+                            if arg_name and arg_name in kwargs.keys():
+                                kwargs[arg_name] = clean_query
+
+                            input_payload["query"] = clean_query
+
                         span.set_attribute(
                             "input_payload", str(json.dumps(input_payload))
                         )
@@ -119,21 +149,34 @@ def observe(
                             span.set_status(trace.status.Status(trace.StatusCode.ERROR))
                             raise
 
-                        monitoring_attrs = {
-                            "agent_target_id": getattr(
-                                sync_wrapper, "agent_target_id", None
-                            ),
-                            "test_run_id": getattr(sync_wrapper, "test_run_id", None),
-                            "workflow_name": workflow_name,
-                            "conversation_id": getattr(
-                                sync_wrapper, "conversation_id", None
-                            ),
-                            "conversation_message_id": getattr(
-                                sync_wrapper, "message_id", None
-                            ),
-                            "external_conversation_id": external_conversation_id,
-                            "external_conversation_message_id": external_conversation_message_id,
-                        }
+                        # OVER the air parsing
+                        if (
+                            type(args[0]) is str
+                            and json.loads(args[0])
+                            and json.loads(args[0]).get("test_run_id", False)
+                        ):
+                            monitoring_attrs = json.loads(args[0])
+                            args = list(args)
+                            args[0] = monitoring_attrs.pop("content")
+                            args = tuple(args)
+                        else:
+                            monitoring_attrs = {
+                                "agent_target_id": getattr(
+                                    sync_wrapper, "agent_target_id", None
+                                ),
+                                "test_run_id": getattr(
+                                    sync_wrapper, "test_run_id", None
+                                ),
+                                "workflow_name": workflow_name,
+                                "conversation_id": getattr(
+                                    sync_wrapper, "conversation_id", None
+                                ),
+                                "conversation_message_id": getattr(
+                                    sync_wrapper, "message_id", None
+                                ),
+                                "external_conversation_id": external_conversation_id,
+                                "external_conversation_message_id": external_conversation_message_id,
+                            }
                         for key, value in monitoring_attrs.items():
                             if value is not None:
                                 span.set_attribute(key, value)

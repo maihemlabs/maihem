@@ -99,22 +99,38 @@ async def answer(question: str, context: list[str]) -> str:  # Different paramet
         inputs=MaihemQA.Inputs(query="user_input"),
     ),
 )
-async def generate_message(query: str) -> str:
+async def generate_message(user_input: str) -> str:
     ####### NOTE THIS
     maihem.set_attribute("external_conversation_id", "convconvconv")
     ###################
-
-    intent = await intent_recognition(user_input=query)
-    entities = await name_entity_recognition(text=query)
-    rephrased_query = await rephrase_query(input_text=query)
+    print("QUERY:\t", str(user_input))
+    intent = await intent_recognition(user_input=user_input)
+    entities = await name_entity_recognition(text=user_input)
+    rephrased_query = await rephrase_query(input_text=user_input)
     retrieval_results = await retrieval(search_query=rephrased_query)
     reranking_results = await reranking(docs=retrieval_results["documents"])
     filtered_results = await filtering(documents=reranking_results)
     result = await answer(question=rephrased_query, context=filtered_results)
+    print(result)
     return result
 
 
 if __name__ == "__main__":
+    #### DEBUG with json
+    import json
+
+    data = {
+        "query": "What is six times lol",
+        "maihem_ids": {
+            "conversation_id": "c_01j8t83j5cfd0ryaf2t7m48bcn",
+            "conversation_message_id": "cm_01j8t83q8nfets2cfstw3c94q5",
+            "agent_target_id": "at_01j8t818wae9hs9xhcjbt66shv",
+            "test_run_id": "tr_01j8t7vg9xf46rjs71yw6k2n66",
+        },
+    }
+    asyncio.run(generate_message(json.dumps(data)))  # test args
+    asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
+
     #### MONITORING
     asyncio.run(generate_message("What is six times lol"))
 

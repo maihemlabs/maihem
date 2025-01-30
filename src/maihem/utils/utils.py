@@ -1,6 +1,7 @@
 import importlib.util
 import os
-from typing import List, Callable
+from typing import List, Callable, Tuple
+import json
 
 import maihem.errors as errors
 from maihem.logger import get_logger
@@ -98,3 +99,23 @@ def validate_attributes_testing(func: Callable) -> None:
     missing_attrs = [attr for attr in required_attrs if not getattr(func, attr, None)]
     if missing_attrs:
         raise ValueError(f"Missing required attributes: {', '.join(missing_attrs)}")
+
+
+def extract_ids_from_query(inputs: dict) -> Tuple[str, dict]:
+    """Extract maihem_ids from a query string containing JSON data.
+
+    Args:
+        inputs: Dictionary containing a 'query' key with JSON string value
+
+    Returns:
+        Tuple containing query and maihem_ids
+    """
+    try:
+        data = json.loads(inputs)
+        if not data:  # Handles None and empty string cases
+            return None, {}
+
+        return data.get("query", None), data.get("maihem_ids", {})
+
+    except json.JSONDecodeError:
+        return inputs, {}

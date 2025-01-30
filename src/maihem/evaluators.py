@@ -118,11 +118,10 @@ class MaihemQA(MaihemEvaluator):
     """
 
     NAME = "question_answering"
-    EXPECTED_INPUTS = {"query", "documents"}
+    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
         query: str
-        documents: list[str]
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
         return {"answer": result}
@@ -203,7 +202,6 @@ class MaihemRetrieval(MaihemEvaluator):
 
     Required Inputs:
         - query: str  # The search query
-        - entities: list[str]  # List of entities to use for retrieval
 
     Output Format:
         documents: list[str]  # Retrieved text chunks
