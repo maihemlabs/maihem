@@ -132,14 +132,14 @@ if __name__ == "__main__":
     asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
 
     #### MONITORING
-    asyncio.run(generate_message("What is six times lol"))
+    # asyncio.run(generate_message("What is six times lol"))
 
     #### TESTING
-    setattr(generate_message, "conversation_id", "c_01j8t83j5cfd0ryaf2t7m48bcn")
+    setattr(generate_message, "conversation_id", "c_01jjm9yr56fe0vckf989vecn1a")
     setattr(
-        generate_message, "conversation_message_id", "cm_01j8t83q8nfets2cfstw3c94q5"
+        generate_message, "conversation_message_id", "cm_01jjm9yyehe6rsxvtz1nz509f9"
     )
-    setattr(generate_message, "agent_target_id", "at_01j8t818wae9hs9xhcjbt66shv")
-    setattr(generate_message, "test_run_id", "tr_01j8t7vg9xf46rjs71yw6k2n66")
+    setattr(generate_message, "agent_target_id", "at_01j9q95r56eng9daxt85nyfhca")
+    setattr(generate_message, "test_run_id", "tr_01jjm9yr3tfmrtxmxx0dfdbfcr")
     setattr(generate_message, "testing", True)
     asyncio.run(generate_message("What is six times nine"))

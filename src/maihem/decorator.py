@@ -4,7 +4,7 @@ from maihem.utils.utils import validate_attributes_testing, extract_ids_from_que
 from typing import Optional, Callable, Any
 import inspect
 from functools import wraps
-import json
+import orjson as json
 
 
 def observe(
@@ -97,9 +97,7 @@ def observe(
 
                             input_payload["query"] = clean_query
 
-                        span.set_attribute(
-                            "input_payload", str(json.dumps(input_payload))
-                        )
+                        span.set_attribute("input_payload", json.dumps(input_payload))
 
                         result = await func(*args, **kwargs)
 
@@ -108,9 +106,7 @@ def observe(
                             output_payload = evaluator.map_outputs(result)
                         else:
                             output_payload = result
-                        span.set_attribute(
-                            "output_payload", str(json.dumps(output_payload))
-                        )
+                        span.set_attribute("output_payload", json.dumps(output_payload))
 
                         return result
                     except Exception as e:
