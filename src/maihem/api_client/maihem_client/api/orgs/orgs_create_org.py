@@ -34,27 +34,27 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[ErrorResponse, Org]]:
-    if response.status_code == 201:
+    if response.status_code == HTTPStatus.CREATED:
         response_201 = Org.from_dict(response.json())
 
         return response_201
-    if response.status_code == 400:
+    if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == 409:
+    if response.status_code == HTTPStatus.CONFLICT:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == 422:
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == 500:
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == 504:
+    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504

@@ -5,24 +5,24 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-T = TypeVar("T", bound="VTestResultMetricReviewAudit")
+T = TypeVar("T", bound="VEvaluationReviewAudit")
 
 
 @_attrs_define
-class VTestResultMetricReviewAudit:
+class VEvaluationReviewAudit:
     """
     Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        test_result_metric_id (str):
+        evaluation_id (str):
         action (str):
         event (str):
         actioned_by (str):
         actioned_at (datetime.datetime):
         content (Union[None, str]):
-        trm_entity_type (str):
-        trm_entity_id (str):
+        evl_entity_type (str):
+        evl_entity_id (str):
         actioned_by_first_name (str):
         actioned_by_last_name (str):
         actioned_by_image_url (Union[None, str]):
@@ -34,14 +34,14 @@ class VTestResultMetricReviewAudit:
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    test_result_metric_id: str
+    evaluation_id: str
     action: str
     event: str
     actioned_by: str
     actioned_at: datetime.datetime
     content: Union[None, str]
-    trm_entity_type: str
-    trm_entity_id: str
+    evl_entity_type: str
+    evl_entity_id: str
     actioned_by_first_name: str
     actioned_by_last_name: str
     actioned_by_image_url: Union[None, str]
@@ -57,7 +57,7 @@ class VTestResultMetricReviewAudit:
 
         updated_at = self.updated_at.isoformat()
 
-        test_result_metric_id = self.test_result_metric_id
+        evaluation_id = self.evaluation_id
 
         action = self.action
 
@@ -70,9 +70,9 @@ class VTestResultMetricReviewAudit:
         content: Union[None, str]
         content = self.content
 
-        trm_entity_type = self.trm_entity_type
+        evl_entity_type = self.evl_entity_type
 
-        trm_entity_id = self.trm_entity_id
+        evl_entity_id = self.evl_entity_id
 
         actioned_by_first_name = self.actioned_by_first_name
 
@@ -94,14 +94,14 @@ class VTestResultMetricReviewAudit:
                 "id": id,
                 "created_at": created_at,
                 "updated_at": updated_at,
-                "test_result_metric_id": test_result_metric_id,
+                "evaluation_id": evaluation_id,
                 "action": action,
                 "event": event,
                 "actioned_by": actioned_by,
                 "actioned_at": actioned_at,
                 "content": content,
-                "trm_entity_type": trm_entity_type,
-                "trm_entity_id": trm_entity_id,
+                "evl_entity_type": evl_entity_type,
+                "evl_entity_id": evl_entity_id,
                 "actioned_by_first_name": actioned_by_first_name,
                 "actioned_by_last_name": actioned_by_last_name,
                 "actioned_by_image_url": actioned_by_image_url,
@@ -122,7 +122,7 @@ class VTestResultMetricReviewAudit:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        test_result_metric_id = d.pop("test_result_metric_id")
+        evaluation_id = d.pop("evaluation_id")
 
         action = d.pop("action")
 
@@ -139,9 +139,9 @@ class VTestResultMetricReviewAudit:
 
         content = _parse_content(d.pop("content"))
 
-        trm_entity_type = d.pop("trm_entity_type")
+        evl_entity_type = d.pop("evl_entity_type")
 
-        trm_entity_id = d.pop("trm_entity_id")
+        evl_entity_id = d.pop("evl_entity_id")
 
         actioned_by_first_name = d.pop("actioned_by_first_name")
 
@@ -160,18 +160,18 @@ class VTestResultMetricReviewAudit:
 
         metric_id = d.pop("metric_id")
 
-        v_test_result_metric_review_audit = cls(
+        v_evaluation_review_audit = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
-            test_result_metric_id=test_result_metric_id,
+            evaluation_id=evaluation_id,
             action=action,
             event=event,
             actioned_by=actioned_by,
             actioned_at=actioned_at,
             content=content,
-            trm_entity_type=trm_entity_type,
-            trm_entity_id=trm_entity_id,
+            evl_entity_type=evl_entity_type,
+            evl_entity_id=evl_entity_id,
             actioned_by_first_name=actioned_by_first_name,
             actioned_by_last_name=actioned_by_last_name,
             actioned_by_image_url=actioned_by_image_url,
@@ -180,8 +180,8 @@ class VTestResultMetricReviewAudit:
             metric_id=metric_id,
         )
 
-        v_test_result_metric_review_audit.additional_properties = d
-        return v_test_result_metric_review_audit
+        v_evaluation_review_audit.additional_properties = d
+        return v_evaluation_review_audit
 
     @property
     def additional_keys(self) -> List[str]:

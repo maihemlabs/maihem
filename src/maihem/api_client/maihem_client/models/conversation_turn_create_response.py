@@ -18,10 +18,12 @@ class ConversationTurnCreateResponse:
     Attributes:
         conversation (ConversationNested):
         turn_id (Union[None, Unset, str]):
+        pending_target_message_id (Union[None, Unset, str]):
     """
 
     conversation: "ConversationNested"
     turn_id: Union[None, Unset, str] = UNSET
+    pending_target_message_id: Union[None, Unset, str] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
@@ -33,6 +35,12 @@ class ConversationTurnCreateResponse:
         else:
             turn_id = self.turn_id
 
+        pending_target_message_id: Union[None, Unset, str]
+        if isinstance(self.pending_target_message_id, Unset):
+            pending_target_message_id = UNSET
+        else:
+            pending_target_message_id = self.pending_target_message_id
+
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -42,6 +50,8 @@ class ConversationTurnCreateResponse:
         )
         if turn_id is not UNSET:
             field_dict["turn_id"] = turn_id
+        if pending_target_message_id is not UNSET:
+            field_dict["pending_target_message_id"] = pending_target_message_id
 
         return field_dict
 
@@ -61,9 +71,19 @@ class ConversationTurnCreateResponse:
 
         turn_id = _parse_turn_id(d.pop("turn_id", UNSET))
 
+        def _parse_pending_target_message_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        pending_target_message_id = _parse_pending_target_message_id(d.pop("pending_target_message_id", UNSET))
+
         conversation_turn_create_response = cls(
             conversation=conversation,
             turn_id=turn_id,
+            pending_target_message_id=pending_target_message_id,
         )
 
         conversation_turn_create_response.additional_properties = d

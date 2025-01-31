@@ -9,6 +9,7 @@ class ErrorCodes(str, Enum):
     ERR_REQUEST_TIMEOUT = "err_request_timeout"
     ERR_REQUEST_VALIDATION = "err_request_validation"
     ERR_SCHEMA_VALIDATION = "err_schema_validation"
+    ERR_WORKFLOW_PROCESSING = "err_workflow_processing"
 
     def __str__(self) -> str:
         return str(self.value)

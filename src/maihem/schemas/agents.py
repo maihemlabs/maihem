@@ -86,6 +86,7 @@ class TargetAgent(BaseModel):
     def _send_message(
         self,
         conversation_id: str,
+        conversation_message_id: str,
         message: Optional[str] = "",
         conversation_history: Dict = {},
         test_run_id: Optional[str] = None,
@@ -99,7 +100,7 @@ class TargetAgent(BaseModel):
                         "query": message,
                         "maihem_ids": {
                             "conversation_id": conversation_id,
-                            "conversation_message_id": "MOCKMOCKMOCK",
+                            "conversation_message_id": conversation_message_id,
                             "test_run_id": test_run_id,
                         },
                     }
@@ -114,7 +115,7 @@ class TargetAgent(BaseModel):
                     setattr(
                         self._wrapper_function,
                         "conversation_message_id",
-                        "MOCKMOCKMOCK",
+                        conversation_message_id,
                     )
                     setattr(
                         self._wrapper_function,

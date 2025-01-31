@@ -33,10 +33,10 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[Any, HTTPValidationError]]:
-    if response.status_code == 201:
+    if response.status_code == HTTPStatus.CREATED:
         response_201 = response.json()
         return response_201
-    if response.status_code == 422:
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = HTTPValidationError.from_dict(response.json())
 
         return response_422

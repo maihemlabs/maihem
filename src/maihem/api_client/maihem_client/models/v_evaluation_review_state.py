@@ -5,25 +5,25 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
-T = TypeVar("T", bound="VTestResultMetricReviewState")
+T = TypeVar("T", bound="VEvaluationReviewState")
 
 
 @_attrs_define
-class VTestResultMetricReviewState:
+class VEvaluationReviewState:
     """
     Attributes:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        test_result_metric_id (str):
+        evaluation_id (str):
         is_result_reviewed (bool):
         is_flagged_internal (bool):
         is_flagged_customer (bool):
         result_reviewed_by (Union[None, str]):
         flagged_internal_by (Union[None, str]):
         flagged_customer_by (Union[None, str]):
-        trm_entity_type (str):
-        trm_entity_id (str):
+        evl_entity_type (str):
+        evl_entity_id (str):
         result_reviewed_by_first_name (Union[None, str]):
         result_reviewed_by_last_name (Union[None, str]):
         flagged_internal_by_first_name (Union[None, str]):
@@ -38,15 +38,15 @@ class VTestResultMetricReviewState:
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    test_result_metric_id: str
+    evaluation_id: str
     is_result_reviewed: bool
     is_flagged_internal: bool
     is_flagged_customer: bool
     result_reviewed_by: Union[None, str]
     flagged_internal_by: Union[None, str]
     flagged_customer_by: Union[None, str]
-    trm_entity_type: str
-    trm_entity_id: str
+    evl_entity_type: str
+    evl_entity_id: str
     result_reviewed_by_first_name: Union[None, str]
     result_reviewed_by_last_name: Union[None, str]
     flagged_internal_by_first_name: Union[None, str]
@@ -65,7 +65,7 @@ class VTestResultMetricReviewState:
 
         updated_at = self.updated_at.isoformat()
 
-        test_result_metric_id = self.test_result_metric_id
+        evaluation_id = self.evaluation_id
 
         is_result_reviewed = self.is_result_reviewed
 
@@ -82,9 +82,9 @@ class VTestResultMetricReviewState:
         flagged_customer_by: Union[None, str]
         flagged_customer_by = self.flagged_customer_by
 
-        trm_entity_type = self.trm_entity_type
+        evl_entity_type = self.evl_entity_type
 
-        trm_entity_id = self.trm_entity_id
+        evl_entity_id = self.evl_entity_id
 
         result_reviewed_by_first_name: Union[None, str]
         result_reviewed_by_first_name = self.result_reviewed_by_first_name
@@ -117,15 +117,15 @@ class VTestResultMetricReviewState:
                 "id": id,
                 "created_at": created_at,
                 "updated_at": updated_at,
-                "test_result_metric_id": test_result_metric_id,
+                "evaluation_id": evaluation_id,
                 "is_result_reviewed": is_result_reviewed,
                 "is_flagged_internal": is_flagged_internal,
                 "is_flagged_customer": is_flagged_customer,
                 "result_reviewed_by": result_reviewed_by,
                 "flagged_internal_by": flagged_internal_by,
                 "flagged_customer_by": flagged_customer_by,
-                "trm_entity_type": trm_entity_type,
-                "trm_entity_id": trm_entity_id,
+                "evl_entity_type": evl_entity_type,
+                "evl_entity_id": evl_entity_id,
                 "result_reviewed_by_first_name": result_reviewed_by_first_name,
                 "result_reviewed_by_last_name": result_reviewed_by_last_name,
                 "flagged_internal_by_first_name": flagged_internal_by_first_name,
@@ -149,7 +149,7 @@ class VTestResultMetricReviewState:
 
         updated_at = isoparse(d.pop("updated_at"))
 
-        test_result_metric_id = d.pop("test_result_metric_id")
+        evaluation_id = d.pop("evaluation_id")
 
         is_result_reviewed = d.pop("is_result_reviewed")
 
@@ -178,9 +178,9 @@ class VTestResultMetricReviewState:
 
         flagged_customer_by = _parse_flagged_customer_by(d.pop("flagged_customer_by"))
 
-        trm_entity_type = d.pop("trm_entity_type")
+        evl_entity_type = d.pop("evl_entity_type")
 
-        trm_entity_id = d.pop("trm_entity_id")
+        evl_entity_id = d.pop("evl_entity_id")
 
         def _parse_result_reviewed_by_first_name(data: object) -> Union[None, str]:
             if data is None:
@@ -230,19 +230,19 @@ class VTestResultMetricReviewState:
 
         metric_id = d.pop("metric_id")
 
-        v_test_result_metric_review_state = cls(
+        v_evaluation_review_state = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
-            test_result_metric_id=test_result_metric_id,
+            evaluation_id=evaluation_id,
             is_result_reviewed=is_result_reviewed,
             is_flagged_internal=is_flagged_internal,
             is_flagged_customer=is_flagged_customer,
             result_reviewed_by=result_reviewed_by,
             flagged_internal_by=flagged_internal_by,
             flagged_customer_by=flagged_customer_by,
-            trm_entity_type=trm_entity_type,
-            trm_entity_id=trm_entity_id,
+            evl_entity_type=evl_entity_type,
+            evl_entity_id=evl_entity_id,
             result_reviewed_by_first_name=result_reviewed_by_first_name,
             result_reviewed_by_last_name=result_reviewed_by_last_name,
             flagged_internal_by_first_name=flagged_internal_by_first_name,
@@ -254,8 +254,8 @@ class VTestResultMetricReviewState:
             metric_id=metric_id,
         )
 
-        v_test_result_metric_review_state.additional_properties = d
-        return v_test_result_metric_review_state
+        v_evaluation_review_state.additional_properties = d
+        return v_evaluation_review_state
 
     @property
     def additional_keys(self) -> List[str]:

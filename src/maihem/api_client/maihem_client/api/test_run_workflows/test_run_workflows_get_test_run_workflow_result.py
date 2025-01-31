@@ -5,14 +5,15 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.admin_test_result_metric_review_edit_request import AdminTestResultMetricReviewEditRequest
 from ...models.error_response import ErrorResponse
+from ...models.v_test_run_workflow_result import VTestRunWorkflowResult
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
+    test_run_id: str,
+    workflow_id: str,
     *,
-    body: AdminTestResultMetricReviewEditRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -20,14 +21,9 @@ def _get_kwargs(
         headers["x-api-key"] = x_api_key
 
     _kwargs: Dict[str, Any] = {
-        "method": "patch",
-        "url": "/admin/test-result-metrics",
+        "method": "get",
+        "url": f"/test-runs/{test_run_id}/workflows/{workflow_id}/results",
     }
-
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -35,27 +31,28 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, ErrorResponse]]:
-    if response.status_code == 200:
-        response_200 = response.json()
+) -> Optional[Union[ErrorResponse, VTestRunWorkflowResult]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = VTestRunWorkflowResult.from_dict(response.json())
+
         return response_200
-    if response.status_code == 400:
+    if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == 409:
+    if response.status_code == HTTPStatus.CONFLICT:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == 422:
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == 500:
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == 504:
+    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -67,7 +64,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, VTestRunWorkflowResult]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -77,29 +74,32 @@ def _build_response(
 
 
 def sync_detailed(
+    test_run_id: str,
+    workflow_id: str,
     *,
     client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewEditRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[Any, ErrorResponse]]:
-    """Edit evaluation
+) -> Response[Union[ErrorResponse, VTestRunWorkflowResult]]:
+    """Get test run workflow result
 
-     Edit an evaluation
+     Get test run workflow result
 
     Args:
+        test_run_id (str):
+        workflow_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewEditRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse]]
+        Response[Union[ErrorResponse, VTestRunWorkflowResult]]
     """
 
     kwargs = _get_kwargs(
-        body=body,
+        test_run_id=test_run_id,
+        workflow_id=workflow_id,
         x_api_key=x_api_key,
     )
 
@@ -111,58 +111,64 @@ def sync_detailed(
 
 
 def sync(
+    test_run_id: str,
+    workflow_id: str,
     *,
     client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewEditRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[Any, ErrorResponse]]:
-    """Edit evaluation
+) -> Optional[Union[ErrorResponse, VTestRunWorkflowResult]]:
+    """Get test run workflow result
 
-     Edit an evaluation
+     Get test run workflow result
 
     Args:
+        test_run_id (str):
+        workflow_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewEditRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse]
+        Union[ErrorResponse, VTestRunWorkflowResult]
     """
 
     return sync_detailed(
+        test_run_id=test_run_id,
+        workflow_id=workflow_id,
         client=client,
-        body=body,
         x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
+    test_run_id: str,
+    workflow_id: str,
     *,
     client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewEditRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[Any, ErrorResponse]]:
-    """Edit evaluation
+) -> Response[Union[ErrorResponse, VTestRunWorkflowResult]]:
+    """Get test run workflow result
 
-     Edit an evaluation
+     Get test run workflow result
 
     Args:
+        test_run_id (str):
+        workflow_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewEditRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse]]
+        Response[Union[ErrorResponse, VTestRunWorkflowResult]]
     """
 
     kwargs = _get_kwargs(
-        body=body,
+        test_run_id=test_run_id,
+        workflow_id=workflow_id,
         x_api_key=x_api_key,
     )
 
@@ -172,31 +178,34 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    test_run_id: str,
+    workflow_id: str,
     *,
     client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewEditRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[Any, ErrorResponse]]:
-    """Edit evaluation
+) -> Optional[Union[ErrorResponse, VTestRunWorkflowResult]]:
+    """Get test run workflow result
 
-     Edit an evaluation
+     Get test run workflow result
 
     Args:
+        test_run_id (str):
+        workflow_id (str):
         x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewEditRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse]
+        Union[ErrorResponse, VTestRunWorkflowResult]
     """
 
     return (
         await asyncio_detailed(
+            test_run_id=test_run_id,
+            workflow_id=workflow_id,
             client=client,
-            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

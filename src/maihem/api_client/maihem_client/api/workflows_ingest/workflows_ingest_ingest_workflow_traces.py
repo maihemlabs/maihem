@@ -5,57 +5,44 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.admin_test_result_metric_review_create_request import AdminTestResultMetricReviewCreateRequest
 from ...models.error_response import ErrorResponse
-from ...types import UNSET, Response, Unset
+from ...models.ingest_workflow_trace_response import IngestWorkflowTraceResponse
+from ...types import Response
 
 
-def _get_kwargs(
-    *,
-    body: AdminTestResultMetricReviewCreateRequest,
-    x_api_key: Union[None, Unset, str] = UNSET,
-) -> Dict[str, Any]:
-    headers: Dict[str, Any] = {}
-    if not isinstance(x_api_key, Unset):
-        headers["x-api-key"] = x_api_key
-
+def _get_kwargs() -> Dict[str, Any]:
     _kwargs: Dict[str, Any] = {
         "method": "post",
-        "url": "/admin/test-result-metrics/reviews",
+        "url": "/workflows/ingest/v1/traces",
     }
 
-    _body = body.to_dict()
-
-    _kwargs["json"] = _body
-    headers["Content-Type"] = "application/json"
-
-    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[Any, ErrorResponse]]:
-    if response.status_code == 201:
-        response_201 = response.json()
-        return response_201
-    if response.status_code == 400:
+) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+    if response.status_code == HTTPStatus.OK:
+        response_200 = IngestWorkflowTraceResponse.from_dict(response.json())
+
+        return response_200
+    if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == 409:
+    if response.status_code == HTTPStatus.CONFLICT:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == 422:
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == 500:
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == 504:
+    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -67,7 +54,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[Any, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -78,30 +65,21 @@ def _build_response(
 
 def sync_detailed(
     *,
-    client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewCreateRequest,
-    x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[Any, ErrorResponse]]:
-    """Create an evaluation review
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+    """Ingest workflow OTLP traces
 
-     Create an evaluation review
-
-    Args:
-        x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewCreateRequest):
+     Ingest workflow OTLP traces
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse]]
+        Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        x_api_key=x_api_key,
-    )
+    kwargs = _get_kwargs()
 
     response = client.get_httpx_client().request(
         **kwargs,
@@ -112,59 +90,42 @@ def sync_detailed(
 
 def sync(
     *,
-    client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewCreateRequest,
-    x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[Any, ErrorResponse]]:
-    """Create an evaluation review
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+    """Ingest workflow OTLP traces
 
-     Create an evaluation review
-
-    Args:
-        x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewCreateRequest):
+     Ingest workflow OTLP traces
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse]
+        Union[ErrorResponse, IngestWorkflowTraceResponse]
     """
 
     return sync_detailed(
         client=client,
-        body=body,
-        x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
     *,
-    client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewCreateRequest,
-    x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[Any, ErrorResponse]]:
-    """Create an evaluation review
+    client: Union[AuthenticatedClient, Client],
+) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+    """Ingest workflow OTLP traces
 
-     Create an evaluation review
-
-    Args:
-        x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewCreateRequest):
+     Ingest workflow OTLP traces
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[Any, ErrorResponse]]
+        Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]
     """
 
-    kwargs = _get_kwargs(
-        body=body,
-        x_api_key=x_api_key,
-    )
+    kwargs = _get_kwargs()
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -173,30 +134,22 @@ async def asyncio_detailed(
 
 async def asyncio(
     *,
-    client: AuthenticatedClient,
-    body: AdminTestResultMetricReviewCreateRequest,
-    x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[Any, ErrorResponse]]:
-    """Create an evaluation review
+    client: Union[AuthenticatedClient, Client],
+) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+    """Ingest workflow OTLP traces
 
-     Create an evaluation review
-
-    Args:
-        x_api_key (Union[None, Unset, str]):
-        body (AdminTestResultMetricReviewCreateRequest):
+     Ingest workflow OTLP traces
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[Any, ErrorResponse]
+        Union[ErrorResponse, IngestWorkflowTraceResponse]
     """
 
     return (
         await asyncio_detailed(
             client=client,
-            body=body,
-            x_api_key=x_api_key,
         )
     ).parsed

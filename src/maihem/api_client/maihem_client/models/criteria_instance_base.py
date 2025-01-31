@@ -1,7 +1,9 @@
-from typing import Any, Dict, List, Type, TypeVar
+from typing import Any, Dict, List, Type, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="CriteriaInstanceBase")
 
@@ -12,16 +14,24 @@ class CriteriaInstanceBase:
     Attributes:
         instances (int):
         conversations (int):
+        score_impact (Union[None, Unset, float]):
     """
 
     instances: int
     conversations: int
+    score_impact: Union[None, Unset, float] = UNSET
     additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> Dict[str, Any]:
         instances = self.instances
 
         conversations = self.conversations
+
+        score_impact: Union[None, Unset, float]
+        if isinstance(self.score_impact, Unset):
+            score_impact = UNSET
+        else:
+            score_impact = self.score_impact
 
         field_dict: Dict[str, Any] = {}
         field_dict.update(self.additional_properties)
@@ -31,6 +41,8 @@ class CriteriaInstanceBase:
                 "conversations": conversations,
             }
         )
+        if score_impact is not UNSET:
+            field_dict["score_impact"] = score_impact
 
         return field_dict
 
@@ -41,9 +53,19 @@ class CriteriaInstanceBase:
 
         conversations = d.pop("conversations")
 
+        def _parse_score_impact(data: object) -> Union[None, Unset, float]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, float], data)
+
+        score_impact = _parse_score_impact(d.pop("score_impact", UNSET))
+
         criteria_instance_base = cls(
             instances=instances,
             conversations=conversations,
+            score_impact=score_impact,
         )
 
         criteria_instance_base.additional_properties = d

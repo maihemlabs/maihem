@@ -6,7 +6,7 @@ import httpx
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.v_test_result_metric_review_state import VTestResultMetricReviewState
+from ...models.v_evaluation_review_audit import VEvaluationReviewAudit
 from ...types import UNSET, Response, Unset
 
 
@@ -22,7 +22,7 @@ def _get_kwargs(
 
     _kwargs: Dict[str, Any] = {
         "method": "get",
-        "url": f"/admin/test-runs/{test_run_id}/metrics/{metric_id}/test-result-metrics/reviews/states",
+        "url": f"/admin/test-runs/{test_run_id}/metrics/{metric_id}/evaluations/reviews/audits",
     }
 
     _kwargs["headers"] = headers
@@ -31,33 +31,33 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
-    if response.status_code == 200:
+) -> Optional[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
+    if response.status_code == HTTPStatus.OK:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
-            response_200_item = VTestResultMetricReviewState.from_dict(response_200_item_data)
+            response_200_item = VEvaluationReviewAudit.from_dict(response_200_item_data)
 
             response_200.append(response_200_item)
 
         return response_200
-    if response.status_code == 400:
+    if response.status_code == HTTPStatus.BAD_REQUEST:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == 409:
+    if response.status_code == HTTPStatus.CONFLICT:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == 422:
+    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == 500:
+    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == 504:
+    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -69,7 +69,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
+) -> Response[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -84,10 +84,10 @@ def sync_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
-    """Get evaluation review states
+) -> Response[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
+    """Get evaluation review audit history
 
-     Get evaluation review states
+     Get evaluation review audit history
 
     Args:
         test_run_id (str):
@@ -99,7 +99,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestResultMetricReviewState']]]
+        Response[Union[ErrorResponse, List['VEvaluationReviewAudit']]]
     """
 
     kwargs = _get_kwargs(
@@ -121,10 +121,10 @@ def sync(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
-    """Get evaluation review states
+) -> Optional[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
+    """Get evaluation review audit history
 
-     Get evaluation review states
+     Get evaluation review audit history
 
     Args:
         test_run_id (str):
@@ -136,7 +136,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestResultMetricReviewState']]
+        Union[ErrorResponse, List['VEvaluationReviewAudit']]
     """
 
     return sync_detailed(
@@ -153,10 +153,10 @@ async def asyncio_detailed(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
-    """Get evaluation review states
+) -> Response[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
+    """Get evaluation review audit history
 
-     Get evaluation review states
+     Get evaluation review audit history
 
     Args:
         test_run_id (str):
@@ -168,7 +168,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestResultMetricReviewState']]]
+        Response[Union[ErrorResponse, List['VEvaluationReviewAudit']]]
     """
 
     kwargs = _get_kwargs(
@@ -188,10 +188,10 @@ async def asyncio(
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestResultMetricReviewState"]]]:
-    """Get evaluation review states
+) -> Optional[Union[ErrorResponse, List["VEvaluationReviewAudit"]]]:
+    """Get evaluation review audit history
 
-     Get evaluation review states
+     Get evaluation review audit history
 
     Args:
         test_run_id (str):
@@ -203,7 +203,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestResultMetricReviewState']]
+        Union[ErrorResponse, List['VEvaluationReviewAudit']]
     """
 
     return (

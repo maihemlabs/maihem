@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class TestResultMetricFeedbackFeedback(str, Enum):
+class EvaluationFeedbackCreateRequestFeedback(str, Enum):
     NEGATIVE = "negative"
     POSITIVE = "positive"
 

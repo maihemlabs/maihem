@@ -566,6 +566,7 @@ class Maihem(Client):
         previous_turn_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
         agent_maihem_message = None
+        turn_resp = None
 
         conversation = self.get_conversation(conversation_id)
 
@@ -609,7 +610,6 @@ class Maihem(Client):
             test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
         ):
-
             turn_resp = self._generate_conversation_turn(
                 test_run_id=test_run_id,
                 conversation_id=conversation_id,
@@ -678,6 +678,7 @@ class Maihem(Client):
 
             return ConversationTurnCreateResponse(
                 turn_id=resp.turn_id,
+                pending_target_message_id=resp.pending_target_message_id,
                 conversation=resp.conversation,
             )
         except ValidationError as e:
