@@ -22,19 +22,20 @@ def wrapper_function(
     url = "http://localhost:5005/generate"
     headers = {"Content-Type": "application/json"}
     data = {"query": maihem_agent_message}
+    print(maihem_agent_message)
     response = requests.post(url, headers=headers, json=data)
     print(response.json()["response"])
     response.raise_for_status()  # Raises an HTTPError for bad responses (4xx, 5xx)
 
     return response.json()["response"], []
 
+    # maihem_client.create_target_agent(
+    #     name="target-deco",
+    #     # label="label",
+    #     role="Airbnb customer support agent",
+    #     description="Airbnb customer support agent that can help with questions about the platform",
+    # )
 
-# maihem_client.create_target_agent(
-#     name="target-deco",
-#     # label="label",
-#     role="Airbnb customer support agent",
-#     description="Airbnb customer support agent that can help with questions about the platform",
-# )
 
 test_name = "test_local_rag" + str(datetime.now().strftime("%Y%m%d_%H%M%S"))
 

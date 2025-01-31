@@ -70,17 +70,25 @@ async def retrieval(search_query: str) -> dict:  # Different parameter names
 
 
 @maihem.observe(
-    evaluator=MaihemReranking(inputs=MaihemReranking.Inputs(documents="docs"))
+    evaluator=MaihemReranking(
+        inputs=MaihemReranking.Inputs(query="query", documents="docs")
+    )
 )
-async def reranking(docs: list[str]) -> list[str]:  # Different parameter name
+async def reranking(
+    query: str, docs: list[str]
+) -> list[str]:  # Different parameter name
     random.shuffle(docs)
     return docs
 
 
 @maihem.observe(
-    evaluator=MaihemFiltering(inputs=MaihemFiltering.Inputs(documents="documents"))
+    evaluator=MaihemFiltering(
+        inputs=MaihemFiltering.Inputs(query="query", documents="documents")
+    )
 )
-async def filtering(documents: list[str]) -> list[str]:  # Different parameter name
+async def filtering(
+    query: str, documents: list[str]
+) -> list[str]:  # Different parameter name
     return [x for x in documents if "42" in x]
 
 
@@ -94,7 +102,7 @@ async def answer(question: str, context: list[str]) -> str:  # Different paramet
 
 
 @maihem.observe(
-    workflow_name="workflow_v1",
+    agent_target="target-deco",
     evaluator=MaihemQA(
         inputs=MaihemQA.Inputs(query="user_input"),
     ),
@@ -103,15 +111,17 @@ async def generate_message(user_input: str) -> str:
     ####### NOTE THIS
     maihem.set_attribute("external_conversation_id", "convconvconv")
     ###################
-    print("QUERY:\t", str(user_input))
     intent = await intent_recognition(user_input=user_input)
     entities = await name_entity_recognition(text=user_input)
     rephrased_query = await rephrase_query(input_text=user_input)
     retrieval_results = await retrieval(search_query=rephrased_query)
-    reranking_results = await reranking(docs=retrieval_results["documents"])
-    filtered_results = await filtering(documents=reranking_results)
+    reranking_results = await reranking(
+        query=rephrased_query, docs=retrieval_results["documents"]
+    )
+    filtered_results = await filtering(
+        query=rephrased_query, documents=reranking_results
+    )
     result = await answer(question=rephrased_query, context=filtered_results)
-    print(result)
     return result
 
 
@@ -120,26 +130,25 @@ if __name__ == "__main__":
     import json
 
     data = {
-        "query": "What is six times lol",
+        "query": "What is six times nine",
         "maihem_ids": {
-            "conversation_id": "c_01j8t83j5cfd0ryaf2t7m48bcn",
-            "conversation_message_id": "cm_01j8t83q8nfets2cfstw3c94q5",
-            "agent_target_id": "at_01j8t818wae9hs9xhcjbt66shv",
-            "test_run_id": "tr_01j8t7vg9xf46rjs71yw6k2n66",
+            "conversation_id": "c_01jjvtme0jfz6rwt3xkq6ccjfj",
+            "conversation_message_id": "cm_01jjvtmjvdfrvr5b6zsj0e4k7y",
+            "test_run_id": "tr_01jjvtkvg6f289gn8ttcz31xww",
         },
     }
     asyncio.run(generate_message(json.dumps(data)))  # test args
     asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
 
-    #### MONITORING
-    # asyncio.run(generate_message("What is six times lol"))
+    ### MONITORING
+    asyncio.run(generate_message("What is six times lol"))
 
     #### TESTING
-    setattr(generate_message, "conversation_id", "c_01jjm9yr56fe0vckf989vecn1a")
+    setattr(generate_message, "conversation_id", "c_01jjvtme0jfz6rwt3xkq6ccjfj")
     setattr(
-        generate_message, "conversation_message_id", "cm_01jjm9yyehe6rsxvtz1nz509f9"
+        generate_message, "conversation_message_id", "cm_01jjvtmjvdfrvr5b6zsj0e4k7y"
     )
-    setattr(generate_message, "agent_target_id", "at_01j9q95r56eng9daxt85nyfhca")
-    setattr(generate_message, "test_run_id", "tr_01jjm9yr3tfmrtxmxx0dfdbfcr")
+    setattr(generate_message, "agent_target_id", "at_01jjvkfq37ewtrathzx1k07zvw")
+    setattr(generate_message, "test_run_id", "tr_01jjvtkvg6f289gn8ttcz31xww")
     setattr(generate_message, "testing", True)
     asyncio.run(generate_message("What is six times nine"))

@@ -236,6 +236,7 @@ class MaihemReranking(MaihemEvaluator):
     """Document reranking connector.
 
     Required Inputs:
+        - query: str  # The search query
         - documents: list[str]  # List of documents to rerank
 
     Output Format:
@@ -243,9 +244,10 @@ class MaihemReranking(MaihemEvaluator):
     """
 
     NAME = "document_reranking"
-    EXPECTED_INPUTS = {"documents"}
+    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
+        query: str
         documents: list[str]
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
@@ -256,6 +258,7 @@ class MaihemFiltering(MaihemEvaluator):
     """Document filtering connector.
 
     Required Inputs:
+        - query: str  # The search query
         - documents: list[str]  # List of documents to filter
 
     Output Format:
@@ -263,9 +266,10 @@ class MaihemFiltering(MaihemEvaluator):
     """
 
     NAME = "document_filtering"
-    EXPECTED_INPUTS = {"documents"}
+    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
+        query: str
         documents: list[str]
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:

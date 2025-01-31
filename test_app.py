@@ -17,6 +17,7 @@ async def generate():
             return jsonify({"error": "Query is required"}), 400
 
         # Run the generate_message function
+        print(query)
         result = await generate_message(query)
 
         return jsonify({"response": result})

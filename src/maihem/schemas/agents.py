@@ -100,7 +100,6 @@ class TargetAgent(BaseModel):
                         "maihem_ids": {
                             "conversation_id": conversation_id,
                             "conversation_message_id": "MOCKMOCKMOCK",
-                            "agent_target_id": self.id,
                             "test_run_id": test_run_id,
                         },
                     }
