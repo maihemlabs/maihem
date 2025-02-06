@@ -9,6 +9,19 @@ from maihem.api_client.maihem_client.models.agent_target_create_request import (
 from maihem.api_client.maihem_client.models.agent_target import (
     AgentTarget,
 )
+from maihem.api_client.maihem_client.models.dataset_create_request import (
+    DatasetCreateRequest,
+)
+from maihem.api_client.maihem_client.models.dataset import Dataset
+from maihem.api_client.maihem_client.models.dataset_item_create_item_request import (
+    DatasetItemCreateItemRequest,
+)
+from maihem.api_client.maihem_client.models.dataset_items_create_response import (
+    DatasetItemsCreateResponse,
+)
+from maihem.api_client.maihem_client.models.test_dataset_create_request import (
+    TestDatasetCreateRequest,
+)
 from maihem.api_client.maihem_client.models.test_create_request import (
     TestCreateRequest,
 )
@@ -22,11 +35,21 @@ from maihem.api_client.maihem_client.models.test_run_results_conversations impor
     TestRunResultsConversations,
 )
 from maihem.api_client.maihem_client.api.tests import tests_create_test
+from maihem.api_client.maihem_client.api.datasets import (
+    datasets_create_dataset,
+    datasets_create_dataset_item,
+    datasets_get_datasets,
+)
 from maihem.api_client.maihem_client.api.tests import (
     tests_create_test_run,
     tests_get_tests,
     tests_get_test_test_runs,
+    tests_add_dataset_to_test,
 )
+from maihem.api_client.maihem_client.api.agents import (
+    agents_get_target_agent_workflows,
+)
+from maihem.api_client.maihem_client.models.v_workflow import VWorkflow
 from maihem.api_client.maihem_client.models.conversation_nested import (
     ConversationNested,
 )
@@ -53,8 +76,10 @@ from maihem.api_client.maihem_client.api.conversations import (
     conversations_get_conversation,
 )
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
-from maihem.api_client.maihem_client.api.agents import agents_create_agent_target
-from maihem.api_client.maihem_client.api.agents import agents_get_agent_targets
+from maihem.api_client.maihem_client.api.agents import (
+    agents_create_agent_target,
+    agents_get_agent_targets,
+)
 
 from maihem.errors import handle_http_errors, ErrorResponse
 from maihem.schemas.tests import TestStatusEnum
@@ -96,6 +121,12 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return wrapper
 
+    def _return_validated_response(self, response: Response):
+        if response.status_code != 200 and response.status_code != 201:
+            error_dict = json.loads(response.content)
+            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return response.parsed
+
     def create_agent_target(self, req: AgentTargetCreateRequest) -> AgentTarget:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[AgentTarget] = self._retry(
@@ -106,13 +137,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 body=req,
             )
 
-        if response.status_code != 201:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
-    def get_agent_target_by_name(self, name: str) -> AgentTarget:
-
+    def get_agent_targets_by_name(self, name: str) -> List[AgentTarget]:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[List[AgentTarget]] = self._retry(
                 agents_get_agent_targets.sync_detailed
@@ -122,11 +149,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 name=name,
             )
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-
-        return response.parsed[0]
+        return self._return_validated_response(response)
 
     def create_test(self, req: TestCreateRequest) -> Test:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -136,13 +159,9 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 body=req,
             )
 
-        if response.status_code != 201:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+        return self._return_validated_response(response)
 
-        return response.parsed
-
-    def get_test_by_name(self, name: str) -> Test:
+    def get_tests_by_name(self, name: str) -> Test:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[List[Test]] = self._retry(tests_get_tests.sync_detailed)(
                 client=client,
@@ -150,11 +169,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 name=name,
             )
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-
-        return response.parsed[0]
+        return self._return_validated_response(response)
 
     def create_test_run(self, test_id: str, req: CreateTestRunRequest) -> TestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -167,10 +182,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 body=req,
             )
 
-        if response.status_code != 201:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def update_test_run_status(
         self, test_run_id: str, status: TestStatusEnum
@@ -185,10 +197,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 body=TestRunStatusUpdateRequest(status=status),
             )
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def create_conversation_turn(
         self,
@@ -214,10 +223,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 body=req,
             )
 
-        if response.status_code != 201:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def get_conversation(self, conversation_id: str) -> ConversationNested:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -229,10 +235,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 conversation_id=conversation_id,
             )
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def get_test_run(self, test_run_id: str) -> TestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -240,10 +243,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 test_runs_get_test_run.sync_detailed
             )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def get_test_test_runs(self, test_id: str, test_run_name: str) -> List[TestRun]:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -256,10 +256,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 name=test_run_name,
             )
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     def get_test_run_conversations(
         self, test_run_id: str
@@ -269,10 +266,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 test_runs_get_test_run_conversations.sync_detailed
             )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
 
     # def get_test_run_result(self, name: str) -> TestRunResults:
     #     with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -280,10 +274,7 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
     #             test_runs_get_test_run_result.sync_detailed
     #         )(client=client, x_api_key=self.token, name=name)
 
-    #     if response.status_code != 200:
-    #         error_dict = json.loads(response.content)
-    #         handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-    #     return response.parsed
+    #     return self._return_validated_response(response)
 
     def get_test_run_result(self, test_run_id: str) -> TestRunResultsConversations:
         with MaihemHTTPClient(base_url=self.base_url) as client:
@@ -291,7 +282,62 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 test_runs_get_test_run_result_with_conversations.sync_detailed
             )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
-        if response.status_code != 200:
-            error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
-        return response.parsed
+        return self._return_validated_response(response)
+
+    def create_dataset(self, req: DatasetCreateRequest) -> Dataset:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[Dataset] = self._retry(
+                datasets_create_dataset.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                body=req,
+            )
+
+        return self._return_validated_response(response)
+
+    def create_dataset_items(
+        self, req: DatasetItemCreateItemRequest, dataset_id: str
+    ) -> DatasetItemsCreateResponse:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[DatasetItemsCreateResponse] = self._retry(
+                datasets_create_dataset_item.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                dataset_id=dataset_id,
+                body=req,
+            )
+
+        return self._return_validated_response(response)
+
+    def assign_dataset_to_test(
+        self, test_id: str, req: TestDatasetCreateRequest
+    ) -> DatasetItemsCreateResponse:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[DatasetItemsCreateResponse] = self._retry(
+                tests_add_dataset_to_test.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                test_id=test_id,
+                body=req,
+            )
+
+        return self._return_validated_response(response)
+
+    def get_datasets(self, name: str) -> List[Dataset]:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[List[Dataset]] = self._retry(
+                datasets_get_datasets.sync_detailed
+            )(client=client, x_api_key=self.token, name=name)
+
+        return self._return_validated_response(response)
+
+    def get_workflows(self, agent_target_id: str) -> List[VWorkflow]:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[List[VWorkflow]] = self._retry(
+                agents_get_target_agent_workflows.sync_detailed
+            )(client=client, x_api_key=self.token, agent_target_id=agent_target_id)
+
+        return self._return_validated_response(response)

@@ -29,7 +29,7 @@ def wrapper_function(
 
     return response.json()["response"], []
 
-    # maihem_client.create_target_agent(
+    # maihem_client.add_target_agent(
     #     name="target-deco",
     #     # label="label",
     #     role="Airbnb customer support agent",

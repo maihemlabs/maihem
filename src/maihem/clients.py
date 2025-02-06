@@ -1,3 +1,4 @@
+import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 from typing import Dict, Literal, Optional, List, Callable
@@ -7,7 +8,7 @@ from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
 
-from maihem.modules_map import map_module_list_to_metrics
+from maihem.utils.modules_map import map_module_list_to_metrics
 from maihem.schemas.agents import TargetAgent, AgentType
 from maihem.schemas.tests import (
     Test,
@@ -25,6 +26,12 @@ from maihem.api_client.maihem_client.models.test_create_request import (
 from maihem.api_client.maihem_client.models.test_create_request_metrics_config import (
     TestCreateRequestMetricsConfig,
 )
+from maihem.api_client.maihem_client.models.test_dataset_create_request import (
+    TestDatasetCreateRequest,
+)
+from maihem.api_client.maihem_client.models.test_create_request_entity_type import (
+    TestCreateRequestEntityType,
+)
 from maihem.api_client.maihem_client.models.create_test_run_request import (
     CreateTestRunRequest,
 )
@@ -34,69 +41,37 @@ from maihem.api_client.maihem_client.models.conversation_nested import (
 from maihem.api_client.maihem_client.models.conversation_nested_message import (
     ConversationNestedMessage,
 )
+from maihem.api_client.maihem_client.models.dataset_item_create_item_request import (
+    DatasetItemCreateItemRequest,
+)
+from maihem.api_client.maihem_client.models.dataset_items_create_request import (
+    DatasetItemsCreateRequest,
+)
+from maihem.api_client.maihem_client.models.dataset_items_create_response import (
+    DatasetItemsCreateResponse,
+)
+from maihem.api_client.maihem_client.models.dataset_create_request import (
+    DatasetCreateRequest,
+)
+from maihem.api_client.maihem_client.models.dataset import Dataset
 import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
-from maihem.logger import get_logger
 from maihem.utils.documents import TextSplitter, extract_text, parse_documents
+from maihem.utils.registry import get_function
+from maihem.logger import get_logger
 
 
 class Client:
+
+    _api_key: str = None
     _base_url: str = "https://api.maihem.ai"
     _base_url_ui: str = "https://cause.maihem.ai"
-    _api_key: str = None
-
     _staging_url: str = "https://api.staging.maihem.ai"
     _staging_url_ui: str = "https://cause.staging.maihem.ai"
-
     _local_url: str = "http://localhost:8000"
     _local_url_ui: str = "http://localhost:3000"
 
-    def create_target_agent(
-        self,
-        name: str,
-        role: str,
-        description: str,
-        label: str,
-        language: str,
-    ) -> TargetAgent:
-        pass
-
-    def get_target_agent(self, name: str) -> TargetAgent:
-        # Add implementation here
-        raise NotImplementedError("Method not implemented")
-
-    def create_test(
-        self,
-        name: str,
-        target_agent_name: str,
-        initiating_agent: Literal["maihem", "target"],
-        label: Optional[str] = None,
-        modules: str = None,
-        metrics_config: Dict = None,
-        maihem_agent_behavior_prompt: str = None,
-        maihem_agent_goal_prompt: str = None,
-        maihem_agent_population_prompt: str = None,
-        conversation_turns_max: int = 10,
-        number_conversations: int = 12,
-    ) -> Test:
-        raise NotImplementedError("Method not implemented")
-
-    def run_test(
-        self,
-        name: str,
-        test_name: str,
-        wrapper_function: Callable,
-        label: Optional[str] = None,
-        concurrent_conversations: int = 10,
-    ) -> TestRun:
-        raise NotImplementedError("Method not implemented")
-
-    def get_test_run_result(self, test_name: str, test_run_name: str) -> TestRun:
-        raise NotImplementedError("Method not implemented")
-
-
-class Maihem(Client):
     _maihem_api_client = MaihemHTTPClientSync
 
     def __init__(
@@ -106,6 +81,7 @@ class Maihem(Client):
     ) -> None:
         self._logger = get_logger()
 
+        # Initialize the API client based on the environment
         if env == "production":
             self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
             if not self._api_key:
@@ -133,7 +109,25 @@ class Maihem(Client):
     def _override_base_url_ui(self, base_url_ui: str) -> None:
         self._base_url_ui = base_url_ui
 
-    def create_target_agent(
+    def run_workflow_test(
+        self,
+        name: str,
+        test_name: str,
+        label: Optional[str] = None,
+        concurrent_conversations: int = 10,
+    ) -> TestRun:
+        raise NotImplementedError("Method not implemented")
+
+    def run_step_test(
+        self,
+        name: str,
+        test_name: str,
+        label: Optional[str] = None,
+        concurrent_conversations: int = 10,
+    ) -> TestRun:
+        raise NotImplementedError("Method not implemented")
+
+    def add_target_agent(
         self,
         name: str,
         role: str,
@@ -141,8 +135,9 @@ class Maihem(Client):
         label: Optional[str] = None,
         language: Optional[str] = "en",
     ) -> TargetAgent:
-        logger = get_logger()
-        logger.info(f"Creating target agent '{name}'...")
+        self._logger.info(f"Creating target agent '{name}'...")
+
+        # Create target agent
         resp = None
         try:
             resp = self._maihem_api_client.create_agent_target(
@@ -157,51 +152,99 @@ class Maihem(Client):
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
+        # Validate response
         agent_target = None
-
         try:
             agent_target = TargetAgent.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        logger.info(f"Successfully created target agent '{name}'")
+        self._logger.info(f"Successfully created target agent '{name}'")
         return agent_target
 
     def get_target_agent(self, name: str) -> TargetAgent:
-        resp = None
+        # Get target agent
         try:
-            resp = self._maihem_api_client.get_agent_target_by_name(name=name)
+            target_agents = self._maihem_api_client.get_agent_targets_by_name(name=name)
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
-        agent_target = None
+        # Validate response
+        if not target_agents or len(target_agents) == 0:
+            raise errors.raise_not_found_error(f"Target agent '{name}' not found")
 
+        target_agent = None
         try:
-            agent_target = TargetAgent.model_validate(resp.to_dict())
+            target_agent = TargetAgent.model_validate(target_agents[0].to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        return agent_target
+        return target_agent
 
-    def create_test(
+    def upload_dataset(
+        self,
+        name: str,
+        data: Dict,
+        label: Optional[str] = None,
+    ) -> None:
+        self._logger.info(f"Uploading dataset '{name}'...")
+
+        # Create dataset
+        resp = None
+        try:
+            # Create dataset and get dataset id
+            resp = self._maihem_api_client.create_dataset(
+                req=DatasetCreateRequest(
+                    name=name,
+                    label=label,
+                )
+            )
+
+            # Create dataset items for each item in data
+            dataset_items = []
+            for item in data:
+                dataset_item = DatasetItemCreateItemRequest(
+                    input_payload=json.dumps(item["input_payload"]),
+                    output_payload_expected=json.dumps(item["output_payload_expected"]),
+                )
+                dataset_items.append(dataset_item)
+
+            # Create dataset from dataset items and pass dataset id
+            resp = self._maihem_api_client.create_dataset_items(
+                req=DatasetItemsCreateRequest(
+                    items=dataset_items,
+                ),
+                dataset_id=resp.id,
+            )
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        # Validate response
+        try:
+            dataset = DatasetItemsCreateResponse.from_dict(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
+        self._logger.info(f"Successfully uploaded dataset '{name}'")
+
+    def autogenerate_workflow_test(
         self,
         name: str,
         target_agent_name: str,
         initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
-        modules: Optional[List[str]] = None,
-        metrics_config: Optional[Dict] = None,
         maihem_behavior_prompt: Optional[str] = None,
         maihem_goal_prompt: Optional[str] = None,
         maihem_population_prompt: Optional[str] = None,
         conversation_turns_max: Optional[int] = 4,
         number_conversations: Optional[int] = 10,
         documents_path: Optional[str] = None,
+        modules: Optional[List[str]] = None,
+        metrics_config: Optional[Dict] = None,
     ) -> Test:
-        logger = get_logger()
-        logger.info(f"Creating test '{name}'...")
+        self._logger.info(f"Creating test '{name}'...")
 
-        # Input validation using pattern matching
+        # Get metrics_config from modules if not provided
         match (modules, metrics_config):
             case (None, None):
                 raise ValueError("Either modules or metrics_config must be provided")
@@ -223,6 +266,78 @@ class Maihem(Client):
             case _:
                 raise ValueError("Invalid configuration for modules or metrics_config")
 
+        return self._create_test(
+            name=name,
+            target_agent_name=target_agent_name,
+            initiating_agent=initiating_agent,
+            label=label,
+            maihem_behavior_prompt=maihem_behavior_prompt,
+            maihem_goal_prompt=maihem_goal_prompt,
+            maihem_population_prompt=maihem_population_prompt,
+            conversation_turns_max=conversation_turns_max,
+            number_conversations=number_conversations,
+            documents_path=documents_path,
+            metrics_config=metrics_config,
+        )
+
+    def create_workflow_test(
+        self,
+        name: str,
+        target_agent_name: str,
+        dataset_name: str,
+        initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
+        label: Optional[str] = None,
+    ) -> Test:
+
+        # First create the test
+        test = self._create_test(
+            name,
+            target_agent_name,
+            initiating_agent,
+            label,
+            metrics_config={"qa_cx_helpfulness": 1},  # TODO: change to not needed
+        )
+
+        # Get dataset id from dataset name
+        dataset = self._maihem_api_client.get_datasets(name=dataset_name)
+        if not dataset or len(dataset) == 0:
+            raise errors.raise_not_found_error(
+                f"Dataset '{dataset_name}' does not exist"
+            )
+
+        # Assign dataset to test
+        self._maihem_api_client.assign_dataset_to_test(
+            test_id=test.id, req=TestDatasetCreateRequest(dataset_id=dataset[0].id)
+        )
+
+        return test
+
+    def create_step_test(
+        self,
+        name: str,
+        target_agent_name: str,
+        dataset_name: str,
+        step_name: str,
+        initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
+        label: Optional[str] = None,
+    ) -> Test:
+        raise NotImplementedError("Method not implemented")
+
+    def _create_test(
+        self,
+        name: str,
+        target_agent_name: str,
+        initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
+        label: Optional[str] = None,
+        maihem_behavior_prompt: Optional[str] = None,
+        maihem_goal_prompt: Optional[str] = None,
+        maihem_population_prompt: Optional[str] = None,
+        conversation_turns_max: Optional[int] = 4,
+        number_conversations: Optional[int] = 10,
+        documents_path: Optional[str] = None,
+        metrics_config: Optional[Dict] = None,
+    ) -> Test:
+
         # Convert string initiating_agent to enum if needed
         if isinstance(initiating_agent, str):
             try:
@@ -233,29 +348,36 @@ class Maihem(Client):
                 )
 
         try:
-            target_agent = self._maihem_api_client.get_agent_target_by_name(
-                name=target_agent_name
-            )
-
-            if not target_agent:
-                raise errors.raise_not_found_error(
-                    f"Target agent '{target_agent_name}' not found"
-                )
-
-            if documents_path:
-                documents = parse_documents(documents_path)
-            else:
-                documents = None
-
+            # Create test
             with yaspin(
                 Spinners.arc,
-                text="Creating Test, this might take a minute...",
+                text="Autogenerating test, this might take a minute...",
             ) as _:
+
+                # Parse documents
+                documents = parse_documents(documents_path) if documents_path else None
+                documents = documents if documents else None
+
+                # Get target agent
+                target_agent = self.get_target_agent(name=target_agent_name)
+
+                # Get entity id (workflow id)
+                workflows = self._maihem_api_client.get_workflows(
+                    agent_target_id=target_agent.id
+                )
+                if not workflows or len(workflows) == 0:
+                    raise errors.raise_not_found_error(
+                        f"Workflows for target agent '{target_agent_name}' not found. Please initialize a workflow for this target agent."
+                    )
+                entity_id = workflows[0].id
+
                 metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
                     metrics_config
                 )
                 resp = self._maihem_api_client.create_test(
                     req=TestCreateRequest(
+                        entity_type=TestCreateRequestEntityType.WORKFLOW,
+                        entity_id=entity_id,
                         name=name,
                         label=label,
                         initiating_agent=initiating_agent,
@@ -265,56 +387,108 @@ class Maihem(Client):
                         agent_maihem_goal_prompt=maihem_goal_prompt,
                         agent_maihem_population_prompt=maihem_population_prompt,
                         metrics_config=metrics_config_req,
-                        documents=documents if documents else None,
+                        documents=documents,
                     )
                 )
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
+        # Validate response
         test = None
-
         try:
             test = Test.model_validate(resp.to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
-        logger.info(f"Successfully created test '{name}'")
+        self._logger.info(f"Successfully created test '{name}'")
         return test
 
     def get_test(self, name: str) -> Test:
+        # Get test
         resp = None
         try:
-            resp = self._maihem_api_client.get_test_by_name(name=name)
+            resp = self._maihem_api_client.get_tests_by_name(name=name)
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
 
-        test = None
+        if not resp or len(resp) == 0:
+            raise errors.raise_not_found_error(f"Test '{name}' not found")
 
+        # Validate response
+        test = None
         try:
-            test = Test.model_validate(resp.to_dict())
+            test = Test.model_validate(resp[0].to_dict())
         except ValidationError as e:
             errors.handle_schema_validation_error(e)
 
         return test
 
-    def run_test(
+    def get_test_run_result(self, test_name: str, test_run_name: str) -> ResultTestRun:
+        # Get test
+        try:
+            test = self.get_test(test_name)
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        # Get test runs
+        try:
+            test_runs = self._maihem_api_client.get_test_test_runs(
+                test_id=test.id, test_run_name=test_run_name
+            )
+            if test_runs is None or len(test_runs) == 0:
+                errors.raise_not_found_error(
+                    f"Test run '{test_run_name}' not found for test '{test_name}'"
+                )
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        # Get test run result
+        test_run = None
+        try:
+            test_run_api = self._maihem_api_client.get_test_run_result(
+                test_run_id=test_runs[0].id
+            )
+        except errors.ErrorBase as e:
+            errors.handle_base_error(e)
+
+        # Validate response
+        try:
+            test_run = ResultTestRun(test_run_api=test_run_api)
+        except ValidationError as e:
+            errors.handle_schema_validation_error(e)
+
+        return test_run
+
+
+class Maihem(Client):
+
+    def run_step_test(
         self,
         name: str,
         test_name: str,
-        wrapper_function: Callable,
         label: Optional[str] = None,
         concurrent_conversations: int = 10,
     ) -> ResultTestRun:
-        logger = get_logger()
+        return self.run_workflow_test(name, test_name, label, concurrent_conversations)
+
+    def run_workflow_test(
+        self,
+        name: str,
+        test_name: str,
+        label: Optional[str] = None,
+        concurrent_conversations: int = 10,
+    ) -> ResultTestRun:
+
         test_run = None
         try:
             with yaspin(
                 Spinners.arc,
                 text=f"Preparing test run '{test_name}...",
             ) as _:
-                test = self._maihem_api_client.get_test_by_name(name=test_name)
-                target_agent = self.get_target_agent(name=test.agent_target_name)
-                target_agent.set_wrapper_function(wrapper_function=wrapper_function)
+                test = self.get_test(test_name)
+                # TODO: Get function name
+                target_agent = self.get_target_agent(name=test.)
+                target_agent.set_wrapper_function(get_function(test.function_name))
                 resp = None
 
             try:
@@ -334,16 +508,16 @@ class Maihem(Client):
             except ValidationError as e:
                 errors.handle_schema_validation_error(e)
 
-            test_run_conversations = self.get_test_run_conversations(test_run.id)
+            test_run_conversations = self._get_test_run_conversations(test_run.id)
             conversation_ids = test_run_conversations.conversation_ids
 
-            logger.info(f"Starting test run '{test.name}'")
+            self._logger.info(f"Starting test run '{test.name}'")
             print("\n" + "-" * 50 + "\n")
-            logger.info(
+            self._logger.info(
                 f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
             )
-            logger.info(f"Test run ID: {test_run.id}")
-            logger.info(
+            self._logger.info(f"Test run ID: {test_run.id}")
+            self._logger.info(
                 f"Test run results (UI): {self._base_url_ui}/evaluate/test-runs/{test_run.id}"
             )
 
@@ -380,7 +554,7 @@ class Maihem(Client):
                         try:
                             future.result()
                         except errors.ErrorBase as e:
-                            logger.error(
+                            self._logger.error(
                                 f"Error running conversation ({conversation_id}): {e.message}"
                             )
                             progress.colour = "red"
@@ -388,30 +562,30 @@ class Maihem(Client):
                             progress.update()
 
             print("\n" + "-" * 50 + "\n")
-            logger.info(f"Test run '{name}' completed")
+            self._logger.info(f"Test run '{name}' completed")
 
             url_results = f"https://cause.maihem.ai/evaluate/test-runs/{test_run.id}"
-            logger.info(f"See test run results: {url_results}")
+            self._logger.info(f"See test run results: {url_results}")
 
             return self.get_test_run_result(test_name=test_name, test_run_name=name)
 
         except KeyboardInterrupt:
-            logger.info("Keyboard interrupt detected. Canceling test...")
+            self._logger.info("Keyboard interrupt detected. Canceling test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
                     test_run_id=test_run.id, status=TestStatusEnum.CANCELED
                 )
-            logger.info("Test run canceled!")
+            self._logger.info("Test run canceled!")
         except errors.ErrorBase as e:
             errors.handle_base_error(e)
         except Exception as e:
-            logger.error(f"Error: {e}. Ending test...")
+            self._logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
                 self._maihem_api_client.update_test_run_status(
                     test_run_id=test_run.id, status=TestStatusEnum.ERROR
                 )
 
-    def get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
+    def _get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
         resp = None
 
         try:
@@ -428,74 +602,7 @@ class Maihem(Client):
 
         return test_run
 
-    def get_test_run_result(self, test_name: str, test_run_name: str) -> ResultTestRun:
-        try:
-            test = self.get_test(test_name)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
-
-        try:
-            test_runs = self._maihem_api_client.get_test_test_runs(
-                test_id=test.id, test_run_name=test_run_name
-            )
-            if test_runs is None or len(test_runs) == 0:
-                errors.raise_not_found_error(
-                    f"Test run '{test_run_name}' not found for test '{test_name}'"
-                )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
-
-        test_run = None
-
-        try:
-            test_run_api = self._maihem_api_client.get_test_run_result(
-                test_run_id=test_runs[0].id
-            )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
-
-        try:
-            test_run = ResultTestRun(test_run_api=test_run_api)
-        except ValidationError as e:
-            errors.handle_schema_validation_error(e)
-
-        return test_run
-
-    # def get_test_run_result_conversations(
-    #     self, test_run_id: str
-    # ) -> TestRunResultConversations:
-    #     resp = None
-    #     test_run = None
-
-    #     try:
-    #         resp = self._maihem_api_client.get_test_run_result_conversations(
-    #             test_run_id
-    #         )
-    #     except errors.ErrorBase as e:
-    #         errors.handle_base_error(e)
-
-    #     try:
-    #         resp_conversations = resp.conversations
-    #         resp_dict = resp.to_dict()
-    #         resp_dict["conversations"] = []
-
-    #         conversation_nesteds: ConversationNested = []
-    #         for conv in resp_conversations:
-    #             conv_dict = conv.to_dict()
-    #             try:
-    #                 conv = ConversationNested.from_dict(conv_dict)
-    #                 conversation_nesteds.append(conv)
-    #             except ValidationError as e:
-    #                 errors.handle_schema_validation_error(e)
-
-    #         test_run = TestRunResultConversations.model_validate(resp_dict)
-    #         test_run.conversations = conversation_nesteds
-    #     except ValidationError as e:
-    #         errors.handle_schema_validation_error(e)
-
-    #     return test_run
-
-    def get_conversation(self, conversation_id: str) -> ConversationNested:
+    def _get_conversation(self, conversation_id: str) -> ConversationNested:
         resp = None
 
         try:
@@ -568,12 +675,10 @@ class Maihem(Client):
         agent_maihem_message = None
         turn_resp = None
 
-        conversation = self.get_conversation(conversation_id)
+        conversation = self._get_conversation(conversation_id)
 
         document_key = None
         text = None
-
-        logger = get_logger()
 
         # Document loading and chunking (for RAG)
         if target_agent.document_paths:
@@ -596,13 +701,13 @@ class Maihem(Client):
                     if text.strip():
                         break
                 except Exception as e:
-                    logger.warning(
+                    self._logger.warning(
                         f"Error processing document {document_key}: {str(e)}"
                     )
                 attempts += 1
 
             if attempts == max_attempts:
-                logger.warning(
+                self._logger.warning(
                     "Max attempts reached while trying to select a valid document chunk."
                 )
 
