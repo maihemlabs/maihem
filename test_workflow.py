@@ -13,7 +13,7 @@ import asyncio
 import random
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemIntent(
         inputs=MaihemIntent.Inputs(query="user_input"),
         output_fn=lambda x: x["intent"],  # Extract intent from the returned dict
@@ -30,19 +30,19 @@ async def intent_recognition(
     }
 
 
-@maihem.observe(evaluator=MaihemNER(inputs=MaihemNER.Inputs(query="text")))
+@maihem.workflow_step(evaluator=MaihemNER(inputs=MaihemNER.Inputs(query="text")))
 async def name_entity_recognition(text: str) -> list[str]:  # Different parameter name
     return ["Paris", "France"]
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemRephrasing(inputs=MaihemRephrasing.Inputs(query="input_text"))
 )
 async def rephrase_query(input_text: str) -> str:  # Different parameter name
     return input_text + "?"
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemRetrieval(
         inputs=MaihemRetrieval.Inputs(query="search_query"),
         output_fn=lambda x: x["documents"],  # Extract just the documents
@@ -69,7 +69,7 @@ async def retrieval(search_query: str) -> dict:  # Different parameter names
     }
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemReranking(
         inputs=MaihemReranking.Inputs(query="query", documents="docs")
     )
@@ -81,7 +81,7 @@ async def reranking(
     return docs
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemFiltering(
         inputs=MaihemFiltering.Inputs(query="query", documents="documents")
     )
@@ -92,7 +92,7 @@ async def filtering(
     return [x for x in documents if "42" in x]
 
 
-@maihem.observe(
+@maihem.workflow_step(
     evaluator=MaihemFinalAnswer(
         inputs=MaihemFinalAnswer.Inputs(query="question", documents="context")
     )
@@ -101,7 +101,7 @@ async def answer(question: str, context: list[str]) -> str:  # Different paramet
     return "42"
 
 
-@maihem.observe(
+@maihem.workflow(
     agent_target="target-deco",
     evaluator=MaihemQA(
         inputs=MaihemQA.Inputs(query="user_input"),
@@ -127,18 +127,18 @@ async def generate_message(user_input: str) -> str:
 
 if __name__ == "__main__":
     #### DEBUG with json
-    import json
+    # import json
 
-    data = {
-        "query": "What is six times nine",
-        "maihem_ids": {
-            "conversation_id": "c_01jjvtme0jfz6rwt3xkq6ccjfj",
-            "conversation_message_id": "cm_01jjvtmjvdfrvr5b6zsj0e4k7y",
-            "test_run_id": "tr_01jjvtkvg6f289gn8ttcz31xww",
-        },
-    }
-    asyncio.run(generate_message(json.dumps(data)))  # test args
-    asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
+    # data = {
+    #     "query": "What is six times nine",
+    #     "maihem_ids": {
+    #         "conversation_id": "c_01jjvtme0jfz6rwt3xkq6ccjfj",
+    #         "conversation_message_id": "cm_01jjvtmjvdfrvr5b6zsj0e4k7y",
+    #         "test_run_id": "tr_01jjvtkvg6f289gn8ttcz31xww",
+    #     },
+    # }
+    # asyncio.run(generate_message(json.dumps(data)))  # test args
+    # asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
 
     ### MONITORING
     asyncio.run(generate_message("What is six times lol"))

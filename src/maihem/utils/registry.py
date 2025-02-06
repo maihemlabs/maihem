@@ -4,7 +4,7 @@ function_registry = {}
 
 
 def register_function(function: Callable, function_name: Optional[str] = None) -> None:
-    function_name_dict = function.__name__ if not function_name else function_name
+    function_name_dict = function_name or function.__name__
     function_registry[function_name_dict] = function
 
 

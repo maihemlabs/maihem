@@ -106,6 +106,34 @@ class MaihemEvaluator(ABC):
         """Transform the return value to a standardized format."""
         pass
 
+    def _generate_function_wrapper(self) -> Callable:
+        args_str = ", ".join(
+            f"{k}: {str(v.__name__)}" for k, v in self.Inputs.__annotations__.items()
+        )
+        required_inputs = "\n\t".join(
+            f"- {k}: {str(v.__name__)}" for k, v in self.Inputs.__annotations__.items()
+        )
+        params = ", ".join(f"{k}" for k, v in self.Inputs.__annotations__.items())
+        return f"""
+###### {self.NAME} Wrapper ######
+
+# Add imports here
+# import my_{self.NAME}
+
+
+def {self.NAME}_wrapper({args_str}):
+    \"""
+    Wrapper for {self.NAME} step, fill in the code to call the decorated function.
+
+    Required Inputs:
+        {required_inputs}
+    \"""
+    
+    ##### YOUR CODE HERE #####
+    # my_{self.NAME}({params})
+
+"""
+
 
 class MaihemQA(MaihemEvaluator):
     """Question answering connector.
