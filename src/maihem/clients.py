@@ -58,7 +58,6 @@ import maihem.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.utils.documents import TextSplitter, extract_text, parse_documents
-from maihem.utils.registry import get_function
 from maihem.logger import get_logger
 
 
@@ -351,7 +350,7 @@ class Client:
             # Create test
             with yaspin(
                 Spinners.arc,
-                text="Autogenerating test, this might take a minute...",
+                text="Creating test, this might take a minute...",
             ) as _:
 
                 # Parse documents
@@ -485,10 +484,23 @@ class Maihem(Client):
                 Spinners.arc,
                 text=f"Preparing test run '{test_name}...",
             ) as _:
+                # Get all necessary information and objects
                 test = self.get_test(test_name)
-                # TODO: Get function name
-                target_agent = self.get_target_agent(name=test.)
-                target_agent.set_wrapper_function(get_function(test.function_name))
+                target_agent_api = self._maihem_api_client.get_agent_target(
+                    agent_target_id=test.agent_target_id
+                )
+                target_agent = self.get_target_agent(name=target_agent_api.name)
+                workflows = self._maihem_api_client.get_workflows(
+                    agent_target_id=target_agent_api.id
+                )
+                if not workflows or len(workflows) == 0:
+                    raise errors.raise_not_found_error(
+                        f"Workflows for target agent '{target_agent.name}' not found. Please initialize a workflow for this target agent."
+                    )
+                workflow = workflows[0]
+
+                # Set wrapper function to be called
+                target_agent.set_wrapper_function(workflow.name)
                 resp = None
 
             try:
@@ -742,13 +754,21 @@ class Maihem(Client):
             agent_maihem_message = (
                 agent_maihem_message.content if agent_maihem_message else None
             )
-            target_agent_message, contexts = target_agent._send_message(
+            # target_agent_message, contexts = target_agent._call_workflow(
+            #     conversation_id=conversation_id,
+            #     conversation_message_id=turn_resp.pending_target_message_id,
+            #     message=agent_maihem_message,
+            #     conversation_history=conversation_history,
+            #     test_run_id=test_run_id,
+            # )
+            target_agent_message = target_agent._call_workflow(
                 conversation_id=conversation_id,
                 conversation_message_id=turn_resp.pending_target_message_id,
                 message=agent_maihem_message,
                 conversation_history=conversation_history,
                 test_run_id=test_run_id,
             )
+            contexts = []  # TODO: remove contexts from all sequence
         except Exception as e:
             errors.raise_wrapper_function_error(
                 f"Error sending message to target agent: {e}"

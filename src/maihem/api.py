@@ -79,6 +79,7 @@ from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
 from maihem.api_client.maihem_client.api.agents import (
     agents_create_agent_target,
     agents_get_agent_targets,
+    agents_get_agent_target,
 )
 
 from maihem.errors import handle_http_errors, ErrorResponse
@@ -147,6 +148,18 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 client=client,
                 x_api_key=self.token,
                 name=name,
+            )
+
+        return self._return_validated_response(response)
+
+    def get_agent_target(self, agent_target_id: str) -> AgentTarget:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[AgentTarget] = self._retry(
+                agents_get_agent_target.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                agent_target_id=agent_target_id,
             )
 
         return self._return_validated_response(response)

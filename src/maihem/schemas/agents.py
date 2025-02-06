@@ -1,12 +1,13 @@
 from datetime import datetime
 from pydantic import BaseModel
-
 from enum import Enum
 import os
 from pydantic_extra_types.language_code import LanguageAlpha2
 from typing import Callable, Optional, Tuple, List, Dict
 import json
+import importlib
 
+from maihem.otel_client import Tracer, trace
 import maihem.errors as errors
 from maihem.logger import get_logger
 
@@ -30,16 +31,34 @@ class TargetAgent(BaseModel):
     language: Optional[LanguageAlpha2] = "en"
 
     _wrapper_function: Optional[Callable] = None
+    _wrapped_function_name: Optional[str] = None
     document_paths: List[str] = []
 
-    def set_wrapper_function(self, wrapper_function: Callable) -> None:
-        is_test_success = self.test_wrapper_function(wrapper_function)
+    def set_wrapper_function(self, workflow_name: str) -> None:
+        """Dynamically imports and sets the wrapper function based on workflow name"""
+        try:
+            # Import the wrappers module
+            wrappers = importlib.import_module("wrappers")
 
-        if is_test_success:
-            self._wrapper_function = wrapper_function
-            logger.info("Wrapper function tested and added successfully")
+            # Get the wrapper function name by prepending 'wrapper_' to workflow name
+            wrapper_func_name = f"wrapper_{workflow_name}"
 
-    def test_wrapper_function(self, wrapper_function: Callable) -> bool:
+            # Get the function from the module
+            if hasattr(wrappers, wrapper_func_name):
+                self._wrapper_function = getattr(wrappers, wrapper_func_name)
+                self._wrapped_function_name = workflow_name
+                logger.info(f"Wrapper function '{wrapper_func_name}' set successfully")
+            else:
+                raise AttributeError(
+                    f"Wrapper function '{wrapper_func_name}' not found in wrappers.py"
+                )
+
+        except ImportError as e:
+            raise ImportError(f"Could not import wrappers module: {str(e)}")
+        except Exception as e:
+            raise Exception(f"Error setting wrapper function: {str(e)}")
+
+    def _test_wrapper_function(self, wrapper_function: Callable) -> bool:
         test_message = "Hi, it's the Maihem agent. Ready for testing?"
         logger.info("Testing wrapper function...")
         logger.info(f"Sending message to target agent: {test_message}")
@@ -83,7 +102,7 @@ class TargetAgent(BaseModel):
             except Exception as e:
                 logger.error(f"Error processing document {doc_path}: {str(e)}")
 
-    def _send_message(
+    def _call_workflow(
         self,
         conversation_id: str,
         conversation_message_id: str,
@@ -95,42 +114,28 @@ class TargetAgent(BaseModel):
             errors.raise_wrapper_function_error("Target agent wrapper function not set")
         for retry in range(3):
             try:
-                if True:  # TODO FOR TESTING ONLY
-                    data = {
-                        "query": message,
-                        "maihem_ids": {
-                            "conversation_id": conversation_id,
-                            "conversation_message_id": conversation_message_id,
-                            "test_run_id": test_run_id,
-                        },
-                    }
-                    message_with_ids = json.dumps(data)
-                    print(message_with_ids + "\n")
-                else:
-                    setattr(
-                        self._wrapper_function,
-                        "conversation_id",
+                data = {
+                    "query": message,
+                    "maihem_ids": {
+                        "conversation_id": conversation_id,
+                        "conversation_message_id": conversation_message_id,
+                        "test_run_id": test_run_id,
+                    },
+                }
+                message_with_ids = json.dumps(data)
+                print(message_with_ids + "\n")
+
+                # setattr(self._wrapper_function, "testing", True)
+
+                tracer = Tracer.get_instance().tracer
+                span_name = self._wrapped_function_name
+
+                with tracer.start_as_current_span(span_name) as span:
+                    response, contexts = self._wrapper_function(
                         conversation_id,
+                        message_with_ids or message,
+                        conversation_history,
                     )
-                    setattr(
-                        self._wrapper_function,
-                        "conversation_message_id",
-                        conversation_message_id,
-                    )
-                    setattr(
-                        self._wrapper_function,
-                        "agent_target_id",
-                        self.id,
-                    )
-                    setattr(
-                        self._wrapper_function,
-                        "test_run_id",
-                        test_run_id,
-                    )
-                    setattr(self._wrapper_function, "testing", True)
-                response, contexts = self._wrapper_function(
-                    conversation_id, message_with_ids or message, conversation_history
-                )
                 return response, contexts
             except Exception as e:
                 if retry < 2:
