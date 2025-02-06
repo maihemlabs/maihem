@@ -1,5 +1,5 @@
 from http import HTTPStatus
-from typing import Any, Dict, Optional, Union
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -14,10 +14,10 @@ from ...types import Response
 def _get_kwargs(
     *,
     body: OrgCreateRequest,
-) -> Dict[str, Any]:
-    headers: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
 
-    _kwargs: Dict[str, Any] = {
+    _kwargs: dict[str, Any] = {
         "method": "post",
         "url": "/orgs",
     }
@@ -34,27 +34,27 @@ def _get_kwargs(
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
 ) -> Optional[Union[ErrorResponse, Org]]:
-    if response.status_code == HTTPStatus.CREATED:
+    if response.status_code == 201:
         response_201 = Org.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504

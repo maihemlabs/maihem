@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -70,9 +70,9 @@ class TestRunResults:
     metric_scores: Union["TestRunResultsMetricScoresType0", None, Unset] = UNSET
     module_scores: Union["TestRunResultsModuleScoresType0", None, Unset] = UNSET
     module_group_scores: Union["TestRunResultsModuleGroupScoresType0", None, Unset] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
         from ..models.test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
@@ -151,7 +151,7 @@ class TestRunResults:
         else:
             result_score_change = self.result_score_change
 
-        links: Union[Dict[str, Any], None, Unset]
+        links: Union[None, Unset, dict[str, Any]]
         if isinstance(self.links, Unset):
             links = UNSET
         elif isinstance(self.links, Links):
@@ -159,7 +159,7 @@ class TestRunResults:
         else:
             links = self.links
 
-        conversation_scores: Union[Dict[str, Any], None, Unset]
+        conversation_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.conversation_scores, Unset):
             conversation_scores = UNSET
         elif isinstance(self.conversation_scores, TestRunConversationScores):
@@ -167,7 +167,7 @@ class TestRunResults:
         else:
             conversation_scores = self.conversation_scores
 
-        metric_scores: Union[Dict[str, Any], None, Unset]
+        metric_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_scores, Unset):
             metric_scores = UNSET
         elif isinstance(self.metric_scores, TestRunResultsMetricScoresType0):
@@ -175,7 +175,7 @@ class TestRunResults:
         else:
             metric_scores = self.metric_scores
 
-        module_scores: Union[Dict[str, Any], None, Unset]
+        module_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.module_scores, Unset):
             module_scores = UNSET
         elif isinstance(self.module_scores, TestRunResultsModuleScoresType0):
@@ -183,7 +183,7 @@ class TestRunResults:
         else:
             module_scores = self.module_scores
 
-        module_group_scores: Union[Dict[str, Any], None, Unset]
+        module_group_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.module_group_scores, Unset):
             module_group_scores = UNSET
         elif isinstance(self.module_group_scores, TestRunResultsModuleGroupScoresType0):
@@ -191,7 +191,7 @@ class TestRunResults:
         else:
             module_group_scores = self.module_group_scores
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -236,7 +236,7 @@ class TestRunResults:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
         from ..models.test_run_results_metric_scores_type_0 import TestRunResultsMetricScoresType0
@@ -472,7 +472,7 @@ class TestRunResults:
         return test_run_results
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

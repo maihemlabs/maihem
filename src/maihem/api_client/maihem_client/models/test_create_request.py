@@ -1,9 +1,10 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
 from ..models.agent_type import AgentType
+from ..models.test_create_request_entity_type import TestCreateRequestEntityType
 from ..types import UNSET, Unset
 
 if TYPE_CHECKING:
@@ -21,30 +22,34 @@ class TestCreateRequest:
         name (str):
         agent_target_id (str):
         metrics_config (TestCreateRequestMetricsConfig):
+        entity_id (str):
         label (Union[None, Unset, str]):
-        initiating_agent (Union[Unset, AgentType]):  Default: AgentType.MAIHEM.
+        initiating_agent (Union[Unset, AgentType]):
         conversation_turns_max (Union[None, Unset, int]):
         agent_maihem_behavior_prompt (Union[None, Unset, str]):
         agent_maihem_goal_prompt (Union[None, Unset, str]):
         agent_maihem_population_prompt (Union[None, Unset, str]):
         documents (Union['TestCreateRequestDocumentsType0', None, Unset]):
         is_dev_mode (Union[None, Unset, bool]):  Default: False.
+        entity_type (Union[Unset, TestCreateRequestEntityType]):  Default: TestCreateRequestEntityType.WORKFLOW.
     """
 
     name: str
     agent_target_id: str
     metrics_config: "TestCreateRequestMetricsConfig"
+    entity_id: str
     label: Union[None, Unset, str] = UNSET
-    initiating_agent: Union[Unset, AgentType] = AgentType.MAIHEM
+    initiating_agent: Union[Unset, AgentType] = UNSET
     conversation_turns_max: Union[None, Unset, int] = UNSET
     agent_maihem_behavior_prompt: Union[None, Unset, str] = UNSET
     agent_maihem_goal_prompt: Union[None, Unset, str] = UNSET
     agent_maihem_population_prompt: Union[None, Unset, str] = UNSET
     documents: Union["TestCreateRequestDocumentsType0", None, Unset] = UNSET
     is_dev_mode: Union[None, Unset, bool] = False
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    entity_type: Union[Unset, TestCreateRequestEntityType] = TestCreateRequestEntityType.WORKFLOW
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.test_create_request_documents_type_0 import TestCreateRequestDocumentsType0
 
         name = self.name
@@ -52,6 +57,8 @@ class TestCreateRequest:
         agent_target_id = self.agent_target_id
 
         metrics_config = self.metrics_config.to_dict()
+
+        entity_id = self.entity_id
 
         label: Union[None, Unset, str]
         if isinstance(self.label, Unset):
@@ -87,7 +94,7 @@ class TestCreateRequest:
         else:
             agent_maihem_population_prompt = self.agent_maihem_population_prompt
 
-        documents: Union[Dict[str, Any], None, Unset]
+        documents: Union[None, Unset, dict[str, Any]]
         if isinstance(self.documents, Unset):
             documents = UNSET
         elif isinstance(self.documents, TestCreateRequestDocumentsType0):
@@ -101,13 +108,18 @@ class TestCreateRequest:
         else:
             is_dev_mode = self.is_dev_mode
 
-        field_dict: Dict[str, Any] = {}
+        entity_type: Union[Unset, str] = UNSET
+        if not isinstance(self.entity_type, Unset):
+            entity_type = self.entity_type.value
+
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "name": name,
                 "agent_target_id": agent_target_id,
                 "metrics_config": metrics_config,
+                "entity_id": entity_id,
             }
         )
         if label is not UNSET:
@@ -126,11 +138,13 @@ class TestCreateRequest:
             field_dict["documents"] = documents
         if is_dev_mode is not UNSET:
             field_dict["is_dev_mode"] = is_dev_mode
+        if entity_type is not UNSET:
+            field_dict["entity_type"] = entity_type
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.test_create_request_documents_type_0 import TestCreateRequestDocumentsType0
         from ..models.test_create_request_metrics_config import TestCreateRequestMetricsConfig
 
@@ -140,6 +154,8 @@ class TestCreateRequest:
         agent_target_id = d.pop("agent_target_id")
 
         metrics_config = TestCreateRequestMetricsConfig.from_dict(d.pop("metrics_config"))
+
+        entity_id = d.pop("entity_id")
 
         def _parse_label(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -221,10 +237,18 @@ class TestCreateRequest:
 
         is_dev_mode = _parse_is_dev_mode(d.pop("is_dev_mode", UNSET))
 
+        _entity_type = d.pop("entity_type", UNSET)
+        entity_type: Union[Unset, TestCreateRequestEntityType]
+        if isinstance(_entity_type, Unset):
+            entity_type = UNSET
+        else:
+            entity_type = TestCreateRequestEntityType(_entity_type)
+
         test_create_request = cls(
             name=name,
             agent_target_id=agent_target_id,
             metrics_config=metrics_config,
+            entity_id=entity_id,
             label=label,
             initiating_agent=initiating_agent,
             conversation_turns_max=conversation_turns_max,
@@ -233,13 +257,14 @@ class TestCreateRequest:
             agent_maihem_population_prompt=agent_maihem_population_prompt,
             documents=documents,
             is_dev_mode=is_dev_mode,
+            entity_type=entity_type,
         )
 
         test_create_request.additional_properties = d
         return test_create_request
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

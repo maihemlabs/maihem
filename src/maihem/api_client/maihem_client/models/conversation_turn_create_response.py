@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,9 +24,9 @@ class ConversationTurnCreateResponse:
     conversation: "ConversationNested"
     turn_id: Union[None, Unset, str] = UNSET
     pending_target_message_id: Union[None, Unset, str] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         conversation = self.conversation.to_dict()
 
         turn_id: Union[None, Unset, str]
@@ -41,7 +41,7 @@ class ConversationTurnCreateResponse:
         else:
             pending_target_message_id = self.pending_target_message_id
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -56,7 +56,7 @@ class ConversationTurnCreateResponse:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested import ConversationNested
 
         d = src_dict.copy()
@@ -90,7 +90,7 @@ class ConversationTurnCreateResponse:
         return conversation_turn_create_response
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

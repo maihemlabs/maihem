@@ -1,11 +1,12 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
 from ..models.agent_type import AgentType
+from ..models.test_entity_type import TestEntityType
 from ..models.test_result_enum import TestResultEnum
 from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
@@ -43,6 +44,8 @@ class Test:
         last_test_run_status (Union[None, TestStatusEnum, Unset]):
         last_test_run_result (Union[None, TestResultEnum, Unset]):
         last_test_run_result_score (Union[None, Unset, float]):
+        entity_type (Union[Unset, TestEntityType]):  Default: TestEntityType.WORKFLOW.
+        entity_id (Union[None, Unset, str]):
     """
 
     id: str
@@ -66,9 +69,11 @@ class Test:
     last_test_run_status: Union[None, TestStatusEnum, Unset] = UNSET
     last_test_run_result: Union[None, TestResultEnum, Unset] = UNSET
     last_test_run_result_score: Union[None, Unset, float] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    entity_type: Union[Unset, TestEntityType] = TestEntityType.WORKFLOW
+    entity_id: Union[None, Unset, str] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.test_documents_type_0 import TestDocumentsType0
 
         id = self.id
@@ -123,7 +128,7 @@ class Test:
         else:
             agent_maihem_population_prompt = self.agent_maihem_population_prompt
 
-        documents: Union[Dict[str, Any], None, Unset]
+        documents: Union[None, Unset, dict[str, Any]]
         if isinstance(self.documents, Unset):
             documents = UNSET
         elif isinstance(self.documents, TestDocumentsType0):
@@ -175,7 +180,17 @@ class Test:
         else:
             last_test_run_result_score = self.last_test_run_result_score
 
-        field_dict: Dict[str, Any] = {}
+        entity_type: Union[Unset, str] = UNSET
+        if not isinstance(self.entity_type, Unset):
+            entity_type = self.entity_type.value
+
+        entity_id: Union[None, Unset, str]
+        if isinstance(self.entity_id, Unset):
+            entity_id = UNSET
+        else:
+            entity_id = self.entity_id
+
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -215,11 +230,15 @@ class Test:
             field_dict["last_test_run_result"] = last_test_run_result
         if last_test_run_result_score is not UNSET:
             field_dict["last_test_run_result_score"] = last_test_run_result_score
+        if entity_type is not UNSET:
+            field_dict["entity_type"] = entity_type
+        if entity_id is not UNSET:
+            field_dict["entity_id"] = entity_id
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.test_documents_type_0 import TestDocumentsType0
         from ..models.test_metrics_config import TestMetricsConfig
 
@@ -399,6 +418,22 @@ class Test:
 
         last_test_run_result_score = _parse_last_test_run_result_score(d.pop("last_test_run_result_score", UNSET))
 
+        _entity_type = d.pop("entity_type", UNSET)
+        entity_type: Union[Unset, TestEntityType]
+        if isinstance(_entity_type, Unset):
+            entity_type = UNSET
+        else:
+            entity_type = TestEntityType(_entity_type)
+
+        def _parse_entity_id(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        entity_id = _parse_entity_id(d.pop("entity_id", UNSET))
+
         test = cls(
             id=id,
             created_at=created_at,
@@ -421,13 +456,15 @@ class Test:
             last_test_run_status=last_test_run_status,
             last_test_run_result=last_test_run_result,
             last_test_run_result_score=last_test_run_result_score,
+            entity_type=entity_type,
+            entity_id=entity_id,
         )
 
         test.additional_properties = d
         return test
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

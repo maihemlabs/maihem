@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -37,9 +37,9 @@ class ConversationNestedEvaluationBase:
     explanation: Union[None, Unset, str] = UNSET
     classification: Union[None, Unset, str] = UNSET
     token_cost: Union["ConversationNestedTokenCostBase", None, Unset] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 
         id: Union[None, Unset, str]
@@ -92,7 +92,7 @@ class ConversationNestedEvaluationBase:
         else:
             classification = self.classification
 
-        token_cost: Union[Dict[str, Any], None, Unset]
+        token_cost: Union[None, Unset, dict[str, Any]]
         if isinstance(self.token_cost, Unset):
             token_cost = UNSET
         elif isinstance(self.token_cost, ConversationNestedTokenCostBase):
@@ -100,7 +100,7 @@ class ConversationNestedEvaluationBase:
         else:
             token_cost = self.token_cost
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update({})
         if id is not UNSET:
@@ -125,7 +125,7 @@ class ConversationNestedEvaluationBase:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_token_cost_base import ConversationNestedTokenCostBase
 
         d = src_dict.copy()
@@ -243,7 +243,7 @@ class ConversationNestedEvaluationBase:
         return conversation_nested_evaluation_base
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

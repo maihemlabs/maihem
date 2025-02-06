@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -17,15 +17,15 @@ class UserProfile:
     Attributes:
         user (User):
         active_org_id (str):
-        orgs (List['Org']):
+        orgs (list['Org']):
     """
 
     user: "User"
     active_org_id: str
-    orgs: List["Org"]
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    orgs: list["Org"]
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         user = self.user.to_dict()
 
         active_org_id = self.active_org_id
@@ -35,7 +35,7 @@ class UserProfile:
             orgs_item = orgs_item_data.to_dict()
             orgs.append(orgs_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -48,7 +48,7 @@ class UserProfile:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.org import Org
         from ..models.user import User
 
@@ -74,7 +74,7 @@ class UserProfile:
         return user_profile
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

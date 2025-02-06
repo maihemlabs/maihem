@@ -1,28 +1,27 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.v_test_run_workflow_step_result import VTestRunWorkflowStepResult
+from ...models.v_workflow import VWorkflow
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    test_run_id: str,
     workflow_id: str,
     *,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Dict[str, Any]:
-    headers: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
         headers["x-api-key"] = x_api_key
 
-    _kwargs: Dict[str, Any] = {
+    _kwargs: dict[str, Any] = {
         "method": "get",
-        "url": f"/test-runs/{test_run_id}/workflows/{workflow_id}/steps/results",
+        "url": f"/workflows/{workflow_id}",
     }
 
     _kwargs["headers"] = headers
@@ -31,33 +30,28 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
-    if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = VTestRunWorkflowStepResult.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+) -> Optional[Union[ErrorResponse, VWorkflow]]:
+    if response.status_code == 200:
+        response_200 = VWorkflow.from_dict(response.json())
 
         return response_200
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -69,7 +63,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
+) -> Response[Union[ErrorResponse, VWorkflow]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -79,18 +73,16 @@ def _build_response(
 
 
 def sync_detailed(
-    test_run_id: str,
     workflow_id: str,
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
-    """Get test run workflow step results
+) -> Response[Union[ErrorResponse, VWorkflow]]:
+    """Get workflow
 
-     Get test run workflow step results
+     Get workflow
 
     Args:
-        test_run_id (str):
         workflow_id (str):
         x_api_key (Union[None, Unset, str]):
 
@@ -99,11 +91,10 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestRunWorkflowStepResult']]]
+        Response[Union[ErrorResponse, VWorkflow]]
     """
 
     kwargs = _get_kwargs(
-        test_run_id=test_run_id,
         workflow_id=workflow_id,
         x_api_key=x_api_key,
     )
@@ -116,18 +107,16 @@ def sync_detailed(
 
 
 def sync(
-    test_run_id: str,
     workflow_id: str,
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
-    """Get test run workflow step results
+) -> Optional[Union[ErrorResponse, VWorkflow]]:
+    """Get workflow
 
-     Get test run workflow step results
+     Get workflow
 
     Args:
-        test_run_id (str):
         workflow_id (str):
         x_api_key (Union[None, Unset, str]):
 
@@ -136,11 +125,10 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestRunWorkflowStepResult']]
+        Union[ErrorResponse, VWorkflow]
     """
 
     return sync_detailed(
-        test_run_id=test_run_id,
         workflow_id=workflow_id,
         client=client,
         x_api_key=x_api_key,
@@ -148,18 +136,16 @@ def sync(
 
 
 async def asyncio_detailed(
-    test_run_id: str,
     workflow_id: str,
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
-    """Get test run workflow step results
+) -> Response[Union[ErrorResponse, VWorkflow]]:
+    """Get workflow
 
-     Get test run workflow step results
+     Get workflow
 
     Args:
-        test_run_id (str):
         workflow_id (str):
         x_api_key (Union[None, Unset, str]):
 
@@ -168,11 +154,10 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestRunWorkflowStepResult']]]
+        Response[Union[ErrorResponse, VWorkflow]]
     """
 
     kwargs = _get_kwargs(
-        test_run_id=test_run_id,
         workflow_id=workflow_id,
         x_api_key=x_api_key,
     )
@@ -183,18 +168,16 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    test_run_id: str,
     workflow_id: str,
     *,
     client: AuthenticatedClient,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowStepResult"]]]:
-    """Get test run workflow step results
+) -> Optional[Union[ErrorResponse, VWorkflow]]:
+    """Get workflow
 
-     Get test run workflow step results
+     Get workflow
 
     Args:
-        test_run_id (str):
         workflow_id (str):
         x_api_key (Union[None, Unset, str]):
 
@@ -203,12 +186,11 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestRunWorkflowStepResult']]
+        Union[ErrorResponse, VWorkflow]
     """
 
     return (
         await asyncio_detailed(
-            test_run_id=test_run_id,
             workflow_id=workflow_id,
             client=client,
             x_api_key=x_api_key,

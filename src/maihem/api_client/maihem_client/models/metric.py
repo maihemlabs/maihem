@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,7 +24,7 @@ class Metric:
         metric (str):
         metric_label (str):
         metric_description (Union[None, Unset, str]):
-        criteria (Union[Unset, List['Criteria']]):
+        criteria (Union[Unset, list['Criteria']]):
     """
 
     id: str
@@ -35,10 +35,10 @@ class Metric:
     metric: str
     metric_label: str
     metric_description: Union[None, Unset, str] = UNSET
-    criteria: Union[Unset, List["Criteria"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    criteria: Union[Unset, list["Criteria"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         metric_group = self.metric_group
@@ -59,14 +59,14 @@ class Metric:
         else:
             metric_description = self.metric_description
 
-        criteria: Union[Unset, List[Dict[str, Any]]] = UNSET
+        criteria: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.criteria, Unset):
             criteria = []
             for criteria_item_data in self.criteria:
                 criteria_item = criteria_item_data.to_dict()
                 criteria.append(criteria_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -87,7 +87,7 @@ class Metric:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.criteria import Criteria
 
         d = src_dict.copy()
@@ -137,7 +137,7 @@ class Metric:
         return metric
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union
+from typing import TYPE_CHECKING, Any, TypeVar, Union
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -22,39 +22,39 @@ class ConversationNestedTurn:
         id (str):
         created_at (datetime.datetime):
         updated_at (datetime.datetime):
-        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
-        conversation_messages (Union[Unset, List['ConversationNestedMessage']]):
+        evaluations (Union[Unset, list['ConversationNestedEvaluation']]):
+        conversation_messages (Union[Unset, list['ConversationNestedMessage']]):
     """
 
     id: str
     created_at: datetime.datetime
     updated_at: datetime.datetime
-    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
-    conversation_messages: Union[Unset, List["ConversationNestedMessage"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    evaluations: Union[Unset, list["ConversationNestedEvaluation"]] = UNSET
+    conversation_messages: Union[Unset, list["ConversationNestedMessage"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         created_at = self.created_at.isoformat()
 
         updated_at = self.updated_at.isoformat()
 
-        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        evaluations: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.evaluations, Unset):
             evaluations = []
             for evaluations_item_data in self.evaluations:
                 evaluations_item = evaluations_item_data.to_dict()
                 evaluations.append(evaluations_item)
 
-        conversation_messages: Union[Unset, List[Dict[str, Any]]] = UNSET
+        conversation_messages: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.conversation_messages, Unset):
             conversation_messages = []
             for conversation_messages_item_data in self.conversation_messages:
                 conversation_messages_item = conversation_messages_item_data.to_dict()
                 conversation_messages.append(conversation_messages_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -71,7 +71,7 @@ class ConversationNestedTurn:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
         from ..models.conversation_nested_message import ConversationNestedMessage
 
@@ -108,7 +108,7 @@ class ConversationNestedTurn:
         return conversation_nested_turn
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

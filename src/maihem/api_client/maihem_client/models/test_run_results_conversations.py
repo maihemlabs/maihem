@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -53,7 +53,7 @@ class TestRunResultsConversations:
         metric_scores (Union['TestRunResultsConversationsMetricScoresType0', None, Unset]):
         module_scores (Union['TestRunResultsConversationsModuleScoresType0', None, Unset]):
         module_group_scores (Union['TestRunResultsConversationsModuleGroupScoresType0', None, Unset]):
-        conversations (Union[Unset, List['ConversationNested']]):
+        conversations (Union[Unset, list['ConversationNested']]):
     """
 
     id: str
@@ -78,10 +78,10 @@ class TestRunResultsConversations:
     metric_scores: Union["TestRunResultsConversationsMetricScoresType0", None, Unset] = UNSET
     module_scores: Union["TestRunResultsConversationsModuleScoresType0", None, Unset] = UNSET
     module_group_scores: Union["TestRunResultsConversationsModuleGroupScoresType0", None, Unset] = UNSET
-    conversations: Union[Unset, List["ConversationNested"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    conversations: Union[Unset, list["ConversationNested"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
         from ..models.test_run_results_conversations_metric_scores_type_0 import (
@@ -166,7 +166,7 @@ class TestRunResultsConversations:
         else:
             result_score_change = self.result_score_change
 
-        links: Union[Dict[str, Any], None, Unset]
+        links: Union[None, Unset, dict[str, Any]]
         if isinstance(self.links, Unset):
             links = UNSET
         elif isinstance(self.links, Links):
@@ -174,7 +174,7 @@ class TestRunResultsConversations:
         else:
             links = self.links
 
-        conversation_scores: Union[Dict[str, Any], None, Unset]
+        conversation_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.conversation_scores, Unset):
             conversation_scores = UNSET
         elif isinstance(self.conversation_scores, TestRunConversationScores):
@@ -182,7 +182,7 @@ class TestRunResultsConversations:
         else:
             conversation_scores = self.conversation_scores
 
-        metric_scores: Union[Dict[str, Any], None, Unset]
+        metric_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.metric_scores, Unset):
             metric_scores = UNSET
         elif isinstance(self.metric_scores, TestRunResultsConversationsMetricScoresType0):
@@ -190,7 +190,7 @@ class TestRunResultsConversations:
         else:
             metric_scores = self.metric_scores
 
-        module_scores: Union[Dict[str, Any], None, Unset]
+        module_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.module_scores, Unset):
             module_scores = UNSET
         elif isinstance(self.module_scores, TestRunResultsConversationsModuleScoresType0):
@@ -198,7 +198,7 @@ class TestRunResultsConversations:
         else:
             module_scores = self.module_scores
 
-        module_group_scores: Union[Dict[str, Any], None, Unset]
+        module_group_scores: Union[None, Unset, dict[str, Any]]
         if isinstance(self.module_group_scores, Unset):
             module_group_scores = UNSET
         elif isinstance(self.module_group_scores, TestRunResultsConversationsModuleGroupScoresType0):
@@ -206,14 +206,14 @@ class TestRunResultsConversations:
         else:
             module_group_scores = self.module_group_scores
 
-        conversations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        conversations: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.conversations, Unset):
             conversations = []
             for conversations_item_data in self.conversations:
                 conversations_item = conversations_item_data.to_dict()
                 conversations.append(conversations_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -260,7 +260,7 @@ class TestRunResultsConversations:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested import ConversationNested
         from ..models.links import Links
         from ..models.test_run_conversation_scores import TestRunConversationScores
@@ -513,7 +513,7 @@ class TestRunResultsConversations:
         return test_run_results_conversations
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

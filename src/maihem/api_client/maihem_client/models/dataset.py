@@ -1,5 +1,5 @@
 import datetime
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -21,10 +21,10 @@ class Dataset:
         description (Union[None, str]):
         source_type (str):
         source_reference (Union[None, str]):
-        dataset_target (str):
-        workflow_step_id (Union[None, str]):
         external_id (Union[None, str]):
         is_deleted (bool):
+        target_type (str):
+        target_id (Union[None, str]):
     """
 
     id: str
@@ -36,13 +36,13 @@ class Dataset:
     description: Union[None, str]
     source_type: str
     source_reference: Union[None, str]
-    dataset_target: str
-    workflow_step_id: Union[None, str]
     external_id: Union[None, str]
     is_deleted: bool
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    target_type: str
+    target_id: Union[None, str]
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         created_at = self.created_at.isoformat()
@@ -64,17 +64,17 @@ class Dataset:
         source_reference: Union[None, str]
         source_reference = self.source_reference
 
-        dataset_target = self.dataset_target
-
-        workflow_step_id: Union[None, str]
-        workflow_step_id = self.workflow_step_id
-
         external_id: Union[None, str]
         external_id = self.external_id
 
         is_deleted = self.is_deleted
 
-        field_dict: Dict[str, Any] = {}
+        target_type = self.target_type
+
+        target_id: Union[None, str]
+        target_id = self.target_id
+
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -87,17 +87,17 @@ class Dataset:
                 "description": description,
                 "source_type": source_type,
                 "source_reference": source_reference,
-                "dataset_target": dataset_target,
-                "workflow_step_id": workflow_step_id,
                 "external_id": external_id,
                 "is_deleted": is_deleted,
+                "target_type": target_type,
+                "target_id": target_id,
             }
         )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
         id = d.pop("id")
 
@@ -132,15 +132,6 @@ class Dataset:
 
         source_reference = _parse_source_reference(d.pop("source_reference"))
 
-        dataset_target = d.pop("dataset_target")
-
-        def _parse_workflow_step_id(data: object) -> Union[None, str]:
-            if data is None:
-                return data
-            return cast(Union[None, str], data)
-
-        workflow_step_id = _parse_workflow_step_id(d.pop("workflow_step_id"))
-
         def _parse_external_id(data: object) -> Union[None, str]:
             if data is None:
                 return data
@@ -149,6 +140,15 @@ class Dataset:
         external_id = _parse_external_id(d.pop("external_id"))
 
         is_deleted = d.pop("is_deleted")
+
+        target_type = d.pop("target_type")
+
+        def _parse_target_id(data: object) -> Union[None, str]:
+            if data is None:
+                return data
+            return cast(Union[None, str], data)
+
+        target_id = _parse_target_id(d.pop("target_id"))
 
         dataset = cls(
             id=id,
@@ -160,17 +160,17 @@ class Dataset:
             description=description,
             source_type=source_type,
             source_reference=source_reference,
-            dataset_target=dataset_target,
-            workflow_step_id=workflow_step_id,
             external_id=external_id,
             is_deleted=is_deleted,
+            target_type=target_type,
+            target_id=target_id,
         )
 
         dataset.additional_properties = d
         return dataset
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

@@ -1,6 +1,6 @@
 import datetime
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import httpx
 
@@ -18,12 +18,12 @@ def _get_kwargs(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Dict[str, Any]:
-    headers: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
         headers["x-api-key"] = x_api_key
 
-    params: Dict[str, Any] = {}
+    params: dict[str, Any] = {}
 
     json_name: Union[None, Unset, str]
     if isinstance(name, Unset):
@@ -50,7 +50,7 @@ def _get_kwargs(
 
     params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
 
-    _kwargs: Dict[str, Any] = {
+    _kwargs: dict[str, Any] = {
         "method": "get",
         "url": f"/tests/{test_id}/test-runs",
         "params": params,
@@ -62,8 +62,8 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["TestRun"]]]:
-    if response.status_code == HTTPStatus.OK:
+) -> Optional[Union[ErrorResponse, list["TestRun"]]]:
+    if response.status_code == 200:
         response_200 = []
         _response_200 = response.json()
         for response_200_item_data in _response_200:
@@ -72,23 +72,23 @@ def _parse_response(
             response_200.append(response_200_item)
 
         return response_200
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -100,7 +100,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["TestRun"]]]:
+) -> Response[Union[ErrorResponse, list["TestRun"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -117,7 +117,7 @@ def sync_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["TestRun"]]]:
+) -> Response[Union[ErrorResponse, list["TestRun"]]]:
     """Get all test runs for a test
 
      Get a list of all test runs for a specified test
@@ -134,7 +134,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['TestRun']]]
+        Response[Union[ErrorResponse, list['TestRun']]]
     """
 
     kwargs = _get_kwargs(
@@ -160,7 +160,7 @@ def sync(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["TestRun"]]]:
+) -> Optional[Union[ErrorResponse, list["TestRun"]]]:
     """Get all test runs for a test
 
      Get a list of all test runs for a specified test
@@ -177,7 +177,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['TestRun']]
+        Union[ErrorResponse, list['TestRun']]
     """
 
     return sync_detailed(
@@ -198,7 +198,7 @@ async def asyncio_detailed(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["TestRun"]]]:
+) -> Response[Union[ErrorResponse, list["TestRun"]]]:
     """Get all test runs for a test
 
      Get a list of all test runs for a specified test
@@ -215,7 +215,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['TestRun']]]
+        Response[Union[ErrorResponse, list['TestRun']]]
     """
 
     kwargs = _get_kwargs(
@@ -239,7 +239,7 @@ async def asyncio(
     before_datetime: Union[None, Unset, datetime.datetime] = UNSET,
     limit: Union[None, Unset, int] = UNSET,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["TestRun"]]]:
+) -> Optional[Union[ErrorResponse, list["TestRun"]]]:
     """Get all test runs for a test
 
      Get a list of all test runs for a specified test
@@ -256,7 +256,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['TestRun']]
+        Union[ErrorResponse, list['TestRun']]
     """
 
     return (

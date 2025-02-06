@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -10,17 +10,17 @@ T = TypeVar("T", bound="ValidationError")
 class ValidationError:
     """
     Attributes:
-        loc (List[Union[int, str]]):
+        loc (list[Union[int, str]]):
         msg (str):
-        type (str):
+        type_ (str):
     """
 
-    loc: List[Union[int, str]]
+    loc: list[Union[int, str]]
     msg: str
-    type: str
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    type_: str
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         loc = []
         for loc_item_data in self.loc:
             loc_item: Union[int, str]
@@ -29,22 +29,22 @@ class ValidationError:
 
         msg = self.msg
 
-        type = self.type
+        type_ = self.type_
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
                 "loc": loc,
                 "msg": msg,
-                "type": type,
+                "type": type_,
             }
         )
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
         loc = []
         _loc = d.pop("loc")
@@ -59,19 +59,19 @@ class ValidationError:
 
         msg = d.pop("msg")
 
-        type = d.pop("type")
+        type_ = d.pop("type")
 
         validation_error = cls(
             loc=loc,
             msg=msg,
-            type=type,
+            type_=type_,
         )
 
         validation_error.additional_properties = d
         return validation_error
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

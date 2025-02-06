@@ -1,8 +1,8 @@
 from enum import Enum
 
 
-class DatasetCreateRequestDatasetTarget(str, Enum):
-    CONVERSATION = "conversation"
+class DatasetCreateRequestTargetType(str, Enum):
+    WORKFLOW = "workflow"
     WORKFLOW_STEP = "workflow_step"
 
     def __str__(self) -> str:
