@@ -1,9 +1,10 @@
+import asyncio
 from datetime import datetime
 from pydantic import BaseModel
 from enum import Enum
 import os
 from pydantic_extra_types.language_code import LanguageAlpha2
-from typing import Callable, Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict, Coroutine
 import json
 import importlib
 
@@ -30,7 +31,7 @@ class TargetAgent(BaseModel):
     industry: Optional[str] = None
     language: Optional[LanguageAlpha2] = "en"
 
-    _wrapper_function: Optional[Callable] = None
+    _wrapper_function: Optional[Coroutine] = None
     _wrapped_function_name: Optional[str] = None
     document_paths: List[str] = []
 
@@ -58,7 +59,7 @@ class TargetAgent(BaseModel):
         except Exception as e:
             raise Exception(f"Error setting wrapper function: {str(e)}")
 
-    def _test_wrapper_function(self, wrapper_function: Callable) -> bool:
+    def _test_wrapper_function(self, wrapper_function: Coroutine) -> bool:
         test_message = "Hi, it's the Maihem agent. Ready for testing?"
         logger.info("Testing wrapper function...")
         logger.info(f"Sending message to target agent: {test_message}")
@@ -126,16 +127,17 @@ class TargetAgent(BaseModel):
                 print(message_with_ids + "\n")
 
                 # setattr(self._wrapper_function, "testing", True)
+                # tracer = Tracer.get_instance().tracer
+                # span_name = self._wrapped_function_name
+                # with tracer.start_as_current_span(span_name) as span:
 
-                tracer = Tracer.get_instance().tracer
-                span_name = self._wrapped_function_name
-
-                with tracer.start_as_current_span(span_name) as span:
-                    response, contexts = self._wrapper_function(
+                response, contexts = asyncio.run(
+                    self._wrapper_function(
                         conversation_id,
                         message_with_ids or message,
                         conversation_history,
                     )
+                )
                 return response, contexts
             except Exception as e:
                 if retry < 2:
@@ -146,3 +148,6 @@ class TargetAgent(BaseModel):
                     errors.raise_wrapper_function_error(
                         f"Error sending message to target agent after 3 retries. Error: {str(e)}"
                     )
+
+    def _call_step(self):
+        pass
