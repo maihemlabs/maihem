@@ -5,7 +5,9 @@ data_e2e = [
             "text": "I want to book a stay in London",
         },
         "conversation_history": [],
-        "output_payload_expected": "OK",
+        "output_payload_expected": {
+            "text": "OK",
+        },
     },
     {
         "input_payload": {
@@ -13,6 +15,8 @@ data_e2e = [
             "text": "I want to book a stay in San Francisco",
         },
         "conversation_history": [],
-        "output_payload_expected": "OK",
+        "output_payload_expected": {
+            "text": "OK",
+        },
     },
 ]
