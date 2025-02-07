@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -38,7 +38,7 @@ class TestRunConversationIDs:
         result_score (Union[None, Unset, float]):
         result_score_change (Union[None, Unset, float]):
         links (Union['Links', None, Unset]):
-        conversation_ids (Union[Unset, List[str]]):
+        conversation_ids (Union[Unset, list[str]]):
     """
 
     id: str
@@ -59,10 +59,10 @@ class TestRunConversationIDs:
     result_score: Union[None, Unset, float] = UNSET
     result_score_change: Union[None, Unset, float] = UNSET
     links: Union["Links", None, Unset] = UNSET
-    conversation_ids: Union[Unset, List[str]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    conversation_ids: Union[Unset, list[str]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.links import Links
 
         id = self.id
@@ -137,7 +137,7 @@ class TestRunConversationIDs:
         else:
             result_score_change = self.result_score_change
 
-        links: Union[Dict[str, Any], None, Unset]
+        links: Union[None, Unset, dict[str, Any]]
         if isinstance(self.links, Unset):
             links = UNSET
         elif isinstance(self.links, Links):
@@ -145,11 +145,11 @@ class TestRunConversationIDs:
         else:
             links = self.links
 
-        conversation_ids: Union[Unset, List[str]] = UNSET
+        conversation_ids: Union[Unset, list[str]] = UNSET
         if not isinstance(self.conversation_ids, Unset):
             conversation_ids = self.conversation_ids
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -188,7 +188,7 @@ class TestRunConversationIDs:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.links import Links
 
         d = src_dict.copy()
@@ -323,7 +323,7 @@ class TestRunConversationIDs:
 
         links = _parse_links(d.pop("links", UNSET))
 
-        conversation_ids = cast(List[str], d.pop("conversation_ids", UNSET))
+        conversation_ids = cast(list[str], d.pop("conversation_ids", UNSET))
 
         test_run_conversation_i_ds = cls(
             id=id,
@@ -351,7 +351,7 @@ class TestRunConversationIDs:
         return test_run_conversation_i_ds
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

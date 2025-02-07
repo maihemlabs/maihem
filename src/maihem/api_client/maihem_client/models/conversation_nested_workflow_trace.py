@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -24,7 +24,7 @@ class ConversationNestedWorkflowTrace:
         completed_at (datetime.datetime):
         created_at (Union[None, Unset, datetime.datetime]):
         updated_at (Union[None, Unset, datetime.datetime]):
-        workflow_spans (Union[Unset, List['ConversationNestedWorkflowSpan']]):
+        workflow_spans (Union[Unset, list['ConversationNestedWorkflowSpan']]):
     """
 
     id: str
@@ -33,10 +33,10 @@ class ConversationNestedWorkflowTrace:
     completed_at: datetime.datetime
     created_at: Union[None, Unset, datetime.datetime] = UNSET
     updated_at: Union[None, Unset, datetime.datetime] = UNSET
-    workflow_spans: Union[Unset, List["ConversationNestedWorkflowSpan"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    workflow_spans: Union[Unset, list["ConversationNestedWorkflowSpan"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         workflow_id = self.workflow_id
@@ -61,14 +61,14 @@ class ConversationNestedWorkflowTrace:
         else:
             updated_at = self.updated_at
 
-        workflow_spans: Union[Unset, List[Dict[str, Any]]] = UNSET
+        workflow_spans: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.workflow_spans, Unset):
             workflow_spans = []
             for workflow_spans_item_data in self.workflow_spans:
                 workflow_spans_item = workflow_spans_item_data.to_dict()
                 workflow_spans.append(workflow_spans_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -88,7 +88,7 @@ class ConversationNestedWorkflowTrace:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_workflow_span import ConversationNestedWorkflowSpan
 
         d = src_dict.copy()
@@ -155,7 +155,7 @@ class ConversationNestedWorkflowTrace:
         return conversation_nested_workflow_trace
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

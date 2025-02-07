@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,9 +26,9 @@ class ConversationNestedWorkflowSpan:
         output_payload (ConversationNestedWorkflowSpanOutputPayload):
         started_at (datetime.datetime):
         completed_at (datetime.datetime):
-        evaluators (Union[Unset, List[str]]):
+        evaluators (Union[Unset, list[str]]):
         parent_span_id (Union[None, Unset, str]):
-        evaluations (Union[Unset, List['ConversationNestedEvaluationBase']]):
+        evaluations (Union[Unset, list['ConversationNestedEvaluationBase']]):
     """
 
     id: str
@@ -37,12 +37,12 @@ class ConversationNestedWorkflowSpan:
     output_payload: "ConversationNestedWorkflowSpanOutputPayload"
     started_at: datetime.datetime
     completed_at: datetime.datetime
-    evaluators: Union[Unset, List[str]] = UNSET
+    evaluators: Union[Unset, list[str]] = UNSET
     parent_span_id: Union[None, Unset, str] = UNSET
-    evaluations: Union[Unset, List["ConversationNestedEvaluationBase"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    evaluations: Union[Unset, list["ConversationNestedEvaluationBase"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         name = self.name
@@ -55,7 +55,7 @@ class ConversationNestedWorkflowSpan:
 
         completed_at = self.completed_at.isoformat()
 
-        evaluators: Union[Unset, List[str]] = UNSET
+        evaluators: Union[Unset, list[str]] = UNSET
         if not isinstance(self.evaluators, Unset):
             evaluators = self.evaluators
 
@@ -65,14 +65,14 @@ class ConversationNestedWorkflowSpan:
         else:
             parent_span_id = self.parent_span_id
 
-        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        evaluations: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.evaluations, Unset):
             evaluations = []
             for evaluations_item_data in self.evaluations:
                 evaluations_item = evaluations_item_data.to_dict()
                 evaluations.append(evaluations_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -94,7 +94,7 @@ class ConversationNestedWorkflowSpan:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_evaluation_base import ConversationNestedEvaluationBase
         from ..models.conversation_nested_workflow_span_input_payload import ConversationNestedWorkflowSpanInputPayload
         from ..models.conversation_nested_workflow_span_output_payload import (
@@ -114,7 +114,7 @@ class ConversationNestedWorkflowSpan:
 
         completed_at = isoparse(d.pop("completed_at"))
 
-        evaluators = cast(List[str], d.pop("evaluators", UNSET))
+        evaluators = cast(list[str], d.pop("evaluators", UNSET))
 
         def _parse_parent_span_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -148,7 +148,7 @@ class ConversationNestedWorkflowSpan:
         return conversation_nested_workflow_span
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

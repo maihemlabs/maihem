@@ -1,30 +1,35 @@
 from http import HTTPStatus
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional, Union
 
 import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
 from ...models.error_response import ErrorResponse
-from ...models.v_test_run_workflow_trace_result import VTestRunWorkflowTraceResult
+from ...models.test_dataset import TestDataset
+from ...models.test_dataset_create_request import TestDatasetCreateRequest
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
-    test_run_id: str,
-    workflow_id: str,
-    conversation_id: str,
+    test_id: str,
     *,
+    body: TestDatasetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Dict[str, Any]:
-    headers: Dict[str, Any] = {}
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
     if not isinstance(x_api_key, Unset):
         headers["x-api-key"] = x_api_key
 
-    _kwargs: Dict[str, Any] = {
-        "method": "get",
-        "url": f"/test-runs/{test_run_id}/workflows/{workflow_id}/conversations/{conversation_id}/results",
+    _kwargs: dict[str, Any] = {
+        "method": "post",
+        "url": f"/tests/{test_id}/datasets",
     }
+
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
 
     _kwargs["headers"] = headers
     return _kwargs
@@ -32,33 +37,28 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
-    if response.status_code == HTTPStatus.OK:
-        response_200 = []
-        _response_200 = response.json()
-        for response_200_item_data in _response_200:
-            response_200_item = VTestRunWorkflowTraceResult.from_dict(response_200_item_data)
-
-            response_200.append(response_200_item)
+) -> Optional[Union[ErrorResponse, TestDataset]]:
+    if response.status_code == 200:
+        response_200 = TestDataset.from_dict(response.json())
 
         return response_200
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -70,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
+) -> Response[Union[ErrorResponse, TestDataset]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,35 +80,32 @@ def _build_response(
 
 
 def sync_detailed(
-    test_run_id: str,
-    workflow_id: str,
-    conversation_id: str,
+    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: TestDatasetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
-    """Get test run workflow step results
+) -> Response[Union[ErrorResponse, TestDataset]]:
+    """Add dataset to test
 
-     Get test run workflow step results
+     Add dataset to test
 
     Args:
-        test_run_id (str):
-        workflow_id (str):
-        conversation_id (str):
+        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (TestDatasetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestRunWorkflowTraceResult']]]
+        Response[Union[ErrorResponse, TestDataset]]
     """
 
     kwargs = _get_kwargs(
-        test_run_id=test_run_id,
-        workflow_id=workflow_id,
-        conversation_id=conversation_id,
+        test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -120,70 +117,64 @@ def sync_detailed(
 
 
 def sync(
-    test_run_id: str,
-    workflow_id: str,
-    conversation_id: str,
+    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: TestDatasetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
-    """Get test run workflow step results
+) -> Optional[Union[ErrorResponse, TestDataset]]:
+    """Add dataset to test
 
-     Get test run workflow step results
+     Add dataset to test
 
     Args:
-        test_run_id (str):
-        workflow_id (str):
-        conversation_id (str):
+        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (TestDatasetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestRunWorkflowTraceResult']]
+        Union[ErrorResponse, TestDataset]
     """
 
     return sync_detailed(
-        test_run_id=test_run_id,
-        workflow_id=workflow_id,
-        conversation_id=conversation_id,
+        test_id=test_id,
         client=client,
+        body=body,
         x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
-    test_run_id: str,
-    workflow_id: str,
-    conversation_id: str,
+    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: TestDatasetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
-    """Get test run workflow step results
+) -> Response[Union[ErrorResponse, TestDataset]]:
+    """Add dataset to test
 
-     Get test run workflow step results
+     Add dataset to test
 
     Args:
-        test_run_id (str):
-        workflow_id (str):
-        conversation_id (str):
+        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (TestDatasetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, List['VTestRunWorkflowTraceResult']]]
+        Response[Union[ErrorResponse, TestDataset]]
     """
 
     kwargs = _get_kwargs(
-        test_run_id=test_run_id,
-        workflow_id=workflow_id,
-        conversation_id=conversation_id,
+        test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -193,37 +184,34 @@ async def asyncio_detailed(
 
 
 async def asyncio(
-    test_run_id: str,
-    workflow_id: str,
-    conversation_id: str,
+    test_id: str,
     *,
     client: AuthenticatedClient,
+    body: TestDatasetCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[ErrorResponse, List["VTestRunWorkflowTraceResult"]]]:
-    """Get test run workflow step results
+) -> Optional[Union[ErrorResponse, TestDataset]]:
+    """Add dataset to test
 
-     Get test run workflow step results
+     Add dataset to test
 
     Args:
-        test_run_id (str):
-        workflow_id (str):
-        conversation_id (str):
+        test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (TestDatasetCreateRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, List['VTestRunWorkflowTraceResult']]
+        Union[ErrorResponse, TestDataset]
     """
 
     return (
         await asyncio_detailed(
-            test_run_id=test_run_id,
-            workflow_id=workflow_id,
-            conversation_id=conversation_id,
+            test_id=test_id,
             client=client,
+            body=body,
             x_api_key=x_api_key,
         )
     ).parsed

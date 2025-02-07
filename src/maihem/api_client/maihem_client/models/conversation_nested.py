@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -28,8 +28,8 @@ class ConversationNested:
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
         result (Union[None, TestResultEnum, Unset]):
-        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
-        conversation_turns (Union[Unset, List['ConversationNestedTurn']]):
+        evaluations (Union[Unset, list['ConversationNestedEvaluation']]):
+        conversation_turns (Union[Unset, list['ConversationNestedTurn']]):
         result_score (Union[None, Unset, float]):
     """
 
@@ -40,12 +40,12 @@ class ConversationNested:
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
     result: Union[None, TestResultEnum, Unset] = UNSET
-    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
-    conversation_turns: Union[Unset, List["ConversationNestedTurn"]] = UNSET
+    evaluations: Union[Unset, list["ConversationNestedEvaluation"]] = UNSET
+    conversation_turns: Union[Unset, list["ConversationNestedTurn"]] = UNSET
     result_score: Union[None, Unset, float] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         created_at = self.created_at.isoformat()
@@ -78,14 +78,14 @@ class ConversationNested:
         else:
             result = self.result
 
-        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        evaluations: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.evaluations, Unset):
             evaluations = []
             for evaluations_item_data in self.evaluations:
                 evaluations_item = evaluations_item_data.to_dict()
                 evaluations.append(evaluations_item)
 
-        conversation_turns: Union[Unset, List[Dict[str, Any]]] = UNSET
+        conversation_turns: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.conversation_turns, Unset):
             conversation_turns = []
             for conversation_turns_item_data in self.conversation_turns:
@@ -98,7 +98,7 @@ class ConversationNested:
         else:
             result_score = self.result_score
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -124,7 +124,7 @@ class ConversationNested:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
         from ..models.conversation_nested_turn import ConversationNestedTurn
 
@@ -228,7 +228,7 @@ class ConversationNested:
         return conversation_nested
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

@@ -19,7 +19,10 @@ def get_agent_target_id(
         return None
     if not api_key:
         api_key = os.getenv("MAIHEM_API_KEY")
-    client = Maihem(api_key=api_key, env="local")  # TODO: change env to prod
+    client = Maihem(
+        env="local",
+        # api_key=api_key,
+    )  # TODO: change env to prod
     try:
         agent = client.get_target_agent(name=agent_name)
         return agent.id

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -50,9 +50,9 @@ class TestRunMetricScores:
     result: Union[None, TestResultEnum, Unset] = UNSET
     summary: Union[None, Unset, str] = UNSET
     criteria_failures: Union["TestRunMetricScoresCriteriaFailuresType0", None, Unset] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.test_run_metric_scores_criteria_failures_type_0 import TestRunMetricScoresCriteriaFailuresType0
 
         total_conversations = self.total_conversations
@@ -101,7 +101,7 @@ class TestRunMetricScores:
         else:
             summary = self.summary
 
-        criteria_failures: Union[Dict[str, Any], None, Unset]
+        criteria_failures: Union[None, Unset, dict[str, Any]]
         if isinstance(self.criteria_failures, Unset):
             criteria_failures = UNSET
         elif isinstance(self.criteria_failures, TestRunMetricScoresCriteriaFailuresType0):
@@ -109,7 +109,7 @@ class TestRunMetricScores:
         else:
             criteria_failures = self.criteria_failures
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -139,7 +139,7 @@ class TestRunMetricScores:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.test_run_metric_scores_criteria_failures_type_0 import TestRunMetricScoresCriteriaFailuresType0
 
         d = src_dict.copy()
@@ -246,7 +246,7 @@ class TestRunMetricScores:
         return test_run_metric_scores
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

@@ -1,4 +1,4 @@
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -14,17 +14,17 @@ T = TypeVar("T", bound="TestRunResultsConversationsModuleScoresType0")
 class TestRunResultsConversationsModuleScoresType0:
     """ """
 
-    additional_properties: Dict[str, "TestRunMetricScores"] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, "TestRunMetricScores"] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
-        field_dict: Dict[str, Any] = {}
+    def to_dict(self) -> dict[str, Any]:
+        field_dict: dict[str, Any] = {}
         for prop_name, prop in self.additional_properties.items():
             field_dict[prop_name] = prop.to_dict()
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.test_run_metric_scores import TestRunMetricScores
 
         d = src_dict.copy()
@@ -40,7 +40,7 @@ class TestRunResultsConversationsModuleScoresType0:
         return test_run_results_conversations_module_scores_type_0
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> "TestRunMetricScores":

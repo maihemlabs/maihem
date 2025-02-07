@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -26,7 +26,7 @@ class ModuleMetrics:
         group_name (str):
         group_label (str):
         description (Union[None, Unset, str]):
-        metrics (Union[Unset, List['Metric']]):
+        metrics (Union[Unset, list['Metric']]):
     """
 
     id: str
@@ -37,10 +37,10 @@ class ModuleMetrics:
     group_name: str
     group_label: str
     description: Union[None, Unset, str] = UNSET
-    metrics: Union[Unset, List["Metric"]] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    metrics: Union[Unset, list["Metric"]] = UNSET
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         id = self.id
 
         created_at = self.created_at.isoformat()
@@ -61,14 +61,14 @@ class ModuleMetrics:
         else:
             description = self.description
 
-        metrics: Union[Unset, List[Dict[str, Any]]] = UNSET
+        metrics: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.metrics, Unset):
             metrics = []
             for metrics_item_data in self.metrics:
                 metrics_item = metrics_item_data.to_dict()
                 metrics.append(metrics_item)
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -89,7 +89,7 @@ class ModuleMetrics:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.metric import Metric
 
         d = src_dict.copy()
@@ -139,7 +139,7 @@ class ModuleMetrics:
         return module_metrics
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

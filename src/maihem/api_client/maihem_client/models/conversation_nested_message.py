@@ -1,5 +1,5 @@
 import datetime
-from typing import TYPE_CHECKING, Any, Dict, List, Type, TypeVar, Union, cast
+from typing import TYPE_CHECKING, Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
@@ -27,8 +27,8 @@ class ConversationNestedMessage:
         agent_type (AgentType):
         content (Union[None, Unset, str]):
         end_code (Union[None, Unset, str]):
-        evaluations (Union[Unset, List['ConversationNestedEvaluation']]):
-        conversation_sentences (Union[Unset, List['ConversationNestedSentence']]):
+        evaluations (Union[Unset, list['ConversationNestedEvaluation']]):
+        conversation_sentences (Union[Unset, list['ConversationNestedSentence']]):
         workflow_trace (Union['ConversationNestedWorkflowTrace', None, Unset]):
     """
 
@@ -38,12 +38,12 @@ class ConversationNestedMessage:
     agent_type: AgentType
     content: Union[None, Unset, str] = UNSET
     end_code: Union[None, Unset, str] = UNSET
-    evaluations: Union[Unset, List["ConversationNestedEvaluation"]] = UNSET
-    conversation_sentences: Union[Unset, List["ConversationNestedSentence"]] = UNSET
+    evaluations: Union[Unset, list["ConversationNestedEvaluation"]] = UNSET
+    conversation_sentences: Union[Unset, list["ConversationNestedSentence"]] = UNSET
     workflow_trace: Union["ConversationNestedWorkflowTrace", None, Unset] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         from ..models.conversation_nested_workflow_trace import ConversationNestedWorkflowTrace
 
         id = self.id
@@ -66,21 +66,21 @@ class ConversationNestedMessage:
         else:
             end_code = self.end_code
 
-        evaluations: Union[Unset, List[Dict[str, Any]]] = UNSET
+        evaluations: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.evaluations, Unset):
             evaluations = []
             for evaluations_item_data in self.evaluations:
                 evaluations_item = evaluations_item_data.to_dict()
                 evaluations.append(evaluations_item)
 
-        conversation_sentences: Union[Unset, List[Dict[str, Any]]] = UNSET
+        conversation_sentences: Union[Unset, list[dict[str, Any]]] = UNSET
         if not isinstance(self.conversation_sentences, Unset):
             conversation_sentences = []
             for conversation_sentences_item_data in self.conversation_sentences:
                 conversation_sentences_item = conversation_sentences_item_data.to_dict()
                 conversation_sentences.append(conversation_sentences_item)
 
-        workflow_trace: Union[Dict[str, Any], None, Unset]
+        workflow_trace: Union[None, Unset, dict[str, Any]]
         if isinstance(self.workflow_trace, Unset):
             workflow_trace = UNSET
         elif isinstance(self.workflow_trace, ConversationNestedWorkflowTrace):
@@ -88,7 +88,7 @@ class ConversationNestedMessage:
         else:
             workflow_trace = self.workflow_trace
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -112,7 +112,7 @@ class ConversationNestedMessage:
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         from ..models.conversation_nested_evaluation import ConversationNestedEvaluation
         from ..models.conversation_nested_sentence import ConversationNestedSentence
         from ..models.conversation_nested_workflow_trace import ConversationNestedWorkflowTrace
@@ -191,7 +191,7 @@ class ConversationNestedMessage:
         return conversation_nested_message
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:

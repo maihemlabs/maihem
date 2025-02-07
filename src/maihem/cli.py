@@ -38,7 +38,7 @@ def target_agent():
 @click.pass_obj
 def create(maihem_client, name, label, role, description, language):
     """Create a target agent"""
-    maihem_client.create_target_agent(
+    maihem_client.add_target_agent(
         name=name, label=label, role=role, description=description, language=language
     )
     create_project_folder(name)

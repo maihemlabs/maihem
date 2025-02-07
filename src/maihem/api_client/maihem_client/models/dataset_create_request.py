@@ -1,10 +1,9 @@
-from typing import Any, Dict, List, Type, TypeVar, Union, cast
+from typing import Any, Literal, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-from ..models.dataset_create_request_dataset_target import DatasetCreateRequestDatasetTarget
-from ..models.dataset_create_request_source_type import DatasetCreateRequestSourceType
+from ..models.dataset_create_request_target_type import DatasetCreateRequestTargetType
 from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="DatasetCreateRequest")
@@ -17,25 +16,24 @@ class DatasetCreateRequest:
         name (str):
         label (Union[None, Unset, str]):
         description (Union[None, Unset, str]):
-        source_type (Union[Unset, DatasetCreateRequestSourceType]):  Default: DatasetCreateRequestSourceType.FILE.
+        source_type (Union[Literal['file'], Unset]):  Default: 'file'.
         source_reference (Union[None, Unset, str]):
-        dataset_target (Union[Unset, DatasetCreateRequestDatasetTarget]):  Default:
-            DatasetCreateRequestDatasetTarget.CONVERSATION.
-        workflow_step_id (Union[None, Unset, str]):
+        target_type (Union[Unset, DatasetCreateRequestTargetType]):  Default: DatasetCreateRequestTargetType.WORKFLOW.
+        target_id (Union[None, Unset, str]):
         external_id (Union[None, Unset, str]):
     """
 
     name: str
     label: Union[None, Unset, str] = UNSET
     description: Union[None, Unset, str] = UNSET
-    source_type: Union[Unset, DatasetCreateRequestSourceType] = DatasetCreateRequestSourceType.FILE
+    source_type: Union[Literal["file"], Unset] = "file"
     source_reference: Union[None, Unset, str] = UNSET
-    dataset_target: Union[Unset, DatasetCreateRequestDatasetTarget] = DatasetCreateRequestDatasetTarget.CONVERSATION
-    workflow_step_id: Union[None, Unset, str] = UNSET
+    target_type: Union[Unset, DatasetCreateRequestTargetType] = DatasetCreateRequestTargetType.WORKFLOW
+    target_id: Union[None, Unset, str] = UNSET
     external_id: Union[None, Unset, str] = UNSET
-    additional_properties: Dict[str, Any] = _attrs_field(init=False, factory=dict)
+    additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         name = self.name
 
         label: Union[None, Unset, str]
@@ -50,9 +48,7 @@ class DatasetCreateRequest:
         else:
             description = self.description
 
-        source_type: Union[Unset, str] = UNSET
-        if not isinstance(self.source_type, Unset):
-            source_type = self.source_type.value
+        source_type = self.source_type
 
         source_reference: Union[None, Unset, str]
         if isinstance(self.source_reference, Unset):
@@ -60,15 +56,15 @@ class DatasetCreateRequest:
         else:
             source_reference = self.source_reference
 
-        dataset_target: Union[Unset, str] = UNSET
-        if not isinstance(self.dataset_target, Unset):
-            dataset_target = self.dataset_target.value
+        target_type: Union[Unset, str] = UNSET
+        if not isinstance(self.target_type, Unset):
+            target_type = self.target_type.value
 
-        workflow_step_id: Union[None, Unset, str]
-        if isinstance(self.workflow_step_id, Unset):
-            workflow_step_id = UNSET
+        target_id: Union[None, Unset, str]
+        if isinstance(self.target_id, Unset):
+            target_id = UNSET
         else:
-            workflow_step_id = self.workflow_step_id
+            target_id = self.target_id
 
         external_id: Union[None, Unset, str]
         if isinstance(self.external_id, Unset):
@@ -76,7 +72,7 @@ class DatasetCreateRequest:
         else:
             external_id = self.external_id
 
-        field_dict: Dict[str, Any] = {}
+        field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
             {
@@ -91,17 +87,17 @@ class DatasetCreateRequest:
             field_dict["source_type"] = source_type
         if source_reference is not UNSET:
             field_dict["source_reference"] = source_reference
-        if dataset_target is not UNSET:
-            field_dict["dataset_target"] = dataset_target
-        if workflow_step_id is not UNSET:
-            field_dict["workflow_step_id"] = workflow_step_id
+        if target_type is not UNSET:
+            field_dict["target_type"] = target_type
+        if target_id is not UNSET:
+            field_dict["target_id"] = target_id
         if external_id is not UNSET:
             field_dict["external_id"] = external_id
 
         return field_dict
 
     @classmethod
-    def from_dict(cls: Type[T], src_dict: Dict[str, Any]) -> T:
+    def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
         name = d.pop("name")
 
@@ -123,12 +119,9 @@ class DatasetCreateRequest:
 
         description = _parse_description(d.pop("description", UNSET))
 
-        _source_type = d.pop("source_type", UNSET)
-        source_type: Union[Unset, DatasetCreateRequestSourceType]
-        if isinstance(_source_type, Unset):
-            source_type = UNSET
-        else:
-            source_type = DatasetCreateRequestSourceType(_source_type)
+        source_type = cast(Union[Literal["file"], Unset], d.pop("source_type", UNSET))
+        if source_type != "file" and not isinstance(source_type, Unset):
+            raise ValueError(f"source_type must match const 'file', got '{source_type}'")
 
         def _parse_source_reference(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -139,21 +132,21 @@ class DatasetCreateRequest:
 
         source_reference = _parse_source_reference(d.pop("source_reference", UNSET))
 
-        _dataset_target = d.pop("dataset_target", UNSET)
-        dataset_target: Union[Unset, DatasetCreateRequestDatasetTarget]
-        if isinstance(_dataset_target, Unset):
-            dataset_target = UNSET
+        _target_type = d.pop("target_type", UNSET)
+        target_type: Union[Unset, DatasetCreateRequestTargetType]
+        if isinstance(_target_type, Unset):
+            target_type = UNSET
         else:
-            dataset_target = DatasetCreateRequestDatasetTarget(_dataset_target)
+            target_type = DatasetCreateRequestTargetType(_target_type)
 
-        def _parse_workflow_step_id(data: object) -> Union[None, Unset, str]:
+        def _parse_target_id(data: object) -> Union[None, Unset, str]:
             if data is None:
                 return data
             if isinstance(data, Unset):
                 return data
             return cast(Union[None, Unset, str], data)
 
-        workflow_step_id = _parse_workflow_step_id(d.pop("workflow_step_id", UNSET))
+        target_id = _parse_target_id(d.pop("target_id", UNSET))
 
         def _parse_external_id(data: object) -> Union[None, Unset, str]:
             if data is None:
@@ -170,8 +163,8 @@ class DatasetCreateRequest:
             description=description,
             source_type=source_type,
             source_reference=source_reference,
-            dataset_target=dataset_target,
-            workflow_step_id=workflow_step_id,
+            target_type=target_type,
+            target_id=target_id,
             external_id=external_id,
         )
 
@@ -179,7 +172,7 @@ class DatasetCreateRequest:
         return dataset_create_request
 
     @property
-    def additional_keys(self) -> List[str]:
+    def additional_keys(self) -> list[str]:
         return list(self.additional_properties.keys())
 
     def __getitem__(self, key: str) -> Any:
