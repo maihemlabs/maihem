@@ -639,6 +639,7 @@ class Maihem(Client):
     ) -> str:
         is_conversation_active = True
         previous_turn_id = None
+        pending_target_message_id = None
         turn_cnt = 0
 
         progress = tqdm(
@@ -657,6 +658,7 @@ class Maihem(Client):
                 test=test,
                 target_agent=target_agent,
                 previous_turn_id=previous_turn_id,
+                pending_target_message_id=pending_target_message_id,
                 conversation_history=conversation_history,
             )
 
@@ -672,6 +674,7 @@ class Maihem(Client):
                 return conversation_id
 
             previous_turn_id = turn_resp.turn_id
+            pending_target_message_id = turn_resp.pending_target_message_id
 
         return conversation_id
 
@@ -683,8 +686,10 @@ class Maihem(Client):
         target_agent: TargetAgent,
         conversation_history: Dict,
         previous_turn_id: Optional[str] = None,
+        pending_target_message_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
         agent_maihem_message = None
+
         turn_resp = None
 
         conversation = self._get_conversation(conversation_id)
@@ -722,7 +727,6 @@ class Maihem(Client):
                 self._logger.warning(
                     "Max attempts reached while trying to select a valid document chunk."
                 )
-
         if (
             test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
@@ -733,6 +737,8 @@ class Maihem(Client):
                 target_agent_message=None,
                 contexts=[],
             )
+
+            pending_target_message_id = turn_resp.pending_target_message_id
 
             agent_maihem_message = self._get_conversation_message_from_conversation(
                 turn_id=turn_resp.turn_id,
@@ -763,7 +769,7 @@ class Maihem(Client):
             # )
             target_agent_message = target_agent._call_workflow(
                 conversation_id=conversation_id,
-                conversation_message_id=turn_resp.pending_target_message_id,
+                conversation_message_id=pending_target_message_id,
                 message=agent_maihem_message,
                 conversation_history=conversation_history,
                 test_run_id=test_run_id,
