@@ -131,14 +131,14 @@ class TargetAgent(BaseModel):
                 # span_name = self._wrapped_function_name
                 # with tracer.start_as_current_span(span_name) as span:
 
-                response, contexts = asyncio.run(
+                response = asyncio.run(
                     self._wrapper_function(
                         conversation_id,
                         message_with_ids or message,
                         conversation_history,
                     )
                 )
-                return response, contexts
+                return response
             except Exception as e:
                 if retry < 2:
                     logger.warning(
