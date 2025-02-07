@@ -61,17 +61,20 @@ def workflow(
                         bound_args = inspect.signature(func).bind(*args, **kwargs)
                         bound_args.apply_defaults()
 
+                        # Exclude 'self' from the arguments if present.
+                        filtered_arguments = {
+                            k: v for k, v in bound_args.arguments.items() if k != "self"
+                        }
+
                         if evaluator:
-                            input_payload = evaluator.map_inputs(**bound_args.arguments)
+                            input_payload = evaluator.map_inputs(**filtered_arguments)
                         else:
-                            input_payload = dict(bound_args.arguments)
+                            input_payload = filtered_arguments
 
                         if "query" in input_payload:
-                            print(input_payload["query"])
                             clean_query, ids = extract_ids_from_query(
                                 input_payload["query"]
                             )
-                            print(clean_query, ids)
 
                             for key, value in ids.items():
                                 span.set_attribute(key, value)
@@ -132,10 +135,15 @@ def workflow(
                         bound_args = inspect.signature(func).bind(*args, **kwargs)
                         bound_args.apply_defaults()
 
+                        # Exclude 'self' from the arguments if present.
+                        filtered_arguments = {
+                            k: v for k, v in bound_args.arguments.items() if k != "self"
+                        }
+
                         if evaluator:
-                            input_payload = evaluator.map_inputs(**bound_args.arguments)
+                            input_payload = evaluator.map_inputs(**filtered_arguments)
                         else:
-                            input_payload = dict(bound_args.arguments)
+                            input_payload = filtered_arguments
 
                         if "query" in input_payload:
                             print(input_payload["query"])
@@ -209,10 +217,15 @@ def workflow_step(
                         bound_args = inspect.signature(func).bind(*args, **kwargs)
                         bound_args.apply_defaults()
 
+                        # Exclude 'self' from the arguments if present.
+                        filtered_arguments = {
+                            k: v for k, v in bound_args.arguments.items() if k != "self"
+                        }
+
                         if evaluator:
-                            input_payload = evaluator.map_inputs(**bound_args.arguments)
+                            input_payload = evaluator.map_inputs(**filtered_arguments)
                         else:
-                            input_payload = dict(bound_args.arguments)
+                            input_payload = filtered_arguments
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
                         result = await func(*args, **kwargs)
@@ -250,10 +263,15 @@ def workflow_step(
                         bound_args = inspect.signature(func).bind(*args, **kwargs)
                         bound_args.apply_defaults()
 
+                        # Exclude 'self' from the arguments if present.
+                        filtered_arguments = {
+                            k: v for k, v in bound_args.arguments.items() if k != "self"
+                        }
+
                         if evaluator:
-                            input_payload = evaluator.map_inputs(**bound_args.arguments)
+                            input_payload = evaluator.map_inputs(**filtered_arguments)
                         else:
-                            input_payload = dict(bound_args.arguments)
+                            input_payload = filtered_arguments
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
                         result = func(*args, **kwargs)
