@@ -180,10 +180,49 @@ class Client:
 
         return target_agent
 
-    def upload_dataset(
+    def upload_workflow_dataset(
         self,
         name: str,
         data: Dict,
+        label: Optional[str] = None,
+    ) -> None:
+        self._upload_dataset(
+            name=name,
+            data=data,
+            label=label,
+            entity_type=TestCreateRequestEntityType.WORKFLOW,
+            entity_id=None,
+        )
+
+    def upload_step_dataset(
+        self,
+        name: str,
+        data: Dict,
+        target_agent_name: str,
+        step_name: str,
+        label: Optional[str] = None,
+    ) -> None:
+        # Get entity id for workflow step
+        entity_id = self._get_workflow_entity_id(
+            target_agent_name=target_agent_name,
+            entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
+            step_name=step_name,
+        )
+
+        self._upload_dataset(
+            name=name,
+            data=data,
+            label=label,
+            entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
+            entity_id=entity_id,
+        )
+
+    def _upload_dataset(
+        self,
+        name: str,
+        data: Dict,
+        entity_type: TestCreateRequestEntityType = TestCreateRequestEntityType.WORKFLOW,
+        entity_id: Optional[str] = None,
         label: Optional[str] = None,
     ) -> None:
         self._logger.info(f"Uploading dataset '{name}'...")
@@ -196,6 +235,8 @@ class Client:
                 req=DatasetCreateRequest(
                     name=name,
                     label=label,
+                    target_type=entity_type,
+                    target_id=entity_id,
                 )
             )
 
@@ -291,9 +332,11 @@ class Client:
         # First create the test
         test = self._create_test(
             name,
-            target_agent_name,
-            initiating_agent,
-            label,
+            label=label,
+            target_agent_name=target_agent_name,
+            entity_type=TestCreateRequestEntityType.WORKFLOW,
+            step_name=None,
+            initiating_agent=initiating_agent,
             metrics_config={"qa_cx_helpfulness": 1},  # TODO: change to not needed
         )
 
@@ -320,19 +363,43 @@ class Client:
         initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
     ) -> Test:
-        raise NotImplementedError("Method not implemented")
+        # First create the test
+        test = self._create_test(
+            name,
+            label=label,
+            target_agent_name=target_agent_name,
+            entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
+            step_name=step_name,
+            initiating_agent=initiating_agent,
+            metrics_config={"qa_cx_helpfulness": 1},  # TODO: change to not needed
+        )
+
+        # Get dataset id from dataset name
+        dataset = self._maihem_api_client.get_datasets(name=dataset_name)
+        if not dataset or len(dataset) == 0:
+            raise errors.raise_not_found_error(
+                f"Dataset '{dataset_name}' does not exist"
+            )
+
+        # Assign dataset to test
+        self._maihem_api_client.assign_dataset_to_test(
+            test_id=test.id, req=TestDatasetCreateRequest(dataset_id=dataset[0].id)
+        )
+
+        return test
 
     def _create_test(
         self,
         name: str,
         target_agent_name: str,
+        entity_type: TestCreateRequestEntityType,
+        step_name: Optional[str] = None,
         initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
         maihem_behavior_prompt: Optional[str] = None,
         maihem_goal_prompt: Optional[str] = None,
         maihem_population_prompt: Optional[str] = None,
         conversation_turns_max: Optional[int] = 4,
-        number_conversations: Optional[int] = 10,
         documents_path: Optional[str] = None,
         metrics_config: Optional[Dict] = None,
     ) -> Test:
@@ -361,21 +428,18 @@ class Client:
                 target_agent = self.get_target_agent(name=target_agent_name)
 
                 # Get entity id (workflow id)
-                workflows = self._maihem_api_client.get_workflows(
-                    agent_target_id=target_agent.id
+                entity_id = self._get_workflow_entity_id(
+                    target_agent_name=target_agent_name,
+                    entity_type=entity_type,
+                    step_name=step_name,
                 )
-                if not workflows or len(workflows) == 0:
-                    raise errors.raise_not_found_error(
-                        f"Workflows for target agent '{target_agent_name}' not found. Please initialize a workflow for this target agent."
-                    )
-                entity_id = workflows[0].id
 
                 metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
                     metrics_config
                 )
                 resp = self._maihem_api_client.create_test(
                     req=TestCreateRequest(
-                        entity_type=TestCreateRequestEntityType.WORKFLOW,
+                        entity_type=entity_type,
                         entity_id=entity_id,
                         name=name,
                         label=label,
@@ -457,6 +521,43 @@ class Client:
             errors.handle_schema_validation_error(e)
 
         return test_run
+
+    def _get_workflow_entity_id(
+        self,
+        target_agent_name: str,
+        entity_type: TestCreateRequestEntityType,
+        step_name: Optional[str] = None,
+    ) -> str:
+
+        # Get target agent id
+        target_agent = self.get_target_agent(name=target_agent_name)
+
+        # Get workflows
+        workflows = self._maihem_api_client.get_workflows(
+            agent_target_id=target_agent.id
+        )
+        if not workflows or len(workflows) == 0:
+            raise errors.raise_not_found_error(
+                f"Workflows for target agent '{target_agent_name}' not found. Please initialize a workflow for this target agent."
+            )
+        workflow = workflows[0]
+
+        # Get entity id for workflow or workflow step
+        entity_id = None
+        if entity_type == TestCreateRequestEntityType.WORKFLOW_STEP:
+            for step in workflow.workflow_steps:
+                if step["name"] == step_name:
+                    entity_id = step["id"]
+                    break
+        else:
+            entity_id = workflow.id
+
+        if not entity_id:
+            raise errors.raise_not_found_error(
+                f"Entity '{entity_type}' with name '{step_name}' not found"
+            )
+
+        return entity_id
 
 
 class Maihem(Client):

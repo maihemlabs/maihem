@@ -126,11 +126,6 @@ class TargetAgent(BaseModel):
                 message_with_ids = json.dumps(data)
                 print(message_with_ids + "\n")
 
-                # setattr(self._wrapper_function, "testing", True)
-                # tracer = Tracer.get_instance().tracer
-                # span_name = self._wrapped_function_name
-                # with tracer.start_as_current_span(span_name) as span:
-
                 response = asyncio.run(
                     self._wrapper_function(
                         conversation_id,
@@ -149,5 +144,40 @@ class TargetAgent(BaseModel):
                         f"Error sending message to target agent after 3 retries. Error: {str(e)}"
                     )
 
-    def _call_step(self):
-        pass
+    def _call_step(
+        self,
+        conversation_id: str,
+        conversation_message_id: str,
+        inputs: Dict,
+        target_agent_id: str,
+        test_run_id: Optional[str] = None,
+    ) -> Tuple[str, List[str]]:
+        if not self._wrapper_function:
+            errors.raise_wrapper_function_error("Target agent wrapper function not set")
+        for retry in range(3):
+            try:
+                setattr(
+                    self._wrapper_function,
+                    "maihem_ids",
+                    {
+                        "conversation_id": conversation_id,
+                        "conversation_message_id": conversation_message_id,
+                        "test_run_id": test_run_id,
+                        "agent_target_id": target_agent_id,
+                    },
+                )
+
+                tracer = Tracer.get_instance().tracer
+                span_name = self._wrapped_function_name
+                with tracer.start_as_current_span(span_name) as span:
+                    response = asyncio.run(self._wrapper_function(**inputs))
+                return response
+            except Exception as e:
+                if retry < 2:
+                    logger.warning(
+                        f"Error sending message to target agent, retrying ({retry + 1}). Error: {str(e)}"
+                    )
+                else:
+                    errors.raise_wrapper_function_error(
+                        f"Error sending message to target agent after 3 retries. Error: {str(e)}"
+                    )
