@@ -7,5 +7,5 @@ async def wrapper_generate_message(
     return await generate_message(user_input)
 
 
-async def wrapper_reranking(query: str, docs: list[str]) -> str:
-    return reranking(query=query, docs=docs)
+async def wrapper_reranking(query: str, documents: list[str]) -> str:
+    return await reranking(query=query, docs=documents)

@@ -31,6 +31,9 @@ from maihem.api_client.maihem_client.models.test import (
 from maihem.api_client.maihem_client.models.test_run import (
     TestRun,
 )
+from maihem.api_client.maihem_client.models.test_run_workflow_trace_i_ds import (
+    TestRunWorkflowTraceIDs,
+)
 from maihem.api_client.maihem_client.models.test_run_results_conversations import (
     TestRunResultsConversations,
 )
@@ -65,9 +68,13 @@ from maihem.api_client.maihem_client.api.test_runs import (
     test_runs_create_conversation_turn,
     test_runs_update_test_run_status,
     test_runs_get_test_run_result_with_conversations,
+    test_runs_get_test_run_workflow_traces,
 )
 from maihem.api_client.maihem_client.models.create_test_run_request import (
     CreateTestRunRequest,
+)
+from maihem.api_client.maihem_client.api.test_runs import (
+    test_runs_create_workflow_step_span,
 )
 from maihem.api_client.maihem_client.models.test_run_status_update_request import (
     TestRunStatusUpdateRequest,
@@ -250,6 +257,21 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return self._return_validated_response(response)
 
+    def get_workflow_span(
+        self, test_run_id: str, workflow_trace_id: str
+    ) -> ConversationNested:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[ConversationNested] = self._retry(
+                test_runs_create_workflow_step_span.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                test_run_id=test_run_id,
+                workflow_trace_id=workflow_trace_id,
+            )
+
+        return self._return_validated_response(response)
+
     def get_test_run(self, test_run_id: str) -> TestRun:
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[TestRun] = self._retry(
@@ -281,13 +303,13 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
 
         return self._return_validated_response(response)
 
-    # def get_test_run_result(self, name: str) -> TestRunResults:
-    #     with MaihemHTTPClient(base_url=self.base_url) as client:
-    #         response: Response[TestRunResults] = self._retry(
-    #             test_runs_get_test_run_result.sync_detailed
-    #         )(client=client, x_api_key=self.token, name=name)
+    def get_test_run_workflow_traces(self, test_run_id: str) -> TestRunWorkflowTraceIDs:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[TestRunWorkflowTraceIDs] = self._retry(
+                test_runs_get_test_run_workflow_traces.sync_detailed
+            )(client=client, x_api_key=self.token, test_run_id=test_run_id)
 
-    #     return self._return_validated_response(response)
+        return self._return_validated_response(response)
 
     def get_test_run_result(self, test_run_id: str) -> TestRunResultsConversations:
         with MaihemHTTPClient(base_url=self.base_url) as client:

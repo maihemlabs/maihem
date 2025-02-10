@@ -23,15 +23,15 @@ print(target_agent)
 ######################### WORKFLOW E2E ###########################
 ##################################################################
 
-# maihem_client.upload_dataset(
-#     name="dataset_sanity_check_e2e_2",  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
+# maihem_client.upload_workflow_dataset(
+#     name="dataset_sanity_check_e2e_dict",  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
 #     data=data_e2e,
 # )
 
 # test = maihem_client.create_workflow_test(
-#     name="test_5",
+#     name="test_9",
 #     target_agent_name=target_agent_name,
-#     dataset_name="dataset_sanity_check_e2e_2",
+#     dataset_name="dataset_sanity_check_e2e_dict",
 # )
 # print(test)
 
@@ -46,7 +46,8 @@ print(target_agent)
 
 # test_run = maihem_client.run_workflow_test(
 #     name="test_run" + datetime.now().strftime("%Y%m%d_%H%M%S"),
-#     test_name="test_5",
+#     test_name="test_8",
+#     concurrent_conversations=1,
 # )
 # print(test_run)
 
@@ -56,16 +57,23 @@ print(target_agent)
 ##################################################################
 
 # maihem_client.upload_step_dataset(
-#     name="dataset_step_reranking",  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
+#     name="dataset_step_reranking_1",  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
 #     data=data_reranking,
 #     target_agent_name=target_agent_name,
 #     step_name="reranking",
 # )
 
-test = maihem_client.create_step_test(
-    name="test_reranking_3",
+# test = maihem_client.create_step_test(
+#     name="test_reranking_6",
+#     step_name="reranking",
+#     target_agent_name=target_agent_name,
+#     dataset_name="dataset_step_reranking_1",
+# )
+# print(test)
+
+test_run = maihem_client.run_step_test(
+    name="test_run_reranking_" + datetime.now().strftime("%Y%m%d_%H%M%S"),
+    test_name="test_reranking_6",
     step_name="reranking",
-    target_agent_name=target_agent_name,
-    dataset_name="dataset_step_reranking",
 )
-print(test)
+print(test_run)

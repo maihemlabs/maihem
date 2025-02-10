@@ -33,21 +33,25 @@ class TargetAgent(BaseModel):
 
     _wrapper_function: Optional[Coroutine] = None
     _wrapped_function_name: Optional[str] = None
+    _workflow_name: Optional[str] = None
     document_paths: List[str] = []
 
-    def set_wrapper_function(self, workflow_name: str) -> None:
+    def set_wrapper_function(
+        self, function_name: str, workflow_name: Optional[str] = None
+    ) -> None:
         """Dynamically imports and sets the wrapper function based on workflow name"""
         try:
             # Import the wrappers module
             wrappers = importlib.import_module("wrappers")
 
             # Get the wrapper function name by prepending 'wrapper_' to workflow name
-            wrapper_func_name = f"wrapper_{workflow_name}"
+            wrapper_func_name = f"wrapper_{function_name}"
 
             # Get the function from the module
             if hasattr(wrappers, wrapper_func_name):
                 self._wrapper_function = getattr(wrappers, wrapper_func_name)
-                self._wrapped_function_name = workflow_name
+                self._wrapped_function_name = function_name
+                self._workflow_name = workflow_name
                 logger.info(f"Wrapper function '{wrapper_func_name}' set successfully")
             else:
                 raise AttributeError(
@@ -126,13 +130,13 @@ class TargetAgent(BaseModel):
                 message_with_ids = json.dumps(data)
                 print(message_with_ids + "\n")
 
-                response = asyncio.run(
-                    self._wrapper_function(
-                        conversation_id,
-                        message_with_ids or message,
-                        conversation_history,
-                    )
-                )
+                kwargs = {
+                    "conversation_id": conversation_id,
+                    "user_input": message_with_ids or message,
+                    "conversation_history": conversation_history,
+                }
+
+                response = asyncio.run(self._wrapper_function(**kwargs))
                 return response
             except Exception as e:
                 if retry < 2:
@@ -146,11 +150,10 @@ class TargetAgent(BaseModel):
 
     def _call_step(
         self,
-        conversation_id: str,
-        conversation_message_id: str,
-        inputs: Dict,
+        interaction_id: str,
         target_agent_id: str,
-        test_run_id: Optional[str] = None,
+        test_run_id: str,
+        kwargs: Dict,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
             errors.raise_wrapper_function_error("Target agent wrapper function not set")
@@ -160,13 +163,14 @@ class TargetAgent(BaseModel):
                 tracer = Tracer.get_instance().tracer
                 span_name = self._wrapped_function_name
                 with tracer.start_as_current_span(span_name) as span:
-                    span.set_attribute("conversation_id", conversation_id)
-                    span.set_attribute(
-                        "conversation_message_id", conversation_message_id
-                    )
+                    span.set_attribute("workflow_trace_id", interaction_id)
                     span.set_attribute("test_run_id", test_run_id)
                     span.set_attribute("agent_target_id", target_agent_id)
-                    response = asyncio.run(self._wrapper_function(**inputs))
+                    span.set_attribute("workflow_name", self._workflow_name)
+                    span.set_attribute("workflow_step_name", span_name)
+
+                    # Call the step wrapper function
+                    response = asyncio.run(self._wrapper_function(**kwargs))
                 return response
             except Exception as e:
                 if retry < 2:
