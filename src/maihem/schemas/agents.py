@@ -156,20 +156,16 @@ class TargetAgent(BaseModel):
             errors.raise_wrapper_function_error("Target agent wrapper function not set")
         for retry in range(3):
             try:
-                setattr(
-                    self._wrapper_function,
-                    "maihem_ids",
-                    {
-                        "conversation_id": conversation_id,
-                        "conversation_message_id": conversation_message_id,
-                        "test_run_id": test_run_id,
-                        "agent_target_id": target_agent_id,
-                    },
-                )
 
                 tracer = Tracer.get_instance().tracer
                 span_name = self._wrapped_function_name
                 with tracer.start_as_current_span(span_name) as span:
+                    span.set_attribute("conversation_id", conversation_id)
+                    span.set_attribute(
+                        "conversation_message_id", conversation_message_id
+                    )
+                    span.set_attribute("test_run_id", test_run_id)
+                    span.set_attribute("agent_target_id", target_agent_id)
                     response = asyncio.run(self._wrapper_function(**inputs))
                 return response
             except Exception as e:
