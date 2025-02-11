@@ -101,6 +101,9 @@ def workflow(
                             input_payload["query"] = clean_query
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
+                        span.set_attribute(
+                            "input_payload_raw", json.dumps(filtered_arguments)
+                        )
                         result = await func(*args, **kwargs)
 
                         if evaluator:
@@ -109,6 +112,7 @@ def workflow(
                             output_payload = result
 
                         span.set_attribute("output_payload", json.dumps(output_payload))
+                        span.set_attribute("output_payload_raw", json.dumps(result))
                         return result
                     except Exception as e:
                         span.record_exception(e)
@@ -175,6 +179,9 @@ def workflow(
                             input_payload["query"] = clean_query
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
+                        span.set_attribute(
+                            "input_payload_raw", json.dumps(filtered_arguments)
+                        )
                         result = func(*args, **kwargs)
 
                         if evaluator:
@@ -183,6 +190,7 @@ def workflow(
                             output_payload = result
 
                         span.set_attribute("output_payload", json.dumps(output_payload))
+                        span.set_attribute("output_payload_raw", json.dumps(result))
                         return result
 
                     except Exception as e:
@@ -231,6 +239,9 @@ def workflow_step(
                             input_payload = filtered_arguments
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
+                        span.set_attribute(
+                            "input_payload_raw", json.dumps(filtered_arguments)
+                        )
                         result = await func(*args, **kwargs)
 
                         if evaluator:
@@ -239,6 +250,7 @@ def workflow_step(
                             output_payload = result
 
                         span.set_attribute("output_payload", json.dumps(output_payload))
+                        span.set_attribute("output_payload_raw", json.dumps(result))
                         return result
 
                     except Exception as e:
@@ -277,6 +289,9 @@ def workflow_step(
                             input_payload = filtered_arguments
 
                         span.set_attribute("input_payload", json.dumps(input_payload))
+                        span.set_attribute(
+                            "input_payload_raw", json.dumps(filtered_arguments)
+                        )
                         result = func(*args, **kwargs)
 
                         if evaluator:
@@ -285,6 +300,7 @@ def workflow_step(
                             output_payload = result
 
                         span.set_attribute("output_payload", json.dumps(output_payload))
+                        span.set_attribute("output_payload_raw", json.dumps(result))
                         return result
 
                     except Exception as e:

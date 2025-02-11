@@ -92,8 +92,15 @@ class MaihemEvaluator(ABC):
         return mapping.get(key, key)
 
     def map_inputs(self, **kwargs) -> Dict[str, Any]:
-        """Map function inputs to standardized names using input_mapping."""
-        return {self._map_key(k, self.input_mapping): v for k, v in kwargs.items()}
+        """Map function inputs to standardized names using input_mapping.
+
+        Only inputs with an explicit mapping are included.
+        """
+        return {
+            self.input_mapping[k]: v
+            for k, v in kwargs.items()
+            if k in self.input_mapping
+        }
 
     def map_outputs(self, result: Any) -> Dict[str, Any]:
         """Transform the function output to a standardized format."""
