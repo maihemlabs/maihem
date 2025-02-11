@@ -1,6 +1,6 @@
 import docx2txt
 import os
-import pymupdf
+from PyPDF2 import PdfReader  # type: ignore  # noqa
 from typing import List, Iterable, Optional, Dict
 import re
 
@@ -37,10 +37,12 @@ def extract_text(file_path):
 
 
 def extract_pdf_text(file_path):
-    doc = pymupdf.open(file_path)
+    reader = PdfReader(file_path)
     text = ""
-    for page in doc:
-        text += page.get_text()
+    for page in reader.pages:
+        page_text = page.extract_text()
+        if page_text:
+            text += page_text
     return text
 
 
@@ -50,11 +52,8 @@ def extract_docx_text(file_path):
 
 
 def extract_text_file(file_path):
-    doc = pymupdf.open(file_path, filetype="txt")
-    text = ""
-    for page in doc:
-        text += page.get_text()
-    return text
+    with open(file_path, "r", encoding="utf-8") as f:
+        return f.read()
 
 
 class TextSplitter:

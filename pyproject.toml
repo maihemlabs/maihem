@@ -17,7 +17,7 @@ classifiers = [
     "Programming Language :: Python :: 3",
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
-dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio", "pymupdf", "docx2txt", "yaspin", "pyyaml", "pillow", "click"]
+dependencies = ["requests", "pandas", "pydantic", "pycountry", "pydantic_extra_types", "httpx", "attrs", "loguru", "tqdm", "anyio", "docx2txt", "yaspin", "pyyaml", "pillow", "click", "PyPDF2"]
 requires-python = ">=3.9"
 
 [project.scripts]
@@ -25,3 +25,11 @@ maihem = "maihem.cli:cli"
 
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
+
+[dependency-groups]
+dev = [
+    "maihem",
+]
+
+[tool.uv.sources]
+maihem = { workspace = true }
