@@ -1,58 +1,87 @@
-from abc import ABC, abstractmethod
-from typing import Any, Dict, Optional, Mapping, ClassVar, Set, Callable
-from dataclasses import dataclass
+from abc import ABC, abstractmethod, ABCMeta
+from typing import Any, Dict, Optional, Mapping, ClassVar, Set, Callable, get_type_hints
+from pydantic import BaseModel  # Install via: pip install pydantic
+import textwrap
 
 
-@dataclass
-class InputMapping:
-    """Maps standard input names to your function's parameter names.
-    The attribute names are our standard interface, values are your function's parameter names.
+# Optional: define a custom exception for InputMapping errors
+class InputMappingError(TypeError):
+    """Exception raised when InputMapping validation fails."""
+
+    pass
+
+
+# Use Pydantic for robust input mapping validation.
+class InputMapping(BaseModel):
+    """
+    Maps standard input names to your function's parameter names.
+    The attribute names represent the standard interface, and the values
+    are your function's parameter names.
+
+    Pydantic automatically validates the types based on the annotations.
     """
 
-    def __init__(self, **kwargs: str):
-        """
-        Initialize with standard_name=your_param_name pairs.
-        Example: InputMapping(query='user_input') means standard 'query' maps to your 'user_input' parameter
-        """
-        for k, v in kwargs.items():
-            setattr(self, k, v)
-        self._mapping = {v: k for k, v in kwargs.items()}  # Reverse the mapping
-
     def to_dict(self) -> Dict[str, str]:
-        """Returns mapping from function param names to standard names."""
-        return self._mapping
+        """
+        Returns a mapping from your function's parameter names to the standard names.
+        The reverse mapping is defined as: the value stored in the instance (i.e. your
+        function parameter) maps to the field name (i.e. the standardized input).
+        """
+        # Use model_fields instead of __fields__ (deprecated in recent Pydantic versions)
+        return {getattr(self, field): field for field in self.model_fields}
+
+    class Config:
+        # Disallow extra fields so that only annotated fields are allowed.
+        extra = "forbid"
 
 
-class MaihemEvaluator(ABC):
-    # Class attributes defining the standard names expected by this connector
-    EXPECTED_INPUTS: ClassVar[Set[str]] = set()
-    NAME: ClassVar[str] = ""  # Connector name for identification
+class EvaluatorMeta(ABCMeta):
+    """
+    Metaclass for MaihemEvaluator that automatically sets the
+    EXPECTED_INPUTS from the inner Inputs class annotations.
+    """
+
+    def __init__(cls, name, bases, namespace):
+        super().__init__(name, bases, namespace)
+        inputs_cls = getattr(cls, "Inputs", None)
+        if inputs_cls:
+            # Using get_type_hints ensures that forward references and other niceties are handled.
+            cls.EXPECTED_INPUTS = set(get_type_hints(inputs_cls).keys())
+        else:
+            cls.EXPECTED_INPUTS = set()
+
+
+class MaihemEvaluator(ABC, metaclass=EvaluatorMeta):
+    # Connector name for identification must be defined in each subclass.
+    NAME: ClassVar[str] = ""
 
     def __init__(
         self,
         inputs: Optional[InputMapping] = None,
         output_fn: Optional[Callable[[Any], Any]] = None,
-    ):
+    ) -> None:
         """
-        Initialize connector with optional input mappings and output transformation.
+        Initialize connector with optional input mapping and output transformation.
 
         Args:
-            inputs: Maps your function's parameter names to our standard names.
-                Use get_expected_inputs() to see what standard names are needed.
+            inputs: Maps your function's parameter names to our standard names. Use
+                get_expected_inputs() to see what standard inputs are needed.
             output_fn: Optional function to transform the decorated function's output
-                before standard output mapping. Useful when your function returns
-                data in a different format than expected.
+                before standard output mapping.
         """
         if not self.NAME:
             raise ValueError(f"Connector {self.__class__.__name__} must define NAME")
 
-        self.input_mapping = inputs.to_dict() if inputs else {}
+        self.input_mapping: Dict[str, str] = inputs.to_dict() if inputs else {}
         self.output_fn = output_fn
         self._validate_mappings()
 
     def _validate_mappings(self) -> None:
-        """Validates that all required mappings are provided and map to expected names."""
+        """
+        Validates that all provided input mappings are among the expected inputs.
+        """
         if self.input_mapping:
+            # The mapping's values are the standard input names.
             mapped_inputs = set(self.input_mapping.values())
             invalid_inputs = mapped_inputs - self.EXPECTED_INPUTS
             if invalid_inputs:
@@ -63,14 +92,18 @@ class MaihemEvaluator(ABC):
 
     @classmethod
     def get_expected_inputs(cls) -> Set[str]:
-        """Returns the set of standard input names this connector expects."""
+        """
+        Returns the set of standard input names that this connector expects.
+        """
         return cls.EXPECTED_INPUTS
 
     @classmethod
     def create_with_mapping_help(cls) -> None:
-        """Prints help text showing what mappings this connector needs."""
-        print(f"\nConnector: {cls.__name__}")
-        print("\nExpected Inputs:")
+        """
+        Prints help text showing what mappings this connector needs.
+        """
+        print(f"\nConnector: {cls.__name__}\n")
+        print("Expected Inputs:")
         for input_name in sorted(cls.EXPECTED_INPUTS):
             print(f"  - {input_name}")
         print("\nExample usage:")
@@ -87,13 +120,9 @@ class MaihemEvaluator(ABC):
 """
         )
 
-    def _map_key(self, key: str, mapping: Mapping[str, str]) -> str:
-        """Maps a key using the provided mapping, returns original if no mapping exists."""
-        return mapping.get(key, key)
-
-    def map_inputs(self, **kwargs) -> Dict[str, Any]:
-        """Map function inputs to standardized names using input_mapping.
-
+    def map_inputs(self, **kwargs: Any) -> Dict[str, Any]:
+        """
+        Map function inputs to standardized names using the provided input mapping.
         Only inputs with an explicit mapping are included.
         """
         return {
@@ -103,59 +132,78 @@ class MaihemEvaluator(ABC):
         }
 
     def map_outputs(self, result: Any) -> Dict[str, Any]:
-        """Transform the function output to a standardized format."""
+        """
+        Transform the function output to a standardized format.
+        Optionally applies the defined output transformation.
+        """
         if self.output_fn:
             result = self.output_fn(result)
         return self._transform_output(result)
 
     @abstractmethod
     def _transform_output(self, result: Any) -> Dict[str, Any]:
-        """Transform the return value to a standardized format."""
+        """
+        Transform the return value to a standardized format. Must be implemented
+        by subclasses.
+        """
         pass
 
-    def _generate_function_wrapper(self) -> Callable:
+    def _generate_function_wrapper(self) -> str:
+        """
+        Generate a wrapper code snippet for the connector function.
+        (In practice, you might return a callable or write this to a file.)
+        """
+        # Get type hints from the inner Inputs class.
+        inputs_hints = get_type_hints(self.Inputs)
         args_str = ", ".join(
-            f"{k}: {str(v.__name__)}" for k, v in self.Inputs.__annotations__.items()
+            f"{k}: {v.__name__ if hasattr(v, '__name__') else str(v)}"
+            for k, v in inputs_hints.items()
         )
         required_inputs = "\n\t".join(
-            f"- {k}: {str(v.__name__)}" for k, v in self.Inputs.__annotations__.items()
+            f"- {k}: {v.__name__ if hasattr(v, '__name__') else str(v)}"
+            for k, v in inputs_hints.items()
         )
-        params = ", ".join(f"{k}" for k, v in self.Inputs.__annotations__.items())
-        return f"""
-###### {self.NAME} Wrapper ######
+        params = ", ".join(inputs_hints.keys())
 
-# Add imports here
-# import my_{self.NAME}
-
-
-def {self.NAME}_wrapper({args_str}):
-    \"""
-    Wrapper for {self.NAME} step, fill in the code to call the decorated function.
-
-    Required Inputs:
-        {required_inputs}
-    \"""
-    
-    ##### YOUR CODE HERE #####
-    # my_{self.NAME}({params})
-
-"""
+        wrapper_code = textwrap.dedent(
+            f"""\
+            ###### {self.NAME} Wrapper ######
+            
+            # Add imports here
+            # import my_{self.NAME}
+            
+            
+            def {self.NAME}_wrapper({args_str}):
+                \"\"\"Wrapper for {self.NAME} step.
+                
+                Required Inputs:
+                {required_inputs}
+                \"\"\"
+                
+                ##### YOUR CODE HERE #####
+                # my_{self.NAME}({params})
+            """
+        )
+        return wrapper_code
 
 
 class MaihemQA(MaihemEvaluator):
     """Question answering connector.
-
-    Required Inputs:
-        - query: str  # The question to answer
 
     Output Format:
         answer: str  # The answer to the question
     """
 
     NAME = "question_answering"
-    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Question Answering connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+        """
+
         query: str
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
@@ -165,27 +213,20 @@ class MaihemQA(MaihemEvaluator):
 class MaihemIntent(MaihemEvaluator):
     """Intent recognition connector.
 
-    Required Inputs:
-        - query: str  # The text to classify intent from
-
     Output Format:
         intent: str  # The classified intent
-
-    Example:
-        @maihem(
-            evaluator=MaihemIntent(
-                inputs=InputMapping(query='user_input'),
-                output_fn=lambda x: x['intent']  # Extract intent from dict
-            )
-        )
-        async def my_intent(user_input: str) -> dict:
-            return {"intent": "some_intent", "confidence": 0.9}
     """
 
     NAME = "intent_recognition"
-    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Intent Recognition connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+        """
+
         query: str
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
@@ -195,17 +236,20 @@ class MaihemIntent(MaihemEvaluator):
 class MaihemNER(MaihemEvaluator):
     """Named Entity Recognition connector.
 
-    Required Inputs:
-        - query: str  # The text to extract entities from
-
     Output Format:
         entities: list[str]  # List of extracted entities
     """
 
     NAME = "name_entity_recognition"
-    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Named Entity Recognition connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+        """
+
         query: str
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
@@ -215,17 +259,20 @@ class MaihemNER(MaihemEvaluator):
 class MaihemRephrasing(MaihemEvaluator):
     """Query rephrasing connector.
 
-    Required Inputs:
-        - query: str  # The text to rephrase
-
     Output Format:
         rephrased_query: str  # The rephrased query
     """
 
     NAME = "query_rephrasing"
-    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Query Rephrasing connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+        """
+
         query: str
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
@@ -235,32 +282,20 @@ class MaihemRephrasing(MaihemEvaluator):
 class MaihemRetrieval(MaihemEvaluator):
     """Document retrieval connector.
 
-    Required Inputs:
-        - query: str  # The search query
-
     Output Format:
         documents: list[str]  # Retrieved text chunks
-
-    Example:
-        @maihem(
-            evaluator=MaihemRetrieval(
-                inputs=InputMapping(
-                    query='search_query',
-                ),
-                output_fn=lambda x: x['documents']  # Extract documents from response
-            )
-        )
-        async def my_retrieval(search_query: str) -> dict:
-            return {
-                "documents": ["doc1", "doc2"],
-                "scores": [0.9, 0.8]
-            }
     """
 
     NAME = "document_retrieval"
-    EXPECTED_INPUTS = {"query"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Document Retrieval connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+        """
+
         query: str
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
@@ -270,20 +305,23 @@ class MaihemRetrieval(MaihemEvaluator):
 class MaihemReranking(MaihemEvaluator):
     """Document reranking connector.
 
-    Required Inputs:
-        - query: str  # The search query
-        - documents: list[str]  # List of documents to rerank
-
     Output Format:
         reranked_documents: list[str]  # Reranked documents
     """
 
     NAME = "document_reranking"
-    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Document Reranking connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+            documents (str): The name of the argument that contains the documents as a list of strings.
+        """
+
         query: str
-        documents: list[str]
+        documents: str
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
         return {"reranked_documents": result}
@@ -292,20 +330,23 @@ class MaihemReranking(MaihemEvaluator):
 class MaihemFiltering(MaihemEvaluator):
     """Document filtering connector.
 
-    Required Inputs:
-        - query: str  # The search query
-        - documents: list[str]  # List of documents to filter
-
     Output Format:
         filtered_documents: list[str]  # Filtered documents
     """
 
     NAME = "document_filtering"
-    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Document Filtering connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+            documents (str): The name of the argument that contains the documents as a list of strings.
+        """
+
         query: str
-        documents: list[str]
+        documents: str
 
     def _transform_output(self, result: list[str]) -> Dict[str, Any]:
         return {"filtered_documents": result}
@@ -314,20 +355,23 @@ class MaihemFiltering(MaihemEvaluator):
 class MaihemFinalAnswer(MaihemEvaluator):
     """Final answer generation connector.
 
-    Required Inputs:
-        - query: str  # The original question
-        - documents: list[str]  # The filtered documents to use for answering
-
     Output Format:
         answer: str  # The final answer
     """
 
     NAME = "answer_generation"
-    EXPECTED_INPUTS = {"query", "documents"}
 
     class Inputs(InputMapping):
+        """
+        Input mapping for the Final Answer Generation connector.
+
+        Attributes:
+            query (str): The name of the argument that contains the query as a string.
+            documents (str): The name of the argument that contains the documents as a list of strings.
+        """
+
         query: str
-        documents: list[str]
+        documents: str
 
     def _transform_output(self, result: str) -> Dict[str, Any]:
         return {"answer": result}
