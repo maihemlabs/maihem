@@ -8,3 +8,6 @@ myenv/
 **/myenv/
 build/
 src/maihem.egg-info/
+src/agents/*
+test_local.py
+src/test_local.py

@@ -5,14 +5,16 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.api_schema_test_run import APISchemaTestRun
+from ...models.create_test_run_request import CreateTestRunRequest
 from ...models.error_response import ErrorResponse
+from ...models.test_run import TestRun
 from ...types import UNSET, Response, Unset
 
 
 def _get_kwargs(
     test_id: str,
     *,
+    body: CreateTestRunRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
 ) -> Dict[str, Any]:
     headers: Dict[str, Any] = {}
@@ -24,34 +26,39 @@ def _get_kwargs(
         "url": f"/tests/{test_id}/test-runs",
     }
 
+    _body = body.to_dict()
+
+    _kwargs["json"] = _body
+    headers["Content-Type"] = "application/json"
+
     _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
-    if response.status_code == HTTPStatus.CREATED:
-        response_201 = APISchemaTestRun.from_dict(response.json())
+) -> Optional[Union[ErrorResponse, TestRun]]:
+    if response.status_code == 201:
+        response_201 = TestRun.from_dict(response.json())
 
         return response_201
-    if response.status_code == HTTPStatus.BAD_REQUEST:
+    if response.status_code == 400:
         response_400 = ErrorResponse.from_dict(response.json())
 
         return response_400
-    if response.status_code == HTTPStatus.CONFLICT:
+    if response.status_code == 409:
         response_409 = ErrorResponse.from_dict(response.json())
 
         return response_409
-    if response.status_code == HTTPStatus.UNPROCESSABLE_ENTITY:
+    if response.status_code == 422:
         response_422 = ErrorResponse.from_dict(response.json())
 
         return response_422
-    if response.status_code == HTTPStatus.INTERNAL_SERVER_ERROR:
+    if response.status_code == 500:
         response_500 = ErrorResponse.from_dict(response.json())
 
         return response_500
-    if response.status_code == HTTPStatus.GATEWAY_TIMEOUT:
+    if response.status_code == 504:
         response_504 = ErrorResponse.from_dict(response.json())
 
         return response_504
@@ -63,7 +70,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestRun]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -76,8 +83,9 @@ def sync_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: CreateTestRunRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestRun]]:
     """Run a test
 
      Create a new run of a specified test
@@ -85,17 +93,19 @@ def sync_detailed(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (CreateTestRunRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[ErrorResponse, TestRun]]
     """
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -110,8 +120,9 @@ def sync(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: CreateTestRunRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Optional[Union[ErrorResponse, TestRun]]:
     """Run a test
 
      Create a new run of a specified test
@@ -119,18 +130,20 @@ def sync(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (CreateTestRunRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[ErrorResponse, TestRun]
     """
 
     return sync_detailed(
         test_id=test_id,
         client=client,
+        body=body,
         x_api_key=x_api_key,
     ).parsed
 
@@ -139,8 +152,9 @@ async def asyncio_detailed(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: CreateTestRunRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Response[Union[ErrorResponse, TestRun]]:
     """Run a test
 
      Create a new run of a specified test
@@ -148,17 +162,19 @@ async def asyncio_detailed(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (CreateTestRunRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[APISchemaTestRun, ErrorResponse]]
+        Response[Union[ErrorResponse, TestRun]]
     """
 
     kwargs = _get_kwargs(
         test_id=test_id,
+        body=body,
         x_api_key=x_api_key,
     )
 
@@ -171,8 +187,9 @@ async def asyncio(
     test_id: str,
     *,
     client: AuthenticatedClient,
+    body: CreateTestRunRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[APISchemaTestRun, ErrorResponse]]:
+) -> Optional[Union[ErrorResponse, TestRun]]:
     """Run a test
 
      Create a new run of a specified test
@@ -180,19 +197,21 @@ async def asyncio(
     Args:
         test_id (str):
         x_api_key (Union[None, Unset, str]):
+        body (CreateTestRunRequest):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[APISchemaTestRun, ErrorResponse]
+        Union[ErrorResponse, TestRun]
     """
 
     return (
         await asyncio_detailed(
             test_id=test_id,
             client=client,
+            body=body,
             x_api_key=x_api_key,
         )
     ).parsed
