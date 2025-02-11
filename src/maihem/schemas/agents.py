@@ -161,13 +161,13 @@ class TargetAgent(BaseModel):
             try:
 
                 tracer = Tracer.get_instance().tracer
-                span_name = self._wrapped_function_name
-                with tracer.start_as_current_span(span_name) as span:
+                # span_name = self._wrapped_function_name
+                with tracer.start_as_current_span(self._workflow_name) as span:
                     span.set_attribute("workflow_trace_id", interaction_id)
                     span.set_attribute("test_run_id", test_run_id)
                     span.set_attribute("agent_target_id", target_agent_id)
                     span.set_attribute("workflow_name", self._workflow_name)
-                    span.set_attribute("workflow_step_name", span_name)
+                    span.set_attribute("workflow_step_name", self._workflow_name)
 
                     # Call the step wrapper function
                     response = asyncio.run(self._wrapper_function(**kwargs))
