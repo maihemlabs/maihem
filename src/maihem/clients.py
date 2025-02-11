@@ -535,7 +535,7 @@ class Client:
             raise errors.raise_not_found_error(
                 f"Workflows for target agent '{target_agent.name}' not found. Please initialize a workflow for this target agent."
             )
-        workflow = workflows[0]
+        workflow = workflows[len(workflows) - 1]
         return workflow
 
     def _get_workflow_entity_id(

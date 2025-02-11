@@ -7,17 +7,17 @@ from data import data_e2e, data_reranking
 
 maihem_client = Maihem(env="local")
 
-target_agent_name = "sanity_check"
-try:
-    target_agent = maihem_client.add_target_agent(
-        name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
-        role="Airbnb customer support agent",
-        description="Airbnb customer support agent that can help with questions about the platform",
-    )
-except Exception as e:
-    print(e)
-    target_agent = maihem_client.get_target_agent(name=target_agent_name)
-print(target_agent)
+target_agent_name = "agent-colin-local"
+# try:
+#     target_agent = maihem_client.add_target_agent(
+#         name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
+#         role="Airbnb customer support agent",
+#         description="Airbnb customer support agent that can help with questions about the platform",
+#     )
+# except Exception as e:
+#     print(e)
+#     target_agent = maihem_client.get_target_agent(name=target_agent_name)
+# print(target_agent)
 
 ##################################################################
 ######################### WORKFLOW E2E ###########################

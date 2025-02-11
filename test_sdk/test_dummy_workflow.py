@@ -75,7 +75,7 @@ async def retrieval(search_query: str) -> dict:  # Different parameter names
     )
 )
 async def reranking(
-    query: str, docs: list[str]
+    query: str, docs: list[str], other_param: str = "default"
 ) -> list[str]:  # Different parameter name
     random.shuffle(docs)
     return docs
@@ -102,7 +102,7 @@ async def answer(question: str, context: list[str]) -> str:  # Different paramet
 
 
 @maihem.workflow(
-    agent_target="sanity_check",
+    agent_target="agent-colin-local",
     evaluator=MaihemQA(
         inputs=MaihemQA.Inputs(query="user_input"),
     ),
