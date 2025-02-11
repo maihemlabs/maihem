@@ -46,7 +46,7 @@ class LoggerWrapper:
 
         # Base format string
         base_format = (
-            "<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> - "
+            "<blue>{time:YYYY-MM-DD HH:mm:ss}</blue> - maihem - "
             "<level>{level}</level> - {message} - "
             "<dim>{extra[pathname]}</dim>"
         )
