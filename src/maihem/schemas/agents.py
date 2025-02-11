@@ -8,9 +8,9 @@ from typing import Optional, Tuple, List, Dict, Coroutine
 import json
 import importlib
 
-from maihem.otel_client import Tracer, trace
-import maihem.errors as errors
-from maihem.logger import get_logger
+from maihem.otel_client import Tracer
+import maihem.shared.lib.errors as errors
+from maihem.shared.lib.logger import get_logger
 
 logger = get_logger()
 
@@ -79,7 +79,8 @@ class TargetAgent(BaseModel):
             return True
         except Exception as e:
             errors.raise_wrapper_function_error(
-                f"Error testing target agent wrapper function: {e}"
+                logger=logger,
+                message=f"Error testing target agent wrapper function: {e}",
             )
 
     def add_documents(self, documents: List[str]) -> None:
@@ -116,7 +117,9 @@ class TargetAgent(BaseModel):
         test_run_id: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
-            errors.raise_wrapper_function_error("Target agent wrapper function not set")
+            errors.raise_wrapper_function_error(
+                logger=logger, message="Target agent wrapper function not set"
+            )
         for retry in range(3):
             try:
                 data = {
@@ -128,7 +131,6 @@ class TargetAgent(BaseModel):
                     },
                 }
                 message_with_ids = json.dumps(data)
-                print(message_with_ids + "\n")
 
                 kwargs = {
                     "conversation_id": conversation_id,
@@ -145,7 +147,8 @@ class TargetAgent(BaseModel):
                     )
                 else:
                     errors.raise_wrapper_function_error(
-                        f"Error sending message to target agent after 3 retries. Error: {str(e)}"
+                        logger=logger,
+                        message=f"Error sending message to target agent after 3 retries. Error: {str(e)}",
                     )
 
     def _call_step(
@@ -156,7 +159,9 @@ class TargetAgent(BaseModel):
         kwargs: Dict,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
-            errors.raise_wrapper_function_error("Target agent wrapper function not set")
+            errors.raise_wrapper_function_error(
+                logger=logger, message="Target agent wrapper function not set"
+            )
         for retry in range(3):
             try:
 
@@ -179,5 +184,6 @@ class TargetAgent(BaseModel):
                     )
                 else:
                     errors.raise_wrapper_function_error(
-                        f"Error sending message to target agent after 3 retries. Error: {str(e)}"
+                        logger=logger,
+                        message=f"Error sending message to target agent after 3 retries. Error: {str(e)}",
                     )

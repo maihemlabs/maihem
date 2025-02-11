@@ -1,13 +1,15 @@
 from typing import List, Dict, Any
 
-import maihem.errors as errors
+import maihem.shared.lib.errors as errors
 from maihem.utils.utils import spread_n_into_buckets
+from maihem.shared.lib.logger import get_logger
 
 
 def map_module_list_to_metrics(
     modules: List[str], number_conversations: int
 ) -> Dict[str, Dict[str, Any]]:
     """Map modules to metrics."""
+    logger = get_logger()
     metrics_config = {}
     for module in modules:
         if module == "cx":
@@ -25,8 +27,11 @@ def map_module_list_to_metrics(
             metrics_config["qa_rag_answer_relevance"] = convs_list[1]
             metrics_config["qa_rag_context_relevance"] = convs_list[2]
         else:
-            raise errors.raise_not_found_error(
-                f"Module '{module}' is not supported. Please check the supported modules in https://docs.maihem.ai/reference/metric-collection."
+            errors.raise_not_found_error(
+                logger=logger,
+                entity_type="module",
+                entity_key=module,
+                comment="Please check the supported modules in https://docs.maihem.ai/reference/metric-collection",
             )
 
     return metrics_config

@@ -1,7 +1,6 @@
 import click
 from maihem.clients import Maihem
 from maihem.utils.utils import import_wrapper_function, create_project_folder
-from maihem.errors import RequestValidationError
 
 
 # Create the main CLI group
@@ -17,7 +16,7 @@ def cli(ctx, env):
     """Maihem CLI"""
     try:
         ctx.obj = Maihem(env=env)
-    except RequestValidationError as e:
+    except Exception as e:
         click.echo(e)
         ctx.exit(1)
 

@@ -9,7 +9,7 @@ from maihem.api_client.maihem_client.models.error_codes import (
     ErrorCodes as ErrorCodesAPI,
 )
 from pydantic_core import ValidationError
-from maihem.logger import get_logger
+from maihem.shared.lib.logger import get_logger
 
 
 class ErrorCodes(str, Enum):
