@@ -810,35 +810,35 @@ class Maihem(Client):
         text = None
 
         # Document loading and chunking (for RAG)
-        if target_agent.document_paths:
-            max_attempts = 10
-            attempts = 0
-            while attempts < max_attempts:
-                if not target_agent.document_paths:
-                    break
-                document_path = random.choice(list(target_agent.document_paths))
-                document_key = os.path.basename(document_path)
-                try:
-                    document = extract_text(document_path)
-                    if len(document) > 10000:
-                        chunks = TextSplitter(
-                            chunk_size=5000, chunk_overlap=200
-                        ).split_text(document)
-                        text = random.choice(chunks)
-                    else:
-                        text = document
-                    if text.strip():
-                        break
-                except Exception as e:
-                    self._logger.warning(
-                        f"Error processing document {document_key}: {str(e)}"
-                    )
-                attempts += 1
+        # if target_agent.document_paths:
+        #     max_attempts = 10
+        #     attempts = 0
+        #     while attempts < max_attempts:
+        #         if not target_agent.document_paths:
+        #             break
+        #         document_path = random.choice(list(target_agent.document_paths))
+        #         document_key = os.path.basename(document_path)
+        #         try:
+        #             document = extract_text(document_path)
+        #             if len(document) > 10000:
+        #                 chunks = TextSplitter(
+        #                     chunk_size=5000, chunk_overlap=200
+        #                 ).split_text(document)
+        #                 text = random.choice(chunks)
+        #             else:
+        #                 text = document
+        #             if text.strip():
+        #                 break
+        #         except Exception as e:
+        #             self._logger.warning(
+        #                 f"Error processing document {document_key}: {str(e)}"
+        #             )
+        #         attempts += 1
 
-            if attempts == max_attempts:
-                self._logger.warning(
-                    "Max attempts reached while trying to select a valid document chunk."
-                )
+        #     if attempts == max_attempts:
+        #         self._logger.warning(
+        #             "Max attempts reached while trying to select a valid document chunk."
+        #         )
         if (
             test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
