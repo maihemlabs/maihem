@@ -18,7 +18,12 @@ class Tracer:
 
         # Use OTLP HTTP exporter with BatchSpanProcessor
         otlp_exporter = OTLPSpanExporter(endpoint=endpoint)
-        self.provider.add_span_processor(BatchSpanProcessor(otlp_exporter))
+        self.processor = BatchSpanProcessor(
+            otlp_exporter,
+            schedule_delay_millis=5 * 60 * 1000,
+            export_timeout_millis=5 * 60 * 1000 + 1000,
+        )
+        self.provider.add_span_processor(self.processor)
 
         trace.set_tracer_provider(self.provider)
         self.tracer = trace.get_tracer(service_name)

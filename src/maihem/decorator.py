@@ -11,6 +11,43 @@ import os
 import logging
 
 
+def safe_serialize_input(data: Any) -> str:
+    """
+    Try to JSON-serialize the input.
+
+    If JSON serialization fails and the data is a dict, try to iterate through each key/value:
+    if an individual value fails, use its repr. For non-dict data fall back to repr.
+    """
+    try:
+        return json.dumps(data)
+    except Exception:
+        if isinstance(data, dict):
+            safe_data = {}
+            for key, value in data.items():
+                try:
+                    # Try to safely serialize each value
+                    safe_data[key] = json.loads(json.dumps(value))
+                except Exception:
+                    safe_data[key] = repr(value)
+            try:
+                return json.dumps(safe_data)
+            except Exception:
+                return repr(safe_data)
+        return repr(data)
+
+
+def safe_serialize_output(data: Any) -> str:
+    """
+    Try to JSON-serialize the output.
+
+    If serialization fails, simply return a repr of the data.
+    """
+    try:
+        return json.dumps(data)
+    except Exception:
+        return repr(data)
+
+
 @lru_cache(maxsize=128)  # Increased cache size since it's now shared
 def get_agent_target_id(
     agent_name: str, api_key: Optional[str] = None
@@ -38,6 +75,8 @@ def _process_args_and_set_inputs(
     kwargs: Dict[str, Any],
     evaluator: Optional[MaihemEvaluator],
     span: Any,
+    span_name: str,
+    workflow_step: bool = False,
 ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
     """
     Bind and process the function arguments and update the span with the input payload.
@@ -61,27 +100,33 @@ def _process_args_and_set_inputs(
     input_payload = (
         evaluator.map_inputs(**filtered_arguments) if evaluator else filtered_arguments
     )
+    if workflow_step:
+        span.set_attribute("workflow_step_name", span_name)
+        span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
+    else:
+        span.set_attribute("workflow_name", span_name)
+        span.set_attribute("workflow_step_name", span_name)
+        span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
+        if "query" in input_payload:
+            clean_query, ids = extract_ids_from_query(input_payload["query"])
+            for key, value in ids.items():
+                span.set_attribute(key, value)
 
-    # If a "query" parameter exists, process it.
-    if "query" in input_payload:
-        clean_query, ids = extract_ids_from_query(input_payload["query"])
-        for key, value in ids.items():
-            span.set_attribute(key, value)
-
-        # Replace query in args and kwargs if found.
-        args = tuple(
-            clean_query if arg == input_payload["query"] else arg for arg in args
-        )
-        if evaluator:
-            arg_name = next(
-                (k for k, v in evaluator.input_mapping.items() if v == "query"), None
+            # Replace query in args and kwargs if found.
+            args = tuple(
+                clean_query if arg == input_payload["query"] else arg for arg in args
             )
-            if arg_name and arg_name in kwargs:
-                kwargs[arg_name] = clean_query
-        input_payload["query"] = clean_query
+            if evaluator:
+                arg_name = next(
+                    (k for k, v in evaluator.input_mapping.items() if v == "query"),
+                    None,
+                )
+                if arg_name and arg_name in kwargs:
+                    kwargs[arg_name] = clean_query
+            input_payload["query"] = clean_query
 
-    span.set_attribute("input_payload", json.dumps(input_payload))
-    span.set_attribute("input_payload_raw", json.dumps(filtered_arguments))
+    span.set_attribute("input_payload", safe_serialize_input(input_payload))
+    span.set_attribute("input_payload_raw", safe_serialize_input(filtered_arguments))
     return args, kwargs
 
 
@@ -95,8 +140,8 @@ def _set_output_attributes(
         The mapped output.
     """
     output_payload = evaluator.map_outputs(result) if evaluator else result
-    span.set_attribute("output_payload", json.dumps(output_payload))
-    span.set_attribute("output_payload_raw", json.dumps(result))
+    span.set_attribute("output_payload", safe_serialize_output(output_payload))
+    span.set_attribute("output_payload_raw", safe_serialize_output(result))
     return output_payload
 
 
@@ -140,18 +185,20 @@ def workflow(
                 with tracer.start_as_current_span(span_name) as span:
                     if cached_agent_id:
                         span.set_attribute("agent_target_id", cached_agent_id)
-                    span.set_attribute("workflow_name", span_name)
-                    span.set_attribute("workflow_step_name", span_name)
-                    span.set_attribute(
-                        "evaluator_name", evaluator.NAME if evaluator else None
-                    )
 
                     args, kwargs = _process_args_and_set_inputs(
-                        sig, args, kwargs, evaluator, span
+                        sig,
+                        args,
+                        kwargs,
+                        evaluator,
+                        span,
+                        span_name,
+                        workflow_step=False,
                     )
                     result = await func(*args, **kwargs)
                     _set_output_attributes(span, result, evaluator)
-                    return result
+                tracer.span_processor.force_flush()
+                return result
 
             return async_wrapper
 
@@ -172,17 +219,19 @@ def workflow(
                 with tracer.start_as_current_span(span_name) as span:
                     if cached_agent_id:
                         span.set_attribute("agent_target_id", cached_agent_id)
-                    span.set_attribute("workflow_name", span_name)
-                    span.set_attribute("workflow_step_name", span_name)
-                    span.set_attribute(
-                        "evaluator_name", evaluator.NAME if evaluator else None
-                    )
 
                     args, kwargs = _process_args_and_set_inputs(
-                        sig, args, kwargs, evaluator, span
+                        sig,
+                        args,
+                        kwargs,
+                        evaluator,
+                        span,
+                        span_name,
+                        workflow_step=False,
                     )
                     result = func(*args, **kwargs)
                     _set_output_attributes(span, result, evaluator)
+                    tracer.span_processor.force_flush()
                     return result
 
             return sync_wrapper
@@ -226,13 +275,14 @@ def workflow_step(
                 tracer = Tracer.get_instance().tracer
                 span_name = name or func.__name__
                 with tracer.start_as_current_span(span_name) as span:
-                    span.set_attribute("workflow_step_name", span_name)
-                    span.set_attribute(
-                        "evaluator_name", evaluator.NAME if evaluator else None
-                    )
-
                     args, kwargs = _process_args_and_set_inputs(
-                        sig, args, kwargs, evaluator, span
+                        sig,
+                        args,
+                        kwargs,
+                        evaluator,
+                        span,
+                        span_name,
+                        workflow_step=True,
                     )
                     result = await func(*args, **kwargs)
                     _set_output_attributes(span, result, evaluator)
@@ -261,13 +311,14 @@ def workflow_step(
                 tracer = Tracer.get_instance().tracer
                 span_name = name or func.__name__
                 with tracer.start_as_current_span(span_name) as span:
-                    span.set_attribute("workflow_step_name", span_name)
-                    span.set_attribute(
-                        "evaluator_name", evaluator.NAME if evaluator else None
-                    )
-
                     args, kwargs = _process_args_and_set_inputs(
-                        sig, args, kwargs, evaluator, span
+                        sig,
+                        args,
+                        kwargs,
+                        evaluator,
+                        span,
+                        span_name,
+                        workflow_step=True,
                     )
                     result = func(*args, **kwargs)
                     _set_output_attributes(span, result, evaluator)
