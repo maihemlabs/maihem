@@ -4,7 +4,7 @@ import pymupdf
 from typing import List, Iterable, Optional, Dict
 import re
 
-from maihem.logger import get_logger
+from maihem.shared.lib.logger import get_logger
 
 logger = get_logger()
 

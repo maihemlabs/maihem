@@ -1,7 +1,7 @@
 import json
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
-from typing import Dict, Literal, Optional, List, Callable
+from typing import Dict, Literal, Optional, List
 from pydantic import ValidationError
 import random
 from tqdm import tqdm
@@ -17,6 +17,7 @@ from maihem.schemas.tests import (
     ResultTestRun,
 )
 from maihem.schemas.conversations import ConversationTurnCreateResponse
+from maihem.api_client.maihem_client.types import Unset
 from maihem.api_client.maihem_client.models.agent_target_create_request import (
     AgentTargetCreateRequest,
 )
@@ -59,11 +60,14 @@ from maihem.api_client.maihem_client.models.dataset_items_create_response import
 from maihem.api_client.maihem_client.models.dataset_create_request import (
     DatasetCreateRequest,
 )
-import maihem.errors as errors
+from maihem.api_client.maihem_client.models.workflow_step_span_create_response_input_payload_type_0 import (
+    WorkflowStepSpanCreateResponseInputPayloadType0,
+)
+import maihem.shared.lib.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
 from maihem.utils.documents import TextSplitter, extract_text, parse_documents
-from maihem.logger import get_logger
+from maihem.shared.lib.logger import get_logger, add_default_logger
 
 
 class Client:
@@ -84,25 +88,32 @@ class Client:
         api_key: Optional[str] = None,
     ) -> None:
         self._logger = get_logger()
+        add_default_logger(self._logger)
 
         # Initialize the API client based on the environment
         if env == "production":
             self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
             if not self._api_key:
-                raise errors.raise_request_validation_error("API key is missing")
+                errors.raise_request_validation_error(
+                    logger=self._logger, message="API key is missing"
+                )
             self._maihem_api_client = MaihemHTTPClientSync(
                 self._base_url, self._api_key
             )
         elif env == "staging":
             self._api_key = api_key or os.getenv("MAIHEM_API_KEY_STAGING")
             if not self._api_key:
-                raise errors.raise_request_validation_error("Staging API key missing")
+                errors.raise_request_validation_error(
+                    logger=self._logger, message="Staging API key missing"
+                )
             self._override_base_url(self._staging_url)
             self._override_base_url_ui(self._staging_url_ui)
         elif env == "local":
             self._api_key = api_key or os.getenv("MAIHEM_API_KEY_LOCAL")
             if not self._api_key:
-                raise errors.raise_request_validation_error("Local API key missing")
+                errors.raise_request_validation_error(
+                    logger=self._logger, message="Local API key missing"
+                )
             self._override_base_url(self._local_url)
             self._override_base_url_ui(self._local_url_ui)
 
@@ -153,15 +164,15 @@ class Client:
                     language=language,
                 )
             )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Validate response
         agent_target = None
         try:
             agent_target = TargetAgent.model_validate(resp.to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         self._logger.info(f"Successfully created target agent '{name}'")
         return agent_target
@@ -170,18 +181,20 @@ class Client:
         # Get target agent
         try:
             target_agents = self._maihem_api_client.get_agent_targets_by_name(name=name)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Validate response
         if not target_agents or len(target_agents) == 0:
-            raise errors.raise_not_found_error(f"Target agent '{name}' not found")
+            errors.raise_not_found_error(
+                logger=self._logger, entity_type="Target agent", entity_key=name
+            )
 
         target_agent = None
         try:
             target_agent = TargetAgent.model_validate(target_agents[0].to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         return target_agent
 
@@ -260,14 +273,14 @@ class Client:
                 ),
                 dataset_id=resp.id,
             )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Validate response
         try:
             dataset = DatasetItemsCreateResponse.from_dict(resp.to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         self._logger.info(f"Successfully uploaded dataset '{name}'")
 
@@ -320,7 +333,6 @@ class Client:
             maihem_goal_prompt=maihem_goal_prompt,
             maihem_population_prompt=maihem_population_prompt,
             conversation_turns_max=conversation_turns_max,
-            number_conversations=number_conversations,
             documents_path=documents_path,
             metrics_config=metrics_config,
         )
@@ -348,8 +360,8 @@ class Client:
         # Get dataset id from dataset name
         dataset = self._maihem_api_client.get_datasets(name=dataset_name)
         if not dataset or len(dataset) == 0:
-            raise errors.raise_not_found_error(
-                f"Dataset '{dataset_name}' does not exist"
+            errors.raise_not_found_error(
+                logger=self._logger, entity_type="Dataset", entity_key=dataset_name
             )
 
         # Assign dataset to test
@@ -382,8 +394,8 @@ class Client:
         # Get dataset id from dataset name
         dataset = self._maihem_api_client.get_datasets(name=dataset_name)
         if not dataset or len(dataset) == 0:
-            raise errors.raise_not_found_error(
-                f"Dataset '{dataset_name}' does not exist"
+            errors.raise_not_found_error(
+                logger=self._logger, entity_type="Dataset", entity_key=dataset_name
             )
 
         # Assign dataset to test
@@ -414,8 +426,9 @@ class Client:
             try:
                 initiating_agent = AgentType[initiating_agent.upper()]
             except KeyError:
-                raise errors.raise_request_validation_error(
-                    f"Invalid agent type: {initiating_agent}"
+                errors.raise_request_validation_error(
+                    logger=self._logger,
+                    message=f"Invalid agent type: {initiating_agent}",
                 )
 
         try:
@@ -458,15 +471,15 @@ class Client:
                         documents=documents,
                     )
                 )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Validate response
         test = None
         try:
             test = Test.model_validate(resp.to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         self._logger.info(f"Successfully created test '{name}'")
         return test
@@ -476,18 +489,20 @@ class Client:
         resp = None
         try:
             resp = self._maihem_api_client.get_tests_by_name(name=name)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         if not resp or len(resp) == 0:
-            raise errors.raise_not_found_error(f"Test '{name}' not found")
+            errors.raise_not_found_error(
+                logger=self._logger, entity_type="Test", entity_key=name
+            )
 
         # Validate response
         test = None
         try:
             test = Test.model_validate(resp[0].to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         return test
 
@@ -495,8 +510,8 @@ class Client:
         # Get test
         try:
             test = self.get_test(test_name)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Get test runs
         try:
@@ -505,10 +520,14 @@ class Client:
             )
             if test_runs is None or len(test_runs) == 0:
                 errors.raise_not_found_error(
-                    f"Test run '{test_run_name}' not found for test '{test_name}'"
+                    logger=self._logger,
+                    entity_type="Test run",
+                    entity_key=test_run_name,
+                    reference_entity_type="Test",
+                    reference_entity_key=test_name,
                 )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Get test run result
         test_run = None
@@ -516,14 +535,14 @@ class Client:
             test_run_api = self._maihem_api_client.get_test_run_result(
                 test_run_id=test_runs[0].id
             )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         # Validate response
         try:
             test_run = ResultTestRun(test_run_api=test_run_api)
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         return test_run
 
@@ -563,7 +582,9 @@ class Client:
 
         if not entity_id:
             raise errors.raise_not_found_error(
-                f"Entity '{entity_type}' with name '{step_name}' not found"
+                logger=self._logger,
+                entity_type=entity_type,
+                entity_key=step_name,
             )
 
         return entity_id
@@ -655,13 +676,13 @@ class Maihem(Client):
                         test_id=test.id,
                         req=CreateTestRunRequest(name=name, label=label),
                     )
-            except errors.ErrorBase as e:
-                errors.handle_base_error(e)
+            except errors.BaseError as e:
+                errors.handle_base_error(logger=self._logger, exception=e)
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
             except ValidationError as e:
-                errors.handle_schema_validation_error(e)
+                errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
             test_run_conversations = self._get_test_run_conversations(test_run.id)
             conversation_ids = test_run_conversations.conversation_ids
@@ -708,10 +729,8 @@ class Maihem(Client):
                         conversation_id = future_to_conversation_id[future]
                         try:
                             future.result()
-                        except errors.ErrorBase as e:
-                            self._logger.error(
-                                f"Error running conversation ({conversation_id}): {e.message}"
-                            )
+                        except errors.BaseError as e:
+                            errors.handle_base_error(logger=self._logger, exception=e)
                             progress.colour = "red"
                         finally:
                             progress.update()
@@ -731,8 +750,8 @@ class Maihem(Client):
                     test_run_id=test_run.id, status=TestStatusEnum.CANCELED
                 )
             self._logger.info("Test run canceled!")
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
         except Exception as e:
             self._logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
@@ -885,7 +904,8 @@ class Maihem(Client):
 
         except Exception as e:
             errors.raise_wrapper_function_error(
-                f"Error sending message to target agent: {e}"
+                logger=self._logger,
+                message=f"Error sending message to target agent: {e}",
             )
 
         if contexts != []:
@@ -925,9 +945,9 @@ class Maihem(Client):
                 conversation=resp.conversation,
             )
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
     def _get_conversation_message_from_conversation(
         self,
@@ -942,20 +962,22 @@ class Maihem(Client):
                     if message.agent_type == agent_type:
                         return message
 
-        errors.raise_not_found_error(f"Could not retrieve {agent_type} agent message")
+        errors.raise_not_found_error(
+            logger=self._logger, entity_type=f"{agent_type} agent message"
+        )
 
     def _get_test_run_conversations(self, test_run_id: str) -> TestRunConversations:
         resp = None
         try:
             resp = self._maihem_api_client.get_test_run_conversations(test_run_id)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         test_run = None
         try:
             test_run = TestRunConversations.model_validate(resp.to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         return test_run
 
@@ -963,14 +985,14 @@ class Maihem(Client):
         resp = None
         try:
             resp = self._maihem_api_client.get_conversation(conversation_id)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         try:
             conversation = ConversationNested.from_dict(resp.to_dict())
             return conversation
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
     def run_step_test(
         self,
@@ -1008,8 +1030,10 @@ class Maihem(Client):
                         workflow_name=workflow.name,
                     )
                 else:
-                    raise errors.raise_not_found_error(
-                        f"Step '{step_name}' not found in workflow '{workflow.name}'"
+                    errors.raise_not_found_error(
+                        logger=self._logger,
+                        entity_type="Workflow step",
+                        entity_key=step_name,
                     )
             resp = None
 
@@ -1022,13 +1046,13 @@ class Maihem(Client):
                         test_id=test.id,
                         req=CreateTestRunRequest(name=name, label=label),
                     )
-            except errors.ErrorBase as e:
-                errors.handle_base_error(e)
+            except errors.BaseError as e:
+                errors.handle_base_error(logger=self._logger, exception=e)
 
             try:
                 test_run = TestRun.model_validate(resp.to_dict())
             except ValidationError as e:
-                errors.handle_schema_validation_error(e)
+                errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
             test_run_traces = self._get_test_run_workflow_traces(test_run.id)
             traces_ids = test_run_traces.workflow_trace_ids
@@ -1072,7 +1096,7 @@ class Maihem(Client):
                         trace_id = future_to_trace_id[future]
                         try:
                             future.result()
-                        except errors.ErrorBase as e:
+                        except errors.BaseError as e:
                             self._logger.error(
                                 f"Error running interaction ({trace_id}): {e.message}"
                             )
@@ -1095,8 +1119,8 @@ class Maihem(Client):
                     test_run_id=test_run.id, status=TestStatusEnum.CANCELED
                 )
             self._logger.info("Test run canceled!")
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
         except Exception as e:
             self._logger.error(f"Error: {e}. Ending test...")
             if test_run is not None and test_run.id is not None:
@@ -1125,17 +1149,26 @@ class Maihem(Client):
         span = self._get_workflow_span(
             test_run_id=test_run_id, workflow_trace_id=interaction_id
         )
+
+        input_payload = None
+        if isinstance(
+            span.input_payload, WorkflowStepSpanCreateResponseInputPayloadType0
+        ):
+            input_payload = span.input_payload.to_dict()
+        else:
+            input_payload = {}
+
         try:
             result = target_agent._call_step(
                 interaction_id=interaction_id,
                 target_agent_id=target_agent.id,
                 test_run_id=test_run_id,
-                kwargs=span.input_payload.additional_properties,
+                kwargs=input_payload,
             )
 
         except Exception as e:
             errors.raise_wrapper_function_error(
-                f"Error sending data to target agent: {e}"
+                logger=self._logger, message=f"Error sending data to target agent: {e}"
             )
 
         return interaction_id
@@ -1146,14 +1179,14 @@ class Maihem(Client):
         resp = None
         try:
             resp = self._maihem_api_client.get_test_run_workflow_traces(test_run_id)
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         test_run_traces = None
         try:
             test_run_traces = TestRunWorkflowTraceIDs.from_dict(resp.to_dict())
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
         return test_run_traces
 
@@ -1165,11 +1198,11 @@ class Maihem(Client):
             resp = self._maihem_api_client.get_workflow_span(
                 test_run_id=test_run_id, workflow_trace_id=workflow_trace_id
             )
-        except errors.ErrorBase as e:
-            errors.handle_base_error(e)
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
 
         try:
             workflow_span = WorkflowStepSpanCreateResponse.from_dict(resp.to_dict())
             return workflow_span
         except ValidationError as e:
-            errors.handle_schema_validation_error(e)
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)

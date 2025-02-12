@@ -89,9 +89,9 @@ from maihem.api_client.maihem_client.api.agents import (
     agents_get_agent_target,
 )
 
-from maihem.errors import handle_http_errors, ErrorResponse
+from maihem.shared.lib.errors import handle_http_errors, ErrorResponse
 from maihem.schemas.tests import TestStatusEnum
-from maihem.logger import get_logger
+from maihem.shared.lib.logger import get_logger
 
 
 class MaihemHTTPClientBase:
@@ -103,13 +103,14 @@ class MaihemHTTPClientBase:
 
 class MaihemHTTPClientSync(MaihemHTTPClientBase):
     def whoami(self) -> Dict[str, str]:
+        logger = get_logger()
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response = self._retry(whoami_who_am_i.sync_detailed)(
                 client=client, x_api_key=self.token
             )
 
         if response.status_code != 200:
-            handle_http_errors(error_resp=response.parsed)
+            handle_http_errors(logger=logger, error_resp=response.parsed)
         return response.parsed
 
     def _retry(self, function: Callable) -> Callable:
@@ -130,9 +131,10 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         return wrapper
 
     def _return_validated_response(self, response: Response):
+        logger = get_logger()
         if response.status_code != 200 and response.status_code != 201:
             error_dict = json.loads(response.content)
-            handle_http_errors(error_resp=ErrorResponse.from_dict(error_dict))
+            handle_http_errors(logger=logger, error_resp=ErrorResponse(**error_dict))
         return response.parsed
 
     def create_agent_target(self, req: AgentTargetCreateRequest) -> AgentTarget:

@@ -3,8 +3,8 @@ import os
 from typing import List, Callable, Tuple
 import json
 
-import maihem.errors as errors
-from maihem.logger import get_logger
+import maihem.shared.lib.errors as errors
+from maihem.shared.lib.logger import get_logger
 
 logger = get_logger()
 
@@ -22,29 +22,37 @@ def spread_n_into_buckets(n: int, buckets: int) -> List[int]:
 
 def import_wrapper_function(path: str = "wrapper_function.py") -> Callable:
     if not os.path.exists(path):
-        errors.raise_not_found_error(f"Wrapper function file not found at: {path}")
+        errors.raise_not_found_error(
+            logger=logger, entity_type="Wrapper function", entity_key=path
+        )
 
     if not os.path.isfile(path):
-        errors.raise_not_found_error(f"Path exists but is not a file: {path}")
+        errors.raise_schema_validation_error(
+            logger=logger, message=f"Path exists but is not a file: {path}"
+        )
 
     try:
         spec = importlib.util.spec_from_file_location(
             "wrapper_function", os.path.abspath(path)
         )
         if spec is None or spec.loader is None:
-            errors.raise_not_found_error("Failed to load module specification")
+            errors.raise_request_validation_error(
+                logger=logger, message="Failed to load module specification"
+            )
 
         wrapper_module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(wrapper_module)
 
         if not hasattr(wrapper_module, "wrapper_function"):
-            errors.raise_not_found_error("Module does not contain 'wrapper_function'")
+            errors.raise_request_validation_error(
+                logger=logger, message="Module does not contain 'wrapper_function'"
+            )
 
         wrapper_function = wrapper_module.wrapper_function
         return wrapper_function
     except Exception as e:
-        errors.raise_not_found_error(
-            f"Wrapper function could not be imported. Error: {e}"
+        errors.raise_request_validation_error(
+            logger=logger, message=f"Wrapper function could not be imported. Error: {e}"
         )
 
 
