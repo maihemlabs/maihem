@@ -37,15 +37,18 @@ class TargetAgent(BaseModel):
     document_paths: List[str] = []
 
     def set_wrapper_function(
-        self, function_name: str, workflow_name: Optional[str] = None
+        self,
+        function_name: str,
+        test_name: str,
+        workflow_name: Optional[str] = None,
     ) -> None:
         """Dynamically imports and sets the wrapper function based on workflow name"""
         try:
             # Import the wrappers module
-            wrappers = importlib.import_module("wrappers")
+            wrappers = importlib.import_module(f"test_{test_name}.wrapper_functions")
 
             # Get the wrapper function name by prepending 'wrapper_' to workflow name
-            wrapper_func_name = f"wrapper_{function_name}"
+            wrapper_func_name = f"{function_name}_wrapper"
 
             # Get the function from the module
             if hasattr(wrappers, wrapper_func_name):
@@ -176,6 +179,7 @@ class TargetAgent(BaseModel):
 
                     # Call the step wrapper function
                     response = asyncio.run(self._wrapper_function(**kwargs))
+                tracer.span_processor.force_flush()
                 return response
             except Exception as e:
                 if retry < 2:

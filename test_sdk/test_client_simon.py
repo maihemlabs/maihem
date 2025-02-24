@@ -7,17 +7,17 @@ from data import data_e2e
 
 maihem_client = Maihem(env="local")
 
-target_agent_name = "agent-colin-local"
-# try:
-#     target_agent = maihem_client.add_target_agent(
-#         name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
-#         role="Airbnb customer support agent",
-#         description="Airbnb customer support agent that can help with questions about the platform",
-#     )
-# except Exception as e:
-#     print(e)
-# target_agent = maihem_client.get_target_agent(name=target_agent_name)
-# print(target_agent)
+target_agent_name = "target-deco"
+try:
+    target_agent = maihem_client.add_target_agent(
+        name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
+        role="Airbnb customer support agent",
+        description="Airbnb customer support agent that can help with questions about the platform",
+    )
+except Exception as e:
+    print(e)
+target_agent = maihem_client.get_target_agent(name=target_agent_name)
+print(target_agent)
 
 
 # maihem_client.upload_dataset(
@@ -42,9 +42,9 @@ target_agent_name = "agent-colin-local"
 # )
 # print(test)
 
-test_run = maihem_client.run_workflow_test(
-    name="test_run" + datetime.now().strftime("%Y%m%d_%H%M%S"),
-    test_name="test_sanity_check_e2e_gen_v1",
-    concurrent_conversations=1,
-)
-print(test_run)
+# test_run = maihem_client.run_workflow_test(
+#     name="test_run" + datetime.now().strftime("%Y%m%d_%H%M%S"),
+#     test_name="test_sanity_check_e2e_gen_v1",
+#     concurrent_conversations=1,
+# )
+# print(test_run)

@@ -4,7 +4,11 @@ from .admin_evaluation_review_create_request import AdminEvaluationReviewCreateR
 from .admin_evaluation_review_edit_request import AdminEvaluationReviewEditRequest
 from .agent_target import AgentTarget
 from .agent_target_create_request import AgentTargetCreateRequest
+from .agent_target_revision_create_request import AgentTargetRevisionCreateRequest
 from .agent_type import AgentType
+from .agents_set_active_agent_target_response_agents_set_active_agent_target import (
+    AgentsSetActiveAgentTargetResponseAgentsSetActiveAgentTarget,
+)
 from .conversation_nested import ConversationNested
 from .conversation_nested_evaluation import ConversationNestedEvaluation
 from .conversation_nested_evaluation_base import ConversationNestedEvaluationBase
@@ -27,6 +31,7 @@ from .dataset_create_request_target_type import DatasetCreateRequestTargetType
 from .dataset_item_create_item_request import DatasetItemCreateItemRequest
 from .dataset_items_create_request import DatasetItemsCreateRequest
 from .dataset_items_create_response import DatasetItemsCreateResponse
+from .environment import Environment
 from .error_codes import ErrorCodes
 from .error_response import ErrorResponse
 from .error_response_error import ErrorResponseError
@@ -50,12 +55,12 @@ from .test import Test
 from .test_create_request import TestCreateRequest
 from .test_create_request_documents_type_0 import TestCreateRequestDocumentsType0
 from .test_create_request_entity_type import TestCreateRequestEntityType
-from .test_create_request_metrics_config import TestCreateRequestMetricsConfig
+from .test_create_request_metrics_config_type_0 import TestCreateRequestMetricsConfigType0
 from .test_dataset import TestDataset
 from .test_dataset_create_request import TestDatasetCreateRequest
 from .test_documents_type_0 import TestDocumentsType0
 from .test_entity_type import TestEntityType
-from .test_metrics_config import TestMetricsConfig
+from .test_metrics_config_type_0 import TestMetricsConfigType0
 from .test_result_enum import TestResultEnum
 from .test_run import TestRun
 from .test_run_conversation_i_ds import TestRunConversationIDs
@@ -85,8 +90,10 @@ from .workflow_step_span_create_response_input_payload_type_0 import WorkflowSte
 __all__ = (
     "AdminEvaluationReviewCreateRequest",
     "AdminEvaluationReviewEditRequest",
+    "AgentsSetActiveAgentTargetResponseAgentsSetActiveAgentTarget",
     "AgentTarget",
     "AgentTargetCreateRequest",
+    "AgentTargetRevisionCreateRequest",
     "AgentType",
     "ConversationNested",
     "ConversationNestedEvaluation",
@@ -110,6 +117,7 @@ __all__ = (
     "DatasetItemCreateItemRequest",
     "DatasetItemsCreateRequest",
     "DatasetItemsCreateResponse",
+    "Environment",
     "ErrorCodes",
     "ErrorResponse",
     "ErrorResponseError",
@@ -133,12 +141,12 @@ __all__ = (
     "TestCreateRequest",
     "TestCreateRequestDocumentsType0",
     "TestCreateRequestEntityType",
-    "TestCreateRequestMetricsConfig",
+    "TestCreateRequestMetricsConfigType0",
     "TestDataset",
     "TestDatasetCreateRequest",
     "TestDocumentsType0",
     "TestEntityType",
-    "TestMetricsConfig",
+    "TestMetricsConfigType0",
     "TestResultEnum",
     "TestRun",
     "TestRunConversationIDs",

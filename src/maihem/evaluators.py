@@ -1,5 +1,15 @@
 from abc import ABC, abstractmethod, ABCMeta
-from typing import Any, Dict, Optional, Mapping, ClassVar, Set, Callable, get_type_hints
+from typing import (
+    Any,
+    Dict,
+    Optional,
+    Mapping,
+    ClassVar,
+    Set,
+    Callable,
+    get_type_hints,
+    Type,
+)
 from pydantic import BaseModel  # Install via: pip install pydantic
 import textwrap
 
@@ -35,6 +45,10 @@ class InputMapping(BaseModel):
         extra = "forbid"
 
 
+# Global registry for storing Evaluator classes
+EVALUATOR_REGISTRY: Dict[str, Type["MaihemEvaluator"]] = {}
+
+
 class EvaluatorMeta(ABCMeta):
     """
     Metaclass for MaihemEvaluator that automatically sets the
@@ -49,11 +63,17 @@ class EvaluatorMeta(ABCMeta):
             cls.EXPECTED_INPUTS = set(get_type_hints(inputs_cls).keys())
         else:
             cls.EXPECTED_INPUTS = set()
+        # Register evaluator classes with a non-empty NAME
+        if cls.NAME:
+            if cls.NAME in EVALUATOR_REGISTRY:
+                raise ValueError(f"Duplicate evaluator name: {cls.NAME}")
+            EVALUATOR_REGISTRY[cls.NAME] = cls
 
 
 class MaihemEvaluator(ABC, metaclass=EvaluatorMeta):
     # Connector name for identification must be defined in each subclass.
     NAME: ClassVar[str] = ""
+    EXPECTED_INPUTS: Set[str] = set()  # Default for static type-checking
 
     def __init__(
         self,
@@ -148,7 +168,7 @@ class MaihemEvaluator(ABC, metaclass=EvaluatorMeta):
         """
         pass
 
-    def _generate_function_wrapper(self) -> str:
+    def _generate_function_wrapper(self, function_name: str) -> str:
         """
         Generate a wrapper code snippet for the connector function.
         (In practice, you might return a callable or write this to a file.)
@@ -173,7 +193,7 @@ class MaihemEvaluator(ABC, metaclass=EvaluatorMeta):
             # import my_{self.NAME}
             
             
-            def {self.NAME}_wrapper({args_str}):
+            def {function_name}_wrapper({args_str}):
                 \"\"\"Wrapper for {self.NAME} step.
                 
                 Required Inputs:

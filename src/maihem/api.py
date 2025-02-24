@@ -108,7 +108,6 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
             response: Response = self._retry(whoami_who_am_i.sync_detailed)(
                 client=client, x_api_key=self.token
             )
-
         if response.status_code != 200:
             handle_http_errors(logger=logger, error_resp=response.parsed)
         return response.parsed

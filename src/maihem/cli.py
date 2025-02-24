@@ -3,25 +3,35 @@ from maihem.clients import Maihem
 from maihem.utils.utils import import_wrapper_function, create_project_folder
 
 
-# Create the main CLI group
+# Move login command before main group initialization
 @click.group()
+def cli():
+    """Maihem CLI"""
+    pass
+
+
+@cli.command()
+@click.argument("token")
 @click.option(
     "--env",
     type=click.Choice(["local", "staging", "production"]),
     default="production",
     help="Environment to use (default: production)",
 )
-@click.pass_context
-def cli(ctx, env):
-    """Maihem CLI"""
+def login(token: str, env: str):
+    """Log in to Maihem using your API token."""
     try:
-        ctx.obj = Maihem(env=env)
+        client = Maihem(api_key=token, env=env)
+        click.echo(f"✨ Successfully logged in to {env} environment")
+        click.echo("🔒 Token stored securely in cache")
     except Exception as e:
-        click.echo(e)
-        ctx.exit(1)
+        click.echo(f"❌ Login failed: {str(e)}")
+        raise click.Abort()
 
 
-# Target agent commands
+# Removed maihem group and moved commands to top level
+
+
 @cli.group()
 def target_agent():
     """Manage target agents"""
@@ -29,15 +39,16 @@ def target_agent():
 
 
 @target_agent.command()
+@click.option("--env", default="production", help="Environment to use")
 @click.option("--name", required=True, help="Unique name of the target agent")
 @click.option("--label", help="Label for the target agent (optional)")
 @click.option("--role", required=True, help="Role of the target agent")
 @click.option("--description", required=True, help="Description of the target agent")
 @click.option("--language", default="en", help="Language (default: en). Follow ISO 639")
-@click.pass_obj
-def create(maihem_client, name, label, role, description, language):
+def create(env, name, label, role, description, language):
     """Create a target agent"""
-    maihem_client.add_target_agent(
+    client = Maihem(env=env)
+    client.add_target_agent(
         name=name, label=label, role=role, description=description, language=language
     )
     create_project_folder(name)
@@ -51,6 +62,7 @@ def test():
 
 
 @test.command()
+@click.option("--env", default="production", help="Environment to use")
 @click.option("--name", required=True, help="Name of the test")
 @click.option("--label", help="Label for the test (optional)")
 @click.option("--target-agent-name", required=True, help="Name of the target agent")
@@ -85,9 +97,8 @@ def test():
     "--maihem-population-prompt",
     help="Describes the desired population of simulated personas",
 )
-@click.pass_obj
 def create(
-    maihem_client,
+    env,
     name,
     label,
     target_agent_name,
@@ -101,8 +112,9 @@ def create(
     maihem_population_prompt,
 ):
     """Create a test"""
+    client = Maihem(env=env)
     module_list = [m.strip() for m in modules.split(",")]
-    maihem_client.create_test(
+    client.create_test(
         name=name,
         label=label,
         modules=module_list,
@@ -118,6 +130,7 @@ def create(
 
 
 @test.command()
+@click.option("--env", default="production", help="Environment to use")
 @click.option("--name", required=True, help="Name of the test run")
 @click.option("--label", help="Label for the test run (optional)")
 @click.option("--test-name", required=True, help="Name of the test")
@@ -132,18 +145,11 @@ def create(
     default=10,
     help="Number of concurrent conversations",
 )
-@click.pass_obj
-def run(
-    maihem_client,
-    name,
-    label,
-    test_name,
-    wrapper_function_path,
-    concurrent_conversations,
-):
+def run(env, name, label, test_name, wrapper_function_path, concurrent_conversations):
     """Run a test"""
+    client = Maihem(env=env)
     wrapper_function = import_wrapper_function(wrapper_function_path)
-    maihem_client.run_test(
+    client.run_test(
         name=name,
         label=label,
         test_name=test_name,
@@ -162,10 +168,10 @@ def test_run():
 @test_run.command()
 @click.option("--test-name", required=True, help="Name of the test")
 @click.option("--test-run-name", required=True, help="Name of the test run")
-@click.pass_obj
-def get(maihem_client, test_name, test_run_name):
+def get(test_name, test_run_name):
     """Get test run results"""
-    test_run_results = maihem_client.get_test_run_result(
+    client = Maihem(env="production")
+    test_run_results = client.get_test_run_result(
         test_name=test_name, test_run_name=test_run_name
     )
     click.echo(test_run_results)

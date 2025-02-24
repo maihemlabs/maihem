@@ -3,11 +3,11 @@ from typing import Any, TypeVar
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 
-T = TypeVar("T", bound="TestCreateRequestMetricsConfig")
+T = TypeVar("T", bound="TestMetricsConfigType0")
 
 
 @_attrs_define
-class TestCreateRequestMetricsConfig:
+class TestMetricsConfigType0:
     """ """
 
     additional_properties: dict[str, int] = _attrs_field(init=False, factory=dict)
@@ -21,10 +21,10 @@ class TestCreateRequestMetricsConfig:
     @classmethod
     def from_dict(cls: type[T], src_dict: dict[str, Any]) -> T:
         d = src_dict.copy()
-        test_create_request_metrics_config = cls()
+        test_metrics_config_type_0 = cls()
 
-        test_create_request_metrics_config.additional_properties = d
-        return test_create_request_metrics_config
+        test_metrics_config_type_0.additional_properties = d
+        return test_metrics_config_type_0
 
     @property
     def additional_keys(self) -> list[str]:

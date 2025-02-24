@@ -11,6 +11,7 @@ from maihem.evaluators import (
 )
 import asyncio
 import random
+import time
 
 
 @maihem.workflow_step(
@@ -49,7 +50,6 @@ async def rephrase_query(input_text: str) -> str:  # Different parameter name
     )
 )
 async def retrieval(search_query: str) -> dict:  # Different parameter names
-    # Return richer data
     return {
         "documents": [
             "The Eiffel Tower is in Paris, France",
@@ -101,8 +101,8 @@ async def answer(question: str, context: list[str]) -> str:  # Different paramet
     return "42"
 
 
-@maihem.workflow(
-    agent_target="agent-colin-local",
+@maihem.workflow_step(
+    agent_target="target-deco",
     evaluator=MaihemQA(
         inputs=MaihemQA.Inputs(query="user_input"),
     ),
@@ -142,7 +142,7 @@ if __name__ == "__main__":
 
     ### MONITORING
     asyncio.run(generate_message("What is six times lol"))
-
+    # asyncio.run(intent_recognition("What is six times lol"))
     #### TESTING
     # setattr(generate_message, "conversation_id", "c_01jjvtme0jfz6rwt3xkq6ccjfj")
     # setattr(

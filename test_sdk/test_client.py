@@ -5,19 +5,19 @@ from maihem import Maihem
 from data import data_e2e, data_reranking
 
 
-maihem_client = Maihem(env="local")
+maihem_client = Maihem(api_key="123")
 
-target_agent_name = "agent-colin-local"
-# try:
-#     target_agent = maihem_client.add_target_agent(
-#         name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
-#         role="Airbnb customer support agent",
-#         description="Airbnb customer support agent that can help with questions about the platform",
-#     )
-# except Exception as e:
-#     print(e)
-#     target_agent = maihem_client.get_target_agent(name=target_agent_name)
-# print(target_agent)
+target_agent_name = "target-deco"
+try:
+    target_agent = maihem_client.add_target_agent(
+        name=target_agent_name,  # + str(datetime.now().strftime("%Y%m%d_%H%M%S")),
+        role="Airbnb customer support agent",
+        description="Airbnb customer support agent that can help with questions about the platform",
+    )
+except Exception as e:
+    print(e)
+    target_agent = maihem_client.get_target_agent(name=target_agent_name)
+print(target_agent)
 
 ##################################################################
 ######################### WORKFLOW E2E ###########################
@@ -44,12 +44,12 @@ target_agent_name = "agent-colin-local"
 # )
 # print(test)
 
-# test_run = maihem_client.run_workflow_test(
-#     name="test_run" + datetime.now().strftime("%Y%m%d_%H%M%S"),
-#     test_name="test_8",
-#     concurrent_conversations=1,
-# )
-# print(test_run)
+test_run = maihem_client.run_workflow_test(
+    name="test_run" + datetime.now().strftime("%Y%m%d_%H%M%S"),
+    test_name="test_9",
+    concurrent_conversations=1,
+)
+print(test_run)
 
 
 ##################################################################
@@ -71,9 +71,11 @@ target_agent_name = "agent-colin-local"
 # )
 # print(test)
 
-test_run = maihem_client.run_step_test(
-    name="test_run_reranking_" + datetime.now().strftime("%Y%m%d_%H%M%S"),
-    test_name="test_reranking_6",
-    step_name="reranking",
-)
-print(test_run)
+# test_run = maihem_client.run_step_test(
+#     name="test_run_reranking_" + datetime.now().strftime("%Y%m%d_%H%M%S"),
+#     test_name="test_reranking_6",
+#     step_name="reranking",
+# )
+# print(test_run)
+
+# maihem_client.generate_wrapper_function(test_name="test_9")

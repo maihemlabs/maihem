@@ -7,6 +7,9 @@ import random
 from tqdm import tqdm
 from yaspin import yaspin
 from yaspin.spinners import Spinners
+import pathlib
+from pathlib import Path
+import platform
 
 from maihem.utils.modules_map import map_module_list_to_metrics
 from maihem.schemas.agents import TargetAgent, AgentType
@@ -24,8 +27,8 @@ from maihem.api_client.maihem_client.models.agent_target_create_request import (
 from maihem.api_client.maihem_client.models.test_create_request import (
     TestCreateRequest,
 )
-from maihem.api_client.maihem_client.models.test_create_request_metrics_config import (
-    TestCreateRequestMetricsConfig,
+from maihem.api_client.maihem_client.models.test_create_request_metrics_config_type_0 import (
+    TestCreateRequestMetricsConfigType0,
 )
 from maihem.api_client.maihem_client.models.test_dataset_create_request import (
     TestDatasetCreateRequest,
@@ -66,8 +69,9 @@ from maihem.api_client.maihem_client.models.workflow_step_span_create_response_i
 import maihem.shared.lib.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
-from maihem.utils.documents import TextSplitter, extract_text, parse_documents
+from maihem.utils.documents import parse_documents
 from maihem.shared.lib.logger import get_logger, add_default_logger
+from maihem.evaluators import EVALUATOR_REGISTRY
 
 
 class Client:
@@ -79,6 +83,7 @@ class Client:
     _staging_url_ui: str = "https://cause.staging.maihem.ai"
     _local_url: str = "http://localhost:8000"
     _local_url_ui: str = "http://localhost:3000"
+    _cache_dir: str = None
 
     _maihem_api_client = MaihemHTTPClientSync
 
@@ -86,36 +91,140 @@ class Client:
         self,
         env: Optional[Literal["production", "staging", "local"]] = "production",
         api_key: Optional[str] = None,
+        store_token: bool = True,
     ) -> None:
+        """Initialize the client.
+
+        Args:
+            env: The environment to use (production, staging, or local)
+            api_key: The API key to use for authentication. If not provided, will try to load from cache or environment variables
+            store_token: Whether to store the token in cache for future use
+
+        Raises:
+            ValueError: If no valid API key is found or if token validation fails
+        """
         self._logger = get_logger()
         add_default_logger(self._logger)
 
-        # Initialize the API client based on the environment
-        if env == "production":
-            self._api_key = api_key or os.getenv("MAIHEM_API_KEY")
-            if not self._api_key:
-                errors.raise_request_validation_error(
-                    logger=self._logger, message="API key is missing"
-                )
-            self._maihem_api_client = MaihemHTTPClientSync(
-                self._base_url, self._api_key
+        # Get cache directory and token file path
+        cache_dir = self._get_cache_dir()
+        token_file = cache_dir / "token"
+
+        # Try to get API key from different sources in order of precedence arg > cache > env
+        self._api_key = (
+            api_key
+            or self._load_token_from_cache(token_file, env)
+            or self._get_token_from_env(env)
+        )
+
+        if not self._api_key:
+            errors.raise_request_validation_error(
+                logger=self._logger, message=f"No API key found for {env} environment"
             )
-        elif env == "staging":
-            self._api_key = api_key or os.getenv("MAIHEM_API_KEY_STAGING")
-            if not self._api_key:
-                errors.raise_request_validation_error(
-                    logger=self._logger, message="Staging API key missing"
+
+        # Setup and validate client
+        try:
+            self._setup_client(env)
+
+            # If validation succeeds and we should store token, save it
+            if store_token:
+                self._save_token_to_cache(token_file, self._api_key, env)
+
+        except ValueError as e:
+            raise ValueError(f"Token validation failed: {str(e)}")
+
+    @staticmethod
+    def _get_cache_dir() -> Path:
+        """Get the appropriate cache directory for the current OS."""
+        if platform.system() == "Darwin":  # macOS
+            return Path.home() / "Library" / "Caches" / "maihem"
+        elif platform.system() == "Linux":
+            return Path.home() / ".cache" / "maihem"
+        elif platform.system() == "Windows":
+            return Path(os.getenv("LOCALAPPDATA")) / "maihem" / "cache"
+        else:
+            return Path.home() / ".maihem" / "cache"
+
+    def _load_token_from_cache(self, token_file: Path, env: str) -> Optional[str]:
+        """Try to load token from cache file.
+
+        Args:
+            token_file: Path to the token file
+            env: Current environment
+
+        Returns:
+            Optional[str]: The token if found and valid for current env, None otherwise
+        """
+        if not token_file.exists():
+            return None
+
+        try:
+            with open(token_file, "r") as f:
+                token_data = json.load(f)
+                if token_data.get("env") == env:
+                    return token_data.get("token")
+        except Exception as e:
+            self._logger.debug(f"Failed to read token from cache: {e}")
+        return None
+
+    def _get_token_from_env(self, env: str) -> Optional[str]:
+        """Get token from environment variables.
+
+        Args:
+            env: Current environment
+
+        Returns:
+            Optional[str]: The token if found in environment variables, None otherwise
+        """
+        env_vars = {
+            "production": "MAIHEM_API_KEY",
+            "staging": "MAIHEM_API_KEY_STAGING",
+            "local": "MAIHEM_API_KEY_LOCAL",
+        }
+        return os.getenv(env_vars.get(env, ""))
+
+    def _save_token_to_cache(self, token_file: Path, token: str, env: str) -> None:
+        """Save token to cache file.
+
+        Args:
+            token_file: Path to save the token
+            token: Token to save
+            env: Current environment
+        """
+        try:
+            token_file.parent.mkdir(parents=True, exist_ok=True)
+            token_data = {"token": token, "env": env}
+            with open(token_file, "w") as f:
+                json.dump(token_data, f)
+        except IOError as e:
+            self._logger.warning(f"Failed to save token to cache: {e}")
+
+    def _setup_client(self, env: str) -> None:
+        """Setup the API client for the given environment.
+
+        Args:
+            env: Environment to setup client for
+
+        Raises:
+            ValueError: If client setup fails
+        """
+        try:
+            if env == "production":
+                self._maihem_api_client = MaihemHTTPClientSync(
+                    self._base_url, self._api_key
                 )
-            self._override_base_url(self._staging_url)
-            self._override_base_url_ui(self._staging_url_ui)
-        elif env == "local":
-            self._api_key = api_key or os.getenv("MAIHEM_API_KEY_LOCAL")
-            if not self._api_key:
-                errors.raise_request_validation_error(
-                    logger=self._logger, message="Local API key missing"
-                )
-            self._override_base_url(self._local_url)
-            self._override_base_url_ui(self._local_url_ui)
+            elif env == "staging":
+                self._override_base_url(self._staging_url)
+                self._override_base_url_ui(self._staging_url_ui)
+            elif env == "local":
+                self._override_base_url(self._local_url)
+                self._override_base_url_ui(self._local_url_ui)
+            else:
+                raise ValueError(f"Invalid environment: {env}")
+            # Validate token by making a test API call
+            self._maihem_api_client.whoami()
+        except Exception as e:
+            raise ValueError(f"Failed to setup client: {str(e)}")
 
     def _override_base_url(self, base_url: str) -> None:
         self._base_url = base_url
@@ -452,7 +561,7 @@ class Client:
                     step_name=step_name,
                 )
 
-                metrics_config_req = TestCreateRequestMetricsConfig.from_dict(
+                metrics_config_req = TestCreateRequestMetricsConfigType0.from_dict(
                     metrics_config
                 )
                 resp = self._maihem_api_client.create_test(
@@ -663,7 +772,9 @@ class Maihem(Client):
 
                 # Set wrapper function to be called
                 target_agent.set_wrapper_function(
-                    function_name=workflow.name, workflow_name=workflow.name
+                    function_name=workflow.name,
+                    test_name=test_name,
+                    workflow_name=workflow.name,
                 )
 
             resp = None
@@ -1206,3 +1317,29 @@ class Maihem(Client):
             return workflow_span
         except ValidationError as e:
             errors.handle_schema_validation_error(logger=self._logger, exception=e)
+
+    def _get_maihem_evaluator_name_and_function_name(self, test_name: str):
+        """
+        Get the maihem evaluator name and function name from the test name.
+        Args:
+            test_name (str): The name of the test.
+        Returns:
+            tuple: A tuple containing the maihem evaluator name and function name.
+        """
+        return "question_answering", "generate_message"
+
+    def generate_wrapper_function(self, test_name: str):
+        maihem_evaluator_name, function_name = (
+            self._get_maihem_evaluator_name_and_function_name(test_name)
+        )
+        evaluator_class = EVALUATOR_REGISTRY[maihem_evaluator_name]
+        function_wrapper_str = evaluator_class()._generate_function_wrapper(
+            function_name
+        )
+        os.makedirs(f"test_{test_name}/wrapper_functions/", exist_ok=True)
+        wrapper_file = f"test_{test_name}/wrapper_functions/{function_name}_wrapper.py"
+        if os.path.exists(wrapper_file):
+            raise FileExistsError(f"Wrapper file already exists at {wrapper_file}")
+
+        with open(wrapper_file, "w") as f:
+            f.write(function_wrapper_str)

@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from test_workflow import generate_message
+from test_sdk.test_dummy_workflow import generate_message
 import asyncio
 from hypercorn.config import Config
 from hypercorn.asyncio import serve

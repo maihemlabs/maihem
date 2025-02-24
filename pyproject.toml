@@ -18,31 +18,41 @@ classifiers = [
 ]
 keywords = ["genAI", "LLM", "evaluation", "data", "generation", "synthetic"]
 dependencies = [
-    "requests", 
-    "pandas", 
-    "pydantic", 
-    "pycountry", 
-    "pydantic_extra_types", 
-    "httpx", 
-    "attrs", 
-    "loguru", 
-    "tqdm", 
-    "anyio", 
-    "pymupdf", 
-    "docx2txt", 
-    "yaspin", 
-    "pyyaml", 
-    "pillow", 
-    "click", 
-    "opentelemetry-api", 
+    "requests",
+    "pandas",
+    "pydantic",
+    "pycountry",
+    "pydantic_extra_types",
+    "httpx",
+    "attrs",
+    "loguru",
+    "tqdm",
+    "anyio",
+    "pymupdf",
+    "docx2txt",
+    "yaspin",
+    "pyyaml",
+    "pillow",
+    "click",
+    "opentelemetry-api",
     "opentelemetry-sdk",
     "opentelemetry-exporter-otlp-proto-http",
-    "orjson" 
+    "orjson",
+    "hypercorn>=0.17.3",
 ]
 requires-python = ">=3.9"
 
 [project.scripts]
 maihem = "maihem.cli:cli"
 
+
 [project.urls]
 Homepage = "https://github.com/maihemlabs/maihem"
+
+[dependency-groups]
+dev = [
+    "maihem",
+]
+
+[tool.uv.sources]
+maihem = { workspace = true }

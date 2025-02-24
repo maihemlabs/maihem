@@ -1,9 +1,11 @@
 import datetime
-from typing import Any, TypeVar
+from typing import Any, TypeVar, Union, cast
 
 from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
+
+from ..types import UNSET, Unset
 
 T = TypeVar("T", bound="Org")
 
@@ -17,6 +19,7 @@ class Org:
         updated_at (datetime.datetime):
         name (str):
         idp_org_id (str):
+        image_url (Union[None, Unset, str]):
     """
 
     id: str
@@ -24,6 +27,7 @@ class Org:
     updated_at: datetime.datetime
     name: str
     idp_org_id: str
+    image_url: Union[None, Unset, str] = UNSET
     additional_properties: dict[str, Any] = _attrs_field(init=False, factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
@@ -37,6 +41,12 @@ class Org:
 
         idp_org_id = self.idp_org_id
 
+        image_url: Union[None, Unset, str]
+        if isinstance(self.image_url, Unset):
+            image_url = UNSET
+        else:
+            image_url = self.image_url
+
         field_dict: dict[str, Any] = {}
         field_dict.update(self.additional_properties)
         field_dict.update(
@@ -48,6 +58,8 @@ class Org:
                 "idp_org_id": idp_org_id,
             }
         )
+        if image_url is not UNSET:
+            field_dict["image_url"] = image_url
 
         return field_dict
 
@@ -64,12 +76,22 @@ class Org:
 
         idp_org_id = d.pop("idp_org_id")
 
+        def _parse_image_url(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        image_url = _parse_image_url(d.pop("image_url", UNSET))
+
         org = cls(
             id=id,
             created_at=created_at,
             updated_at=updated_at,
             name=name,
             idp_org_id=idp_org_id,
+            image_url=image_url,
         )
 
         org.additional_properties = d

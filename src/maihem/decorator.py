@@ -76,7 +76,7 @@ def _process_args_and_set_inputs(
     evaluator: Optional[MaihemEvaluator],
     span: Any,
     span_name: str,
-    workflow_step: bool = False,
+    workflow_step_flag: bool = False,
 ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
     """
     Bind and process the function arguments and update the span with the input payload.
@@ -100,7 +100,7 @@ def _process_args_and_set_inputs(
     input_payload = (
         evaluator.map_inputs(**filtered_arguments) if evaluator else filtered_arguments
     )
-    if workflow_step:
+    if workflow_step_flag:
         span.set_attribute("workflow_step_name", span_name)
         span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
     else:
@@ -145,39 +145,42 @@ def _set_output_attributes(
     return output_payload
 
 
-def workflow(
+def workflow_step(
     name: Optional[str] = None,
     agent_target: Optional[str] = None,
     evaluator: Optional[MaihemEvaluator] = None,
     api_key: Optional[str] = None,
 ) -> Callable:
     """
-    Decorator that defines a workflow by creating a parent span.
+    Merged decorator that behaves as a workflow or a workflow step depending on context.
 
-    It caches agent target ids if provided and sets the relevant attributes on
-    the span (workflow name, evaluator name, etc.).
+    - If no active parent span is present, it creates a top-level workflow span and (if provided)
+      sets the agent_target_id attribute.
+    - If an active parent span exists, it creates a child span (workflow step).
+      It raises an error if the active span already has a parent (i.e. nested too deeply).
 
-    Raises:
-        ValueError: If the workflow is called within another workflow (nested workflows
-                   are not allowed).
+    Supports both asynchronous and synchronous functions.
     """
 
     def decorator(func: Callable) -> Callable:
         sig = inspect.signature(func)
-        cached_agent_id = (
-            get_agent_target_id(agent_target, api_key) if agent_target else None
-        )
 
         if inspect.iscoroutinefunction(func):
 
             @wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-                # Check for parent span
                 parent_span = trace.get_current_span()
                 if parent_span.get_span_context().is_valid:
-                    raise ValueError(
-                        "Nested workflows are not allowed. The workflow decorator cannot "
-                        "be used within another workflow."
+                    # Active span present so treat this as a workflow step
+                    workflow_step_flag = True
+                    cached_agent_id = None
+                else:
+                    # No active span; create a top-level workflow
+                    workflow_step_flag = False
+                    cached_agent_id = (
+                        get_agent_target_id(agent_target, api_key)
+                        if agent_target
+                        else None
                     )
 
                 tracer = Tracer.get_instance().tracer
@@ -185,33 +188,37 @@ def workflow(
                 with tracer.start_as_current_span(span_name) as span:
                     if cached_agent_id:
                         span.set_attribute("agent_target_id", cached_agent_id)
-
-                    args, kwargs = _process_args_and_set_inputs(
+                    new_args, new_kwargs = _process_args_and_set_inputs(
                         sig,
                         args,
                         kwargs,
                         evaluator,
                         span,
                         span_name,
-                        workflow_step=False,
+                        workflow_step_flag,
                     )
-                    result = await func(*args, **kwargs)
+                    result = await func(*new_args, **new_kwargs)
                     _set_output_attributes(span, result, evaluator)
-                tracer.span_processor.force_flush()
+                if not parent_span.get_span_context().is_valid:
+                    tracer.span_processor.force_flush()
                 return result
 
             return async_wrapper
-
         else:
 
-            @wraps(func)
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-                # Check for parent span
                 parent_span = trace.get_current_span()
                 if parent_span.get_span_context().is_valid:
-                    raise ValueError(
-                        "Nested workflows are not allowed. The workflow decorator cannot "
-                        "be used within another workflow."
+                    # Active span present so treat this as a workflow step
+                    workflow_step_flag = True
+                    cached_agent_id = None
+                else:
+                    # No active span; create a top-level workflow
+                    workflow_step_flag = False
+                    cached_agent_id = (
+                        get_agent_target_id(agent_target, api_key)
+                        if agent_target
+                        else None
                     )
 
                 tracer = Tracer.get_instance().tracer
@@ -219,109 +226,19 @@ def workflow(
                 with tracer.start_as_current_span(span_name) as span:
                     if cached_agent_id:
                         span.set_attribute("agent_target_id", cached_agent_id)
-
-                    args, kwargs = _process_args_and_set_inputs(
+                    new_args, new_kwargs = _process_args_and_set_inputs(
                         sig,
                         args,
                         kwargs,
                         evaluator,
                         span,
                         span_name,
-                        workflow_step=False,
+                        workflow_step_flag,
                     )
-                    result = func(*args, **kwargs)
+                    result = func(*new_args, **new_kwargs)
                     _set_output_attributes(span, result, evaluator)
-                    tracer.span_processor.force_flush()
-                    return result
-
-            return sync_wrapper
-
-    return decorator
-
-
-def workflow_step(
-    name: Optional[str] = None,
-    evaluator: Optional[MaihemEvaluator] = None,
-) -> Callable:
-    """
-    Decorator that defines a step in a workflow, establishing a child/span within
-    an existing workflow span.
-
-    Note: It must be executed within a workflow (i.e. there must be an active parent span)
-          and the parent span must not already be a child (nested too deeply).
-    """
-
-    def decorator(func: Callable) -> Callable:
-        sig = inspect.signature(func)
-
-        if inspect.iscoroutinefunction(func):
-
-            @wraps(func)
-            async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
-                parent_span = trace.get_current_span()
-                if not parent_span.get_span_context().is_valid:
-                    raise ValueError(
-                        "workflow_step must be executed within a workflow decorated "
-                        "function (no active parent span found)."
-                    )
-                # Check if the parent span already has a parent to avoid too deep nesting.
-                parent_of_parent = getattr(parent_span, "parent", None)
-                if parent_of_parent and parent_of_parent.is_valid:
-                    raise ValueError(
-                        "workflow_step cannot be nested more than one level; "
-                        "the parent span already has a parent."
-                    )
-
-                tracer = Tracer.get_instance().tracer
-                span_name = name or func.__name__
-                with tracer.start_as_current_span(span_name) as span:
-                    args, kwargs = _process_args_and_set_inputs(
-                        sig,
-                        args,
-                        kwargs,
-                        evaluator,
-                        span,
-                        span_name,
-                        workflow_step=True,
-                    )
-                    result = await func(*args, **kwargs)
-                    _set_output_attributes(span, result, evaluator)
-                    return result
-
-            return async_wrapper
-
-        else:
-
-            @wraps(func)
-            def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
-                parent_span = trace.get_current_span()
-                if not parent_span.get_span_context().is_valid:
-                    raise ValueError(
-                        "workflow_step must be executed within a workflow decorated "
-                        "function (no active parent span found)."
-                    )
-                # Check if the parent span already has a parent to avoid too deep nesting.
-                parent_of_parent = getattr(parent_span, "parent", None)
-                if parent_of_parent and parent_of_parent.get_span_context().is_valid:
-                    raise ValueError(
-                        "workflow_step cannot be nested more than one level; "
-                        "the parent span already has a parent."
-                    )
-
-                tracer = Tracer.get_instance().tracer
-                span_name = name or func.__name__
-                with tracer.start_as_current_span(span_name) as span:
-                    args, kwargs = _process_args_and_set_inputs(
-                        sig,
-                        args,
-                        kwargs,
-                        evaluator,
-                        span,
-                        span_name,
-                        workflow_step=True,
-                    )
-                    result = func(*args, **kwargs)
-                    _set_output_attributes(span, result, evaluator)
+                    if not parent_span.get_span_context().is_valid:
+                        tracer.span_processor.force_flush()
                     return result
 
             return sync_wrapper

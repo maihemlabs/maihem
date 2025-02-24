@@ -5,25 +5,47 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
+from ...models.agent_target import AgentTarget
 from ...models.error_response import ErrorResponse
-from ...models.ingest_workflow_trace_response import IngestWorkflowTraceResponse
-from ...types import Response
+from ...types import UNSET, Response, Unset
 
 
-def _get_kwargs() -> dict[str, Any]:
+def _get_kwargs(
+    agent_target_id: str,
+    *,
+    name: Union[Unset, str] = UNSET,
+    x_api_key: Union[None, Unset, str] = UNSET,
+) -> dict[str, Any]:
+    headers: dict[str, Any] = {}
+    if not isinstance(x_api_key, Unset):
+        headers["x-api-key"] = x_api_key
+
+    params: dict[str, Any] = {}
+
+    params["name"] = name
+
+    params = {k: v for k, v in params.items() if v is not UNSET and v is not None}
+
     _kwargs: dict[str, Any] = {
-        "method": "post",
-        "url": "/workflows/ingest/v1/traces",
+        "method": "get",
+        "url": f"/agents/target/{agent_target_id}/revisions",
+        "params": params,
     }
 
+    _kwargs["headers"] = headers
     return _kwargs
 
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+) -> Optional[Union[ErrorResponse, list["AgentTarget"]]]:
     if response.status_code == 200:
-        response_200 = IngestWorkflowTraceResponse.from_dict(response.json())
+        response_200 = []
+        _response_200 = response.json()
+        for response_200_item_data in _response_200:
+            response_200_item = AgentTarget.from_dict(response_200_item_data)
+
+            response_200.append(response_200_item)
 
         return response_200
     if response.status_code == 400:
@@ -70,7 +92,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
+) -> Response[Union[ErrorResponse, list["AgentTarget"]]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -80,22 +102,34 @@ def _build_response(
 
 
 def sync_detailed(
+    agent_target_id: str,
     *,
-    client: Union[AuthenticatedClient, Client],
-) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
-    """Ingest workflow OTLP traces
+    client: AuthenticatedClient,
+    name: Union[Unset, str] = UNSET,
+    x_api_key: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ErrorResponse, list["AgentTarget"]]]:
+    """Get all revisions for a target agent
 
-     Ingest workflow OTLP traces
+     Get all revisions for a target agent
+
+    Args:
+        agent_target_id (str):
+        name (Union[Unset, str]):
+        x_api_key (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]
+        Response[Union[ErrorResponse, list['AgentTarget']]]
     """
 
-    kwargs = _get_kwargs()
+    kwargs = _get_kwargs(
+        agent_target_id=agent_target_id,
+        name=name,
+        x_api_key=x_api_key,
+    )
 
     response = client.get_httpx_client().request(
         **kwargs,
@@ -105,43 +139,66 @@ def sync_detailed(
 
 
 def sync(
+    agent_target_id: str,
     *,
-    client: Union[AuthenticatedClient, Client],
-) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
-    """Ingest workflow OTLP traces
+    client: AuthenticatedClient,
+    name: Union[Unset, str] = UNSET,
+    x_api_key: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ErrorResponse, list["AgentTarget"]]]:
+    """Get all revisions for a target agent
 
-     Ingest workflow OTLP traces
+     Get all revisions for a target agent
+
+    Args:
+        agent_target_id (str):
+        name (Union[Unset, str]):
+        x_api_key (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, IngestWorkflowTraceResponse]
+        Union[ErrorResponse, list['AgentTarget']]
     """
 
     return sync_detailed(
+        agent_target_id=agent_target_id,
         client=client,
+        name=name,
+        x_api_key=x_api_key,
     ).parsed
 
 
 async def asyncio_detailed(
+    agent_target_id: str,
     *,
-    client: Union[AuthenticatedClient, Client],
-) -> Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
-    """Ingest workflow OTLP traces
+    client: AuthenticatedClient,
+    name: Union[Unset, str] = UNSET,
+    x_api_key: Union[None, Unset, str] = UNSET,
+) -> Response[Union[ErrorResponse, list["AgentTarget"]]]:
+    """Get all revisions for a target agent
 
-     Ingest workflow OTLP traces
+     Get all revisions for a target agent
+
+    Args:
+        agent_target_id (str):
+        name (Union[Unset, str]):
+        x_api_key (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[ErrorResponse, IngestWorkflowTraceResponse]]
+        Response[Union[ErrorResponse, list['AgentTarget']]]
     """
 
-    kwargs = _get_kwargs()
+    kwargs = _get_kwargs(
+        agent_target_id=agent_target_id,
+        name=name,
+        x_api_key=x_api_key,
+    )
 
     response = await client.get_async_httpx_client().request(**kwargs)
 
@@ -149,23 +206,34 @@ async def asyncio_detailed(
 
 
 async def asyncio(
+    agent_target_id: str,
     *,
-    client: Union[AuthenticatedClient, Client],
-) -> Optional[Union[ErrorResponse, IngestWorkflowTraceResponse]]:
-    """Ingest workflow OTLP traces
+    client: AuthenticatedClient,
+    name: Union[Unset, str] = UNSET,
+    x_api_key: Union[None, Unset, str] = UNSET,
+) -> Optional[Union[ErrorResponse, list["AgentTarget"]]]:
+    """Get all revisions for a target agent
 
-     Ingest workflow OTLP traces
+     Get all revisions for a target agent
+
+    Args:
+        agent_target_id (str):
+        name (Union[Unset, str]):
+        x_api_key (Union[None, Unset, str]):
 
     Raises:
         errors.UnexpectedStatus: If the server returns an undocumented status code and Client.raise_on_unexpected_status is True.
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[ErrorResponse, IngestWorkflowTraceResponse]
+        Union[ErrorResponse, list['AgentTarget']]
     """
 
     return (
         await asyncio_detailed(
+            agent_target_id=agent_target_id,
             client=client,
+            name=name,
+            x_api_key=x_api_key,
         )
     ).parsed
