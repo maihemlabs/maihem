@@ -29,7 +29,14 @@ def login(token: str, env: str):
         raise click.Abort()
 
 
-# Removed maihem group and moved commands to top level
+@cli.command()
+@click.argument("test_name")
+@click.option("--env", default="production", help="Environment to use")
+def generate_wrapper(env, test_name):
+    """Generate a wrapper function for a test"""
+    client = Maihem(env=env)
+    client.generate_wrapper_function(test_name=test_name)
+    click.echo(f"✨ Successfully generated wrapper function for test '{test_name}'")
 
 
 @cli.group()

@@ -179,32 +179,37 @@ class MaihemEvaluator(ABC, metaclass=EvaluatorMeta):
             f"{k}: {v.__name__ if hasattr(v, '__name__') else str(v)}"
             for k, v in inputs_hints.items()
         )
-        required_inputs = "\n\t".join(
-            f"- {k}: {v.__name__ if hasattr(v, '__name__') else str(v)}"
+        # Create required inputs with proper indentation handling
+        required_inputs = [
+            f"    - {k}: {v.__name__ if hasattr(v, '__name__') else str(v)}"
             for k, v in inputs_hints.items()
-        )
+        ]
         params = ", ".join(inputs_hints.keys())
 
-        wrapper_code = textwrap.dedent(
-            f"""\
-            ###### {self.NAME} Wrapper ######
-            
-            # Add imports here
-            # import my_{self.NAME}
-            
-            
-            def {function_name}_wrapper({args_str}):
-                \"\"\"Wrapper for {self.NAME} step.
-                
-                Required Inputs:
-                {required_inputs}
-                \"\"\"
-                
-                ##### YOUR CODE HERE #####
-                # my_{self.NAME}({params})
-            """
+        # Build the wrapper code with explicit newlines and indentation
+        wrapper_code = [
+            f"###### {self.NAME} Wrapper ######",
+            "",
+            "# Add imports here",
+            f"# import my_{self.NAME}",
+            "",
+            "",
+            f"def {function_name}_wrapper({args_str}):",
+            f'    """Wrapper for {self.NAME} step.',
+            "",
+            "    Required Inputs:",
+        ]
+        wrapper_code.extend(required_inputs)
+        wrapper_code.extend(
+            [
+                '    """',
+                "",
+                "    ##### YOUR CODE HERE #####",
+                f"    # my_{self.NAME}({params})",
+            ]
         )
-        return wrapper_code
+
+        return "\n".join(wrapper_code)
 
 
 class MaihemQA(MaihemEvaluator):
