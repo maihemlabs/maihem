@@ -4,6 +4,7 @@ from .admin_evaluation_review_create_request import AdminEvaluationReviewCreateR
 from .admin_evaluation_review_edit_request import AdminEvaluationReviewEditRequest
 from .agent_target import AgentTarget
 from .agent_target_create_request import AgentTargetCreateRequest
+from .agent_target_revision import AgentTargetRevision
 from .agent_target_revision_create_request import AgentTargetRevisionCreateRequest
 from .agent_type import AgentType
 from .agents_set_active_agent_target_response_agents_set_active_agent_target import (
@@ -93,6 +94,7 @@ __all__ = (
     "AgentsSetActiveAgentTargetResponseAgentsSetActiveAgentTarget",
     "AgentTarget",
     "AgentTargetCreateRequest",
+    "AgentTargetRevision",
     "AgentTargetRevisionCreateRequest",
     "AgentType",
     "ConversationNested",

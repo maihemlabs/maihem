@@ -5,7 +5,7 @@ import httpx
 
 from ... import errors
 from ...client import AuthenticatedClient, Client
-from ...models.agent_target import AgentTarget
+from ...models.agent_target_revision import AgentTargetRevision
 from ...models.agent_target_revision_create_request import AgentTargetRevisionCreateRequest
 from ...models.error_response import ErrorResponse
 from ...types import UNSET, Response, Unset
@@ -37,9 +37,9 @@ def _get_kwargs(
 
 def _parse_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Optional[Union[AgentTarget, ErrorResponse]]:
+) -> Optional[Union[AgentTargetRevision, ErrorResponse]]:
     if response.status_code == 201:
-        response_201 = AgentTarget.from_dict(response.json())
+        response_201 = AgentTargetRevision.from_dict(response.json())
 
         return response_201
     if response.status_code == 400:
@@ -86,7 +86,7 @@ def _parse_response(
 
 def _build_response(
     *, client: Union[AuthenticatedClient, Client], response: httpx.Response
-) -> Response[Union[AgentTarget, ErrorResponse]]:
+) -> Response[Union[AgentTargetRevision, ErrorResponse]]:
     return Response(
         status_code=HTTPStatus(response.status_code),
         content=response.content,
@@ -101,7 +101,7 @@ def sync_detailed(
     client: AuthenticatedClient,
     body: AgentTargetRevisionCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[AgentTarget, ErrorResponse]]:
+) -> Response[Union[AgentTargetRevision, ErrorResponse]]:
     """Create a new revision of a target agent
 
      Create a new revision of a target agent
@@ -116,7 +116,7 @@ def sync_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[AgentTarget, ErrorResponse]]
+        Response[Union[AgentTargetRevision, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -138,7 +138,7 @@ def sync(
     client: AuthenticatedClient,
     body: AgentTargetRevisionCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[AgentTarget, ErrorResponse]]:
+) -> Optional[Union[AgentTargetRevision, ErrorResponse]]:
     """Create a new revision of a target agent
 
      Create a new revision of a target agent
@@ -153,7 +153,7 @@ def sync(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[AgentTarget, ErrorResponse]
+        Union[AgentTargetRevision, ErrorResponse]
     """
 
     return sync_detailed(
@@ -170,7 +170,7 @@ async def asyncio_detailed(
     client: AuthenticatedClient,
     body: AgentTargetRevisionCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Response[Union[AgentTarget, ErrorResponse]]:
+) -> Response[Union[AgentTargetRevision, ErrorResponse]]:
     """Create a new revision of a target agent
 
      Create a new revision of a target agent
@@ -185,7 +185,7 @@ async def asyncio_detailed(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Response[Union[AgentTarget, ErrorResponse]]
+        Response[Union[AgentTargetRevision, ErrorResponse]]
     """
 
     kwargs = _get_kwargs(
@@ -205,7 +205,7 @@ async def asyncio(
     client: AuthenticatedClient,
     body: AgentTargetRevisionCreateRequest,
     x_api_key: Union[None, Unset, str] = UNSET,
-) -> Optional[Union[AgentTarget, ErrorResponse]]:
+) -> Optional[Union[AgentTargetRevision, ErrorResponse]]:
     """Create a new revision of a target agent
 
      Create a new revision of a target agent
@@ -220,7 +220,7 @@ async def asyncio(
         httpx.TimeoutException: If the request takes longer than Client.timeout.
 
     Returns:
-        Union[AgentTarget, ErrorResponse]
+        Union[AgentTargetRevision, ErrorResponse]
     """
 
     return (

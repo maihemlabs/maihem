@@ -5,6 +5,7 @@ from attrs import define as _attrs_define
 from attrs import field as _attrs_field
 from dateutil.parser import isoparse
 
+from ..models.environment import Environment
 from ..models.test_result_enum import TestResultEnum
 from ..models.test_status_enum import TestStatusEnum
 from ..types import UNSET, Unset
@@ -28,10 +29,14 @@ class TestRunConversationIDs:
         test_name (str):
         agent_target_id (str):
         agent_target_name (str):
+        agent_target_revision_id (str):
+        agent_target_revision_name (str):
+        environment (Environment):
         status (TestStatusEnum):
         label (Union[None, Unset, str]):
         test_label (Union[None, Unset, str]):
         agent_target_label (Union[None, Unset, str]):
+        agent_target_revision_label (Union[None, Unset, str]):
         started_at (Union[None, Unset, datetime.datetime]):
         completed_at (Union[None, Unset, datetime.datetime]):
         result (Union[None, TestResultEnum, Unset]):
@@ -49,10 +54,14 @@ class TestRunConversationIDs:
     test_name: str
     agent_target_id: str
     agent_target_name: str
+    agent_target_revision_id: str
+    agent_target_revision_name: str
+    environment: Environment
     status: TestStatusEnum
     label: Union[None, Unset, str] = UNSET
     test_label: Union[None, Unset, str] = UNSET
     agent_target_label: Union[None, Unset, str] = UNSET
+    agent_target_revision_label: Union[None, Unset, str] = UNSET
     started_at: Union[None, Unset, datetime.datetime] = UNSET
     completed_at: Union[None, Unset, datetime.datetime] = UNSET
     result: Union[None, TestResultEnum, Unset] = UNSET
@@ -81,6 +90,12 @@ class TestRunConversationIDs:
 
         agent_target_name = self.agent_target_name
 
+        agent_target_revision_id = self.agent_target_revision_id
+
+        agent_target_revision_name = self.agent_target_revision_name
+
+        environment = self.environment.value
+
         status = self.status.value
 
         label: Union[None, Unset, str]
@@ -100,6 +115,12 @@ class TestRunConversationIDs:
             agent_target_label = UNSET
         else:
             agent_target_label = self.agent_target_label
+
+        agent_target_revision_label: Union[None, Unset, str]
+        if isinstance(self.agent_target_revision_label, Unset):
+            agent_target_revision_label = UNSET
+        else:
+            agent_target_revision_label = self.agent_target_revision_label
 
         started_at: Union[None, Unset, str]
         if isinstance(self.started_at, Unset):
@@ -161,6 +182,9 @@ class TestRunConversationIDs:
                 "test_name": test_name,
                 "agent_target_id": agent_target_id,
                 "agent_target_name": agent_target_name,
+                "agent_target_revision_id": agent_target_revision_id,
+                "agent_target_revision_name": agent_target_revision_name,
+                "environment": environment,
                 "status": status,
             }
         )
@@ -170,6 +194,8 @@ class TestRunConversationIDs:
             field_dict["test_label"] = test_label
         if agent_target_label is not UNSET:
             field_dict["agent_target_label"] = agent_target_label
+        if agent_target_revision_label is not UNSET:
+            field_dict["agent_target_revision_label"] = agent_target_revision_label
         if started_at is not UNSET:
             field_dict["started_at"] = started_at
         if completed_at is not UNSET:
@@ -208,6 +234,12 @@ class TestRunConversationIDs:
 
         agent_target_name = d.pop("agent_target_name")
 
+        agent_target_revision_id = d.pop("agent_target_revision_id")
+
+        agent_target_revision_name = d.pop("agent_target_revision_name")
+
+        environment = Environment(d.pop("environment"))
+
         status = TestStatusEnum(d.pop("status"))
 
         def _parse_label(data: object) -> Union[None, Unset, str]:
@@ -236,6 +268,15 @@ class TestRunConversationIDs:
             return cast(Union[None, Unset, str], data)
 
         agent_target_label = _parse_agent_target_label(d.pop("agent_target_label", UNSET))
+
+        def _parse_agent_target_revision_label(data: object) -> Union[None, Unset, str]:
+            if data is None:
+                return data
+            if isinstance(data, Unset):
+                return data
+            return cast(Union[None, Unset, str], data)
+
+        agent_target_revision_label = _parse_agent_target_revision_label(d.pop("agent_target_revision_label", UNSET))
 
         def _parse_started_at(data: object) -> Union[None, Unset, datetime.datetime]:
             if data is None:
@@ -334,10 +375,14 @@ class TestRunConversationIDs:
             test_name=test_name,
             agent_target_id=agent_target_id,
             agent_target_name=agent_target_name,
+            agent_target_revision_id=agent_target_revision_id,
+            agent_target_revision_name=agent_target_revision_name,
+            environment=environment,
             status=status,
             label=label,
             test_label=test_label,
             agent_target_label=agent_target_label,
+            agent_target_revision_label=agent_target_revision_label,
             started_at=started_at,
             completed_at=completed_at,
             result=result,
