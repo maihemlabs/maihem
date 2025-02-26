@@ -75,7 +75,6 @@ def get_agent_target_revision_id(
 ) -> Optional[str]:
     """
     Retrieve the agent's target id (cached for performance).
-
     """
     if not target_agent_revision_name:
         return None
@@ -87,7 +86,14 @@ def get_agent_target_revision_id(
         )
         return revision_id
     except Exception:
-        return None
+        try:
+            revision = client._create_agent_target_revision(
+                target_agent_id=get_agent_target_id(target_agent_name),
+                name=target_agent_revision_name,
+            )
+            return revision.id
+        except Exception:
+            return None
 
 
 def _process_args_and_set_inputs(
