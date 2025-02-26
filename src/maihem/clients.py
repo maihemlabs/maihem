@@ -13,6 +13,9 @@ import platform
 
 from maihem.utils.modules_map import map_module_list_to_metrics
 from maihem.schemas.agents import TargetAgent, AgentType
+from maihem.api_client.maihem_client.models.agent_target_revision import (
+    AgentTargetRevision,
+)
 from maihem.schemas.tests import (
     Test,
     TestRun,
@@ -23,6 +26,9 @@ from maihem.schemas.conversations import ConversationTurnCreateResponse
 from maihem.api_client.maihem_client.types import Unset
 from maihem.api_client.maihem_client.models.agent_target_create_request import (
     AgentTargetCreateRequest,
+)
+from maihem.api_client.maihem_client.models.agent_target_revision_create_request import (
+    AgentTargetRevisionCreateRequest,
 )
 from maihem.api_client.maihem_client.models.test_create_request import (
     TestCreateRequest,
@@ -307,51 +313,22 @@ class Client:
 
         return target_agent
 
-    def upload_workflow_dataset(
-        self,
-        name: str,
-        data: Dict,
-        label: Optional[str] = None,
-    ) -> None:
-        self._upload_dataset(
-            name=name,
-            data=data,
-            label=label,
-            entity_type=TestCreateRequestEntityType.WORKFLOW,
-        )
-
-    def upload_step_dataset(
+    def upload_dataset(
         self,
         name: str,
         data: Dict,
         target_agent_name: str,
-        step_name: str,
+        workflow_step_name: str,
         label: Optional[str] = None,
     ) -> None:
+        self._logger.info(f"Uploading dataset '{name}'...")
+
         # Get entity id for workflow step
         entity_id = self._get_workflow_entity_id(
             target_agent_name=target_agent_name,
             entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
-            step_name=step_name,
+            workflow_step_name=workflow_step_name,
         )
-
-        self._upload_dataset(
-            name=name,
-            data=data,
-            label=label,
-            entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
-            entity_id=entity_id,
-        )
-
-    def _upload_dataset(
-        self,
-        name: str,
-        data: Dict,
-        entity_type: TestCreateRequestEntityType = TestCreateRequestEntityType.WORKFLOW,
-        entity_id: Optional[str] = None,
-        label: Optional[str] = None,
-    ) -> None:
-        self._logger.info(f"Uploading dataset '{name}'...")
 
         # Create dataset
         resp = None
@@ -361,7 +338,7 @@ class Client:
                 req=DatasetCreateRequest(
                     name=name,
                     label=label,
-                    target_type=entity_type,
+                    target_type=TestCreateRequestEntityType.WORKFLOW_STEP,
                     target_id=entity_id,
                 )
             )
@@ -393,7 +370,7 @@ class Client:
 
         self._logger.info(f"Successfully uploaded dataset '{name}'")
 
-    def autogenerate_workflow_test(
+    def create_test_autogen_data(
         self,
         name: str,
         target_agent_name: str,
@@ -446,56 +423,22 @@ class Client:
             metrics_config=metrics_config,
         )
 
-    def create_workflow_test(
+    def create_test_uploaded_data(
         self,
         name: str,
         target_agent_name: str,
         dataset_name: str,
-        initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
-        label: Optional[str] = None,
-    ) -> Test:
-
-        # First create the test
-        test = self._create_test(
-            name,
-            label=label,
-            target_agent_name=target_agent_name,
-            entity_type=TestCreateRequestEntityType.WORKFLOW,
-            step_name=None,
-            initiating_agent=initiating_agent,
-            metrics_config={"qa_cx_helpfulness": 1},  # TODO: change to not needed
-        )
-
-        # Get dataset id from dataset name
-        dataset = self._maihem_api_client.get_datasets(name=dataset_name)
-        if not dataset or len(dataset) == 0:
-            errors.raise_not_found_error(
-                logger=self._logger, entity_type="Dataset", entity_key=dataset_name
-            )
-
-        # Assign dataset to test
-        self._maihem_api_client.assign_dataset_to_test(
-            test_id=test.id, req=TestDatasetCreateRequest(dataset_id=dataset[0].id)
-        )
-
-        return test
-
-    def create_step_test(
-        self,
-        name: str,
-        target_agent_name: str,
-        dataset_name: str,
-        step_name: str,
+        workflow_step_name: str,
         initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
     ) -> Test:
         # First create the test
         test = self._create_test(
-            name,
+            name=name,
             label=label,
             target_agent_name=target_agent_name,
             entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
-            step_name=step_name,
+            workflow_step_name=workflow_step_name,
             initiating_agent=initiating_agent,
             metrics_config={"qa_cx_helpfulness": 1},  # TODO: change to not needed
         )
@@ -519,7 +462,7 @@ class Client:
         name: str,
         target_agent_name: str,
         entity_type: TestCreateRequestEntityType,
-        step_name: Optional[str] = None,
+        workflow_step_name: Optional[str] = None,
         initiating_agent: Optional[AgentType] = AgentType.MAIHEM,
         label: Optional[str] = None,
         maihem_behavior_prompt: Optional[str] = None,
@@ -558,7 +501,7 @@ class Client:
                 entity_id = self._get_workflow_entity_id(
                     target_agent_name=target_agent_name,
                     entity_type=entity_type,
-                    step_name=step_name,
+                    workflow_step_name=workflow_step_name,
                 )
 
                 metrics_config_req = TestCreateRequestMetricsConfigType0.from_dict(
@@ -655,87 +598,192 @@ class Client:
 
         return test_run
 
-    def _get_workflow(self, target_agent: TargetAgent):
+    def _get_workflows(self, target_agent: TargetAgent):
         workflows = self._maihem_api_client.get_workflows(
             agent_target_id=target_agent.id
         )
         if not workflows or len(workflows) == 0:
-            raise errors.raise_not_found_error(
-                f"Workflows for target agent '{target_agent.name}' not found. Please initialize a workflow for this target agent."
+            errors.raise_not_found_error(
+                logger=self._logger,
+                entity_type="Workflow",
+                reference_entity_type="Target agent",
+                reference_entity_key=target_agent.name,
+                comment=f"Workflows for target agent '{target_agent.name}' not found. Please initialize a workflow for this target agent.",
             )
-        workflow = workflows[len(workflows) - 1]
-        return workflow
+        return workflows
+
+    def _get_workflows_from_id(self, target_agent_id: str):
+        workflows = self._maihem_api_client.get_workflows(
+            agent_target_id=target_agent_id
+        )
+        if not workflows or len(workflows) == 0:
+            errors.raise_not_found_error(
+                logger=self._logger,
+                entity_type="Workflow",
+                reference_entity_type="Target agent",
+                reference_entity_key=target_agent_id,
+                comment=f"Workflows for target agent '{target_agent_id}' not found. Please initialize a workflow for this target agent.",
+            )
+        return workflows
 
     def _get_workflow_entity_id(
         self,
         target_agent_name: str,
         entity_type: TestCreateRequestEntityType,
-        step_name: Optional[str] = None,
+        workflow_step_name: Optional[str] = None,
     ) -> str:
 
         # Get target agent id
         target_agent = self.get_target_agent(name=target_agent_name)
 
         # Get workflows
-        workflow = self._get_workflow(target_agent=target_agent)
+        workflows = self._get_workflows(target_agent=target_agent)
 
         # Get entity id for workflow or workflow step
         entity_id = None
-        if entity_type == TestCreateRequestEntityType.WORKFLOW_STEP:
+        for workflow in workflows:
             for step in workflow.workflow_steps:
-                if step["name"] == step_name:
+                if step["name"] == workflow_step_name:
                     entity_id = step["id"]
                     break
-        else:
-            entity_id = workflow.id
+            if entity_id:
+                break
 
         if not entity_id:
             raise errors.raise_not_found_error(
                 logger=self._logger,
                 entity_type=entity_type,
-                entity_key=step_name,
+                entity_key=workflow_step_name,
             )
 
         return entity_id
 
+    def _get_workflows(self, target_agent: TargetAgent):
+        workflows = self._maihem_api_client.get_workflows(
+            agent_target_id=target_agent.id
+        )
+        if not workflows or len(workflows) == 0:
+            errors.raise_not_found_error(
+                logger=self._logger,
+                entity_type="Workflow",
+                reference_entity_type="Target agent",
+                reference_entity_key=target_agent.name,
+                comment=f"Workflows for target agent '{target_agent.name}' not found. Please initialize a workflow for this target agent.",
+            )
+        return workflows
+
+    def _create_agent_target_revision(
+        self,
+        name: str,
+        target_agent_id: str,
+        label: Optional[str] = None,
+    ) -> AgentTargetRevision:
+        self._logger.info(f"Creating target agent revision '{name}'...")
+
+        # Create target agent
+        resp = None
+        try:
+            resp = self._maihem_api_client.create_agent_target_revision(
+                req=AgentTargetRevisionCreateRequest(
+                    name=name,
+                    label=label,
+                    agent_target_id=target_agent_id,
+                )
+            )
+        except errors.BaseError as e:
+            errors.handle_base_error(logger=self._logger, exception=e)
+
+        # Validate response
+        agent_target_revision = None
+        try:
+            agent_target_revision = AgentTargetRevision.from_dict(resp.to_dict())
+        except ValidationError as e:
+            errors.handle_schema_validation_error(logger=self._logger, exception=e)
+
+        self._logger.info(f"Successfully created target agent revision '{name}'")
+        return agent_target_revision
+
+    def _get_target_agent_revisions(
+        self,
+        target_agent_id: str,
+    ) -> str:
+        revisions = self._maihem_api_client.get_target_agent_revisions(
+            agent_target_id=target_agent_id
+        )
+        if not revisions or len(revisions) == 0:
+            errors.raise_not_found_error(
+                logger=self._logger,
+                entity_type="Target agent revisions",
+            )
+        return revisions
+
+    def _get_target_agent_revision_id(
+        self,
+        target_agent_id: str,
+        revision_name: str,
+    ) -> str:
+        revisions = self._get_target_agent_revisions(target_agent_id=target_agent_id)
+        for revision in revisions:
+            if revision.name == revision_name:
+                return revision.id
+        raise errors.raise_not_found_error(
+            logger=self._logger,
+            entity_type="Target agent revision",
+            entity_key=revision_name,
+        )
+
 
 class Maihem(Client):
 
-    def run_step_test(
+    def run_test(
         self,
         name: str,
         test_name: str,
-        step_name: str,
-        label: Optional[str] = None,
-        concurrent_conversations: int = 10,
+        environment: Optional[str] = None,
+        revision: Optional[str] = None,
+        label=None,
+        concurrent_interactions: Optional[int] = 10,
     ) -> ResultTestRun:
-        return self._run_test(
-            name=name,
-            test_name=test_name,
-            entity_type=TestCreateRequestEntityType.WORKFLOW_STEP,
-            step_name=step_name,
-            label=label,
-            concurrent_conversations=concurrent_conversations,
+
+        if not environment:
+            env_os = os.getenv("MAIHEM_ENVIRONMENT")
+            if not env_os:
+                environment = env_os
+
+        if not revision:
+            revision_os = os.getenv("MAIHEM_REVISION")
+            if not revision_os:
+                revision = revision_os
+
+        test = self.get_test(test_name)
+        target_agent_revision_id = self._get_target_agent_revision_id(
+            target_agent_id=test.agent_target_id,
+            revision_name=revision,
         )
 
-    def run_workflow_test(
-        self,
-        name: str,
-        test_name: str,
-        label: Optional[str] = None,
-        concurrent_conversations: int = 10,
-    ) -> ResultTestRun:
-        return self._run_test(
-            name=name,
-            test_name=test_name,
-            entity_type=TestCreateRequestEntityType.WORKFLOW,
-            label=label,
-            concurrent_conversations=concurrent_conversations,
-        )
+        if test.entity_type == TestCreateRequestEntityType.WORKFLOW:
+            return self.run_conversation_test(
+                name=name,
+                test_name=test_name,
+                label=label,
+                concurrent_interactions=concurrent_interactions,
+                environment=environment,
+                target_agent_revision_id=target_agent_revision_id,
+            )
+        elif test.entity_type == TestCreateRequestEntityType.WORKFLOW_STEP:
+            return self.run_step_test(
+                name=name,
+                test_name=test_name,
+                workflow_step_name=test.workflow_step_name,
+                label=label,
+                concurrent_interactions=concurrent_interactions,
+                environment=environment,
+                target_agent_revision_id=target_agent_revision_id,
+            )
 
     """
     How test run works:
-    def _run_test():
+    def run_test():
       set_wrapper_function() [workflow or step]
       _maihem_api_client.create_test_run()
       _get_test_run_conversations() -> _maihem_api_client.get_test_run_conversations()
@@ -748,12 +796,14 @@ class Maihem(Client):
       _get_test_run_result() -> _maihem_api_client.get_test_run_result()
     """
 
-    def run_workflow_test(
+    def run_conversation_test(
         self,
         name: str,
         test_name: str,
         label: Optional[str] = None,
-        concurrent_conversations: int = 10,
+        concurrent_interactions: int = 10,
+        target_agent_revision_id: Optional[str] = None,
+        environment: Optional[str] = None,
     ) -> ResultTestRun:
 
         test_run = None
@@ -768,7 +818,8 @@ class Maihem(Client):
                     agent_target_id=test.agent_target_id
                 )
                 target_agent = self.get_target_agent(name=target_agent_api.name)
-                workflow = self._get_workflow(target_agent=target_agent)
+                workflows = self._get_workflows(target_agent=target_agent)
+                workflow = workflows[0]
 
                 # Set wrapper function to be called
                 target_agent.set_wrapper_function(
@@ -785,7 +836,12 @@ class Maihem(Client):
                 ) as _:
                     resp = self._maihem_api_client.create_test_run(
                         test_id=test.id,
-                        req=CreateTestRunRequest(name=name, label=label),
+                        req=CreateTestRunRequest(
+                            name=name,
+                            label=label,
+                            environment=None,
+                            agent_target_revision_id=None,
+                        ),
                     )
             except errors.BaseError as e:
                 errors.handle_base_error(logger=self._logger, exception=e)
@@ -801,7 +857,7 @@ class Maihem(Client):
             self._logger.info(f"Starting test run '{test.name}'")
             print("\n" + "-" * 50 + "\n")
             self._logger.info(
-                f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_conversations} concurrently)..."
+                f"Running test run with {len(conversation_ids)} conversations (up to {concurrent_interactions} concurrently)..."
             )
             self._logger.info(f"Test run ID: {test_run.id}")
             self._logger.info(
@@ -821,7 +877,7 @@ class Maihem(Client):
                 position=0,
             ) as progress:
                 with ThreadPoolExecutor(
-                    max_workers=concurrent_conversations
+                    max_workers=concurrent_interactions
                 ) as executor:
                     future_to_conversation_id = {
                         executor.submit(
@@ -832,6 +888,8 @@ class Maihem(Client):
                             target_agent,
                             progress_bar_position=i + 1,
                             conversation_history=conversation_history,
+                            target_agent_revision_id=target_agent_revision_id,
+                            environment=environment,
                         ): conversation_id
                         for i, conversation_id in enumerate(conversation_ids)
                     }
@@ -878,6 +936,8 @@ class Maihem(Client):
         target_agent: TargetAgent,
         progress_bar_position: int,
         conversation_history: Dict,
+        target_agent_revision_id: str,
+        environment: str,
     ) -> str:
         is_conversation_active = True
         previous_turn_id = None
@@ -902,6 +962,8 @@ class Maihem(Client):
                 previous_turn_id=previous_turn_id,
                 pending_target_message_id=pending_target_message_id,
                 conversation_history=conversation_history,
+                target_agent_revision_id=target_agent_revision_id,
+                environment=environment,
             )
 
             if (
@@ -927,48 +989,17 @@ class Maihem(Client):
         test: Test,
         target_agent: TargetAgent,
         conversation_history: Dict,
+        target_agent_revision_id: str,
+        environment: str,
         previous_turn_id: Optional[str] = None,
         pending_target_message_id: Optional[str] = None,
     ) -> ConversationTurnCreateResponse:
-        agent_maihem_message = None
 
+        agent_maihem_message = None
         turn_resp = None
 
         conversation = self._get_conversation(conversation_id)
 
-        document_key = None
-        text = None
-
-        # Document loading and chunking (for RAG)
-        # if target_agent.document_paths:
-        #     max_attempts = 10
-        #     attempts = 0
-        #     while attempts < max_attempts:
-        #         if not target_agent.document_paths:
-        #             break
-        #         document_path = random.choice(list(target_agent.document_paths))
-        #         document_key = os.path.basename(document_path)
-        #         try:
-        #             document = extract_text(document_path)
-        #             if len(document) > 10000:
-        #                 chunks = TextSplitter(
-        #                     chunk_size=5000, chunk_overlap=200
-        #                 ).split_text(document)
-        #                 text = random.choice(chunks)
-        #             else:
-        #                 text = document
-        #             if text.strip():
-        #                 break
-        #         except Exception as e:
-        #             self._logger.warning(
-        #                 f"Error processing document {document_key}: {str(e)}"
-        #             )
-        #         attempts += 1
-
-        #     if attempts == max_attempts:
-        #         self._logger.warning(
-        #             "Max attempts reached while trying to select a valid document chunk."
-        #         )
         if (
             test.initiating_agent == AgentType.MAIHEM
             and len(conversation.conversation_turns) == 0
@@ -1009,6 +1040,8 @@ class Maihem(Client):
                 message=agent_maihem_message,
                 conversation_history=conversation_history,
                 test_run_id=test_run_id,
+                target_agent_revision_id=target_agent_revision_id,
+                environment=environment,
             )
 
             contexts = []  # TODO: remove contexts from all sequence
@@ -1109,9 +1142,11 @@ class Maihem(Client):
         self,
         name: str,
         test_name: str,
-        step_name: str,
+        workflow_step_name: str,
         label: Optional[str] = None,
         concurrent_interactions: int = 10,
+        target_agent_revision_id: Optional[str] = None,
+        environment: Optional[str] = None,
     ) -> ResultTestRun:
 
         test_run = None
@@ -1126,25 +1161,25 @@ class Maihem(Client):
                     agent_target_id=test.agent_target_id
                 )
                 target_agent = self.get_target_agent(name=target_agent_api.name)
-                workflow = self._get_workflow(target_agent=target_agent)
+                workflow = self._get_workflows(target_agent=target_agent)
 
                 # Check step name is in workflow steps
                 is_valid_step_name = False
                 for step in workflow.workflow_steps:
-                    if step["name"] == step_name:
+                    if step["name"] == workflow_step_name:
                         is_valid_step_name = True
                         break
                 if is_valid_step_name:
                     # Set wrapper function to be called
                     target_agent.set_wrapper_function(
-                        function_name=step_name,
+                        function_name=workflow_step_name,
                         workflow_name=workflow.name,
                     )
                 else:
                     errors.raise_not_found_error(
                         logger=self._logger,
                         entity_type="Workflow step",
-                        entity_key=step_name,
+                        entity_key=workflow_step_name,
                     )
             resp = None
 
@@ -1199,6 +1234,8 @@ class Maihem(Client):
                             test,
                             target_agent,
                             progress_bar_position=i + 1,
+                            target_agent_revision_id=target_agent_revision_id,
+                            environment=environment,
                         ): trace_id
                         for i, trace_id in enumerate(traces_ids)
                     }
@@ -1246,6 +1283,8 @@ class Maihem(Client):
         test: Test,
         target_agent: TargetAgent,
         progress_bar_position: int,
+        target_agent_revision_id: str,
+        environment: str,
     ) -> str:
 
         # Print progress bar
@@ -1275,6 +1314,8 @@ class Maihem(Client):
                 target_agent_id=target_agent.id,
                 test_run_id=test_run_id,
                 kwargs=input_payload,
+                target_agent_revision_id=target_agent_revision_id,
+                environment=environment,
             )
 
         except Exception as e:
@@ -1318,6 +1359,7 @@ class Maihem(Client):
         except ValidationError as e:
             errors.handle_schema_validation_error(logger=self._logger, exception=e)
 
+    # TODO: link to client to get evaluator name and function name
     def _get_maihem_evaluator_name_and_function_name(self, test_name: str):
         """
         Get the maihem evaluator name and function name from the test name.
@@ -1328,16 +1370,43 @@ class Maihem(Client):
         """
         return "question_answering", "generate_message"
 
-    def generate_wrapper_function(self, test_name: str):
-        maihem_evaluator_name, function_name = (
-            self._get_maihem_evaluator_name_and_function_name(test_name)
-        )
-        evaluator_class = EVALUATOR_REGISTRY[maihem_evaluator_name]
+    def generate_wrapper_function(self, test_name: str) -> None:
+        """
+        Generate a wrapper function template for a test.
+
+        Args:
+            test_name (str): The name of the test.
+        """
+
+        # Get workflow
+        test = self.get_test(test_name)
+        workflows = self._get_workflows_from_id(target_agent_id=test.agent_target_id)
+        workflow = workflows[-1]
+
+        # Find workflow step
+        step_index = -1
+        for i, step in enumerate(workflow.workflow_steps):
+            if step["id"] == test.entity_id:
+                step_index = i
+                break
+
+        if step_index == -1:
+            errors.raise_not_found_error(
+                logger=self._logger,
+                entity_type="Workflow step",
+                entity_key=test.entity_id,
+                comment=f"Workflow step '{test.entity_id}' not found in workflow '{workflow.name}'",
+            )
+
+        # Generate wrapper function using evaluator name and function name
+        evaluator_name = workflow.workflow_steps[step_index]["evaluator"]["name"]
+        function_name = workflow.workflow_steps[step_index]["name"]
+        evaluator_class = EVALUATOR_REGISTRY[evaluator_name]
         function_wrapper_str = evaluator_class()._generate_function_wrapper(
             function_name
         )
-        os.makedirs(f"test_{test_name}/wrapper_functions/", exist_ok=True)
-        wrapper_file = f"test_{test_name}/wrapper_functions/{function_name}_wrapper.py"
+        os.makedirs(f"wrapper_functions/", exist_ok=True)
+        wrapper_file = f"wrapper_functions/{function_name}_wrapper.py"
         if os.path.exists(wrapper_file):
             raise FileExistsError(f"Wrapper file already exists at {wrapper_file}")
 

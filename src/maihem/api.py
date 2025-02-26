@@ -9,6 +9,12 @@ from maihem.api_client.maihem_client.models.agent_target_create_request import (
 from maihem.api_client.maihem_client.models.agent_target import (
     AgentTarget,
 )
+from maihem.api_client.maihem_client.models.agent_target_revision import (
+    AgentTargetRevision,
+)
+from maihem.api_client.maihem_client.models.agent_target_revision_create_request import (
+    AgentTargetRevisionCreateRequest,
+)
 from maihem.api_client.maihem_client.models.dataset_create_request import (
     DatasetCreateRequest,
 )
@@ -50,7 +56,12 @@ from maihem.api_client.maihem_client.api.tests import (
     tests_add_dataset_to_test,
 )
 from maihem.api_client.maihem_client.api.agents import (
+    agents_create_agent_target,
+    agents_get_agent_targets,
+    agents_get_agent_target,
     agents_get_target_agent_workflows,
+    agents_create_agent_target_revision,
+    agents_get_agent_target_revisions,
 )
 from maihem.api_client.maihem_client.models.v_workflow import VWorkflow
 from maihem.api_client.maihem_client.models.conversation_nested import (
@@ -83,11 +94,6 @@ from maihem.api_client.maihem_client.api.conversations import (
     conversations_get_conversation,
 )
 from maihem.api_client.maihem_client.api.whoami import whoami_who_am_i
-from maihem.api_client.maihem_client.api.agents import (
-    agents_create_agent_target,
-    agents_get_agent_targets,
-    agents_get_agent_target,
-)
 
 from maihem.shared.lib.errors import handle_http_errors, ErrorResponse
 from maihem.schemas.tests import TestStatusEnum
@@ -168,6 +174,21 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
                 client=client,
                 x_api_key=self.token,
                 agent_target_id=agent_target_id,
+            )
+
+        return self._return_validated_response(response)
+
+    def create_agent_target_revision(
+        self, req: AgentTargetRevisionCreateRequest
+    ) -> AgentTargetRevision:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[AgentTargetRevision] = self._retry(
+                agents_create_agent_target_revision.sync_detailed
+            )(
+                client=client,
+                x_api_key=self.token,
+                body=req,
+                agent_target_id=req.agent_target_id,
             )
 
         return self._return_validated_response(response)
@@ -374,6 +395,16 @@ class MaihemHTTPClientSync(MaihemHTTPClientBase):
         with MaihemHTTPClient(base_url=self.base_url) as client:
             response: Response[List[VWorkflow]] = self._retry(
                 agents_get_target_agent_workflows.sync_detailed
+            )(client=client, x_api_key=self.token, agent_target_id=agent_target_id)
+
+        return self._return_validated_response(response)
+
+    def get_target_agent_revisions(
+        self, agent_target_id: str
+    ) -> List[AgentTargetRevision]:
+        with MaihemHTTPClient(base_url=self.base_url) as client:
+            response: Response[List[AgentTargetRevision]] = self._retry(
+                agents_get_agent_target_revisions.sync_detailed
             )(client=client, x_api_key=self.token, agent_target_id=agent_target_id)
 
         return self._return_validated_response(response)

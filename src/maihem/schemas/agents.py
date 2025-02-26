@@ -118,6 +118,8 @@ class TargetAgent(BaseModel):
         message: Optional[str] = "",
         conversation_history: Dict = {},
         test_run_id: Optional[str] = None,
+        target_agent_revision_id: Optional[str] = None,
+        environment: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
             errors.raise_wrapper_function_error(
@@ -131,6 +133,8 @@ class TargetAgent(BaseModel):
                         "conversation_id": conversation_id,
                         "conversation_message_id": conversation_message_id,
                         "test_run_id": test_run_id,
+                        "agent_target_revision_id": target_agent_revision_id,
+                        "environment": environment,
                     },
                 }
                 message_with_ids = json.dumps(data)
@@ -160,6 +164,8 @@ class TargetAgent(BaseModel):
         target_agent_id: str,
         test_run_id: str,
         kwargs: Dict,
+        target_agent_revision_id: Optional[str] = None,
+        environment: Optional[str] = None,
     ) -> Tuple[str, List[str]]:
         if not self._wrapper_function:
             errors.raise_wrapper_function_error(
@@ -176,6 +182,12 @@ class TargetAgent(BaseModel):
                     span.set_attribute("agent_target_id", target_agent_id)
                     span.set_attribute("workflow_name", self._workflow_name)
                     span.set_attribute("workflow_step_name", self._workflow_name)
+                    if target_agent_revision_id:
+                        span.set_attribute(
+                            "agent_target_revision_id", target_agent_revision_id
+                        )
+                    if environment:
+                        span.set_attribute("environment", environment)
 
                     # Call the step wrapper function
                     response = asyncio.run(self._wrapper_function(**kwargs))

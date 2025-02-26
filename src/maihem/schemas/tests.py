@@ -45,6 +45,8 @@ class Test(BaseModel):
     agent_maihem_goal_prompt: Optional[str] = None
     agent_maihem_population_prompt: Optional[str] = None
     metrics_config: Dict[str, int] = {}
+    entity_type: Optional[str] = None
+    entity_id: Optional[str] = None
 
 
 class TestRun(BaseModel):

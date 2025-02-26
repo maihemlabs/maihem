@@ -50,21 +50,42 @@ def safe_serialize_output(data: Any) -> str:
 
 @lru_cache(maxsize=128)  # Increased cache size since it's now shared
 def get_agent_target_id(
-    agent_name: str, api_key: Optional[str] = None
+    target_agent_name: str, api_key: Optional[str] = None
 ) -> Optional[str]:
     """
     Retrieve the agent's target id (cached for performance).
 
     If api_key is not provided, picks it from the environment variable.
     """
-    if not agent_name:
+    if not target_agent_name:
         return None
     if not api_key:
         api_key = os.getenv("MAIHEM_API_KEY")
     client = Maihem(env="local")  # TODO: change env to prod
     try:
-        agent = client.get_target_agent(name=agent_name)
+        agent = client.get_target_agent(name=target_agent_name)
         return agent.id
+    except Exception:
+        return None
+
+
+@lru_cache(maxsize=128)
+def get_agent_target_revision_id(
+    target_agent_name: str, target_agent_revision_name: str
+) -> Optional[str]:
+    """
+    Retrieve the agent's target id (cached for performance).
+
+    """
+    if not target_agent_revision_name:
+        return None
+    client = Maihem(env="local")  # TODO: change env to prod
+    try:
+        revision_id = client._get_target_agent_revision_id(
+            target_agent_id=get_agent_target_id(target_agent_name),
+            revision_name=target_agent_revision_name,
+        )
+        return revision_id
     except Exception:
         return None
 
@@ -76,7 +97,7 @@ def _process_args_and_set_inputs(
     evaluator: Optional[MaihemEvaluator],
     span: Any,
     span_name: str,
-    workflow_step_flag: bool = False,
+    is_parent_span: bool = True,
 ) -> Tuple[Tuple[Any, ...], Dict[str, Any]]:
     """
     Bind and process the function arguments and update the span with the input payload.
@@ -100,13 +121,15 @@ def _process_args_and_set_inputs(
     input_payload = (
         evaluator.map_inputs(**filtered_arguments) if evaluator else filtered_arguments
     )
-    if workflow_step_flag:
-        span.set_attribute("workflow_step_name", span_name)
-        span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
-    else:
+
+    span.set_attribute("workflow_step_name", span_name)
+    span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
+    span.set_attribute("input_payload", safe_serialize_input(input_payload))
+    span.set_attribute("input_payload_raw", safe_serialize_input(filtered_arguments))
+
+    if is_parent_span:
         span.set_attribute("workflow_name", span_name)
-        span.set_attribute("workflow_step_name", span_name)
-        span.set_attribute("evaluator_name", evaluator.NAME if evaluator else None)
+
         if "query" in input_payload:
             clean_query, ids = extract_ids_from_query(input_payload["query"])
             for key, value in ids.items():
@@ -124,9 +147,9 @@ def _process_args_and_set_inputs(
                 if arg_name and arg_name in kwargs:
                     kwargs[arg_name] = clean_query
             input_payload["query"] = clean_query
+    else:
+        span.set_attribute("entity_type", "workflow_step")
 
-    span.set_attribute("input_payload", safe_serialize_input(input_payload))
-    span.set_attribute("input_payload_raw", safe_serialize_input(filtered_arguments))
     return args, kwargs
 
 
@@ -147,7 +170,7 @@ def _set_output_attributes(
 
 def workflow_step(
     name: Optional[str] = None,
-    agent_target: Optional[str] = None,
+    target_agent_name: Optional[str] = None,
     evaluator: Optional[MaihemEvaluator] = None,
     api_key: Optional[str] = None,
 ) -> Callable:
@@ -172,15 +195,22 @@ def workflow_step(
                 parent_span = trace.get_current_span()
                 if parent_span.get_span_context().is_valid:
                     # Active span present so treat this as a workflow step
-                    workflow_step_flag = True
+                    is_parent_span = False
                     cached_agent_id = None
+                    cached_agent_target_revision_id = None
+                    environment = None
                 else:
                     # No active span; create a top-level workflow
-                    workflow_step_flag = False
+                    is_parent_span = True
                     cached_agent_id = (
-                        get_agent_target_id(agent_target, api_key)
-                        if agent_target
+                        get_agent_target_id(target_agent_name, api_key)
+                        if target_agent_name
                         else None
+                    )
+                    environment = os.getenv("MAIHEM_ENVIRONMENT")
+                    revision_name = os.getenv("MAIHEM_TARGET_AGENT_REVISION")
+                    cached_agent_target_revision_id = get_agent_target_revision_id(
+                        target_agent_name, revision_name
                     )
 
                 tracer = Tracer.get_instance().tracer
@@ -188,6 +218,13 @@ def workflow_step(
                 with tracer.start_as_current_span(span_name) as span:
                     if cached_agent_id:
                         span.set_attribute("agent_target_id", cached_agent_id)
+                    if environment:
+                        span.set_attribute("environment", environment)
+                    if cached_agent_target_revision_id:
+                        span.set_attribute(
+                            "agent_target_revision_id", cached_agent_target_revision_id
+                        )
+
                     new_args, new_kwargs = _process_args_and_set_inputs(
                         sig,
                         args,
@@ -195,7 +232,7 @@ def workflow_step(
                         evaluator,
                         span,
                         span_name,
-                        workflow_step_flag,
+                        is_parent_span,
                     )
                     result = await func(*new_args, **new_kwargs)
                     _set_output_attributes(span, result, evaluator)
@@ -210,14 +247,14 @@ def workflow_step(
                 parent_span = trace.get_current_span()
                 if parent_span.get_span_context().is_valid:
                     # Active span present so treat this as a workflow step
-                    workflow_step_flag = True
+                    is_parent_span = False
                     cached_agent_id = None
                 else:
                     # No active span; create a top-level workflow
-                    workflow_step_flag = False
+                    is_parent_span = True
                     cached_agent_id = (
-                        get_agent_target_id(agent_target, api_key)
-                        if agent_target
+                        get_agent_target_id(target_agent_name, api_key)
+                        if target_agent_name
                         else None
                     )
 
@@ -233,7 +270,7 @@ def workflow_step(
                         evaluator,
                         span,
                         span_name,
-                        workflow_step_flag,
+                        is_parent_span,
                     )
                     result = func(*new_args, **new_kwargs)
                     _set_output_attributes(span, result, evaluator)

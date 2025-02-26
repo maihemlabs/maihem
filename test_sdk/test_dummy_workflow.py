@@ -15,12 +15,13 @@ import time
 
 
 @maihem.workflow_step(
+    name="intent_recognition_custom_name",
     evaluator=MaihemIntent(
         inputs=MaihemIntent.Inputs(query="user_input"),
         output_fn=lambda x: x["intent"],  # Extract intent from the returned dict
-    )
+    ),
 )
-async def intent_recognition(
+async def intent_recognition_function(
     user_input: str,  # Different parameter name than the standard "query"
 ) -> dict:
     # Return richer data
@@ -32,14 +33,16 @@ async def intent_recognition(
 
 
 @maihem.workflow_step(evaluator=MaihemNER(inputs=MaihemNER.Inputs(query="text")))
-async def name_entity_recognition(text: str) -> list[str]:  # Different parameter name
+async def name_entity_recognition_function(
+    text: str,
+) -> list[str]:  # Different parameter name
     return ["Paris", "France"]
 
 
 @maihem.workflow_step(
     evaluator=MaihemRephrasing(inputs=MaihemRephrasing.Inputs(query="input_text"))
 )
-async def rephrase_query(input_text: str) -> str:  # Different parameter name
+async def rephrase_query_function(input_text: str) -> str:  # Different parameter name
     return input_text + "?"
 
 
@@ -49,7 +52,7 @@ async def rephrase_query(input_text: str) -> str:  # Different parameter name
         output_fn=lambda x: x["documents"],  # Extract just the documents
     )
 )
-async def retrieval(search_query: str) -> dict:  # Different parameter names
+async def retrieval_function(search_query: str) -> dict:  # Different parameter names
     return {
         "documents": [
             "The Eiffel Tower is in Paris, France",
@@ -74,7 +77,7 @@ async def retrieval(search_query: str) -> dict:  # Different parameter names
         inputs=MaihemReranking.Inputs(query="query", documents="docs")
     )
 )
-async def reranking(
+async def reranking_function(
     query: str, docs: list[str], other_param: str = "default"
 ) -> list[str]:  # Different parameter name
     random.shuffle(docs)
@@ -86,7 +89,7 @@ async def reranking(
         inputs=MaihemFiltering.Inputs(query="query", documents="documents")
     )
 )
-async def filtering(
+async def filtering_function(
     query: str, documents: list[str]
 ) -> list[str]:  # Different parameter name
     return [x for x in documents if "42" in x]
@@ -97,12 +100,15 @@ async def filtering(
         inputs=MaihemFinalAnswer.Inputs(query="question", documents="context")
     )
 )
-async def answer(question: str, context: list[str]) -> str:  # Different parameter names
+async def answer_function(
+    question: str, context: list[str]
+) -> str:  # Different parameter names
     return "42"
 
 
 @maihem.workflow_step(
-    agent_target="target-deco",
+    target_agent_name="target-deco-names",
+    name="generate_message",
     evaluator=MaihemQA(
         inputs=MaihemQA.Inputs(query="user_input"),
     ),
@@ -111,17 +117,17 @@ async def generate_message(user_input: str) -> str:
     ####### NOTE THIS
     maihem.set_attribute("external_conversation_id", "convconvconv")
     ###################
-    intent = await intent_recognition(user_input=user_input)
-    entities = await name_entity_recognition(text=user_input)
-    rephrased_query = await rephrase_query(input_text=user_input)
-    retrieval_results = await retrieval(search_query=rephrased_query)
-    reranking_results = await reranking(
+    intent = await intent_recognition_function(user_input=user_input)
+    entities = await name_entity_recognition_function(text=user_input)
+    rephrased_query = await rephrase_query_function(input_text=user_input)
+    retrieval_results = await retrieval_function(search_query=rephrased_query)
+    reranking_results = await reranking_function(
         query=rephrased_query, docs=retrieval_results["documents"]
     )
-    filtered_results = await filtering(
+    filtered_results = await filtering_function(
         query=rephrased_query, documents=reranking_results
     )
-    result = await answer(question=rephrased_query, context=filtered_results)
+    result = await answer_function(question=rephrased_query, context=filtered_results)
     return result
 
 
