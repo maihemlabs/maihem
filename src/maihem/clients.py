@@ -72,6 +72,7 @@ from maihem.api_client.maihem_client.models.dataset_create_request import (
 from maihem.api_client.maihem_client.models.workflow_step_span_create_response_input_payload_type_0 import (
     WorkflowStepSpanCreateResponseInputPayloadType0,
 )
+from maihem.api_client.maihem_client.models.environment import Environment
 import maihem.shared.lib.errors as errors
 from maihem.api import MaihemHTTPClientSync
 from maihem.schemas.tests import TestStatusEnum
@@ -1412,3 +1413,51 @@ class Maihem(Client):
 
         with open(wrapper_file, "w") as f:
             f.write(function_wrapper_str)
+
+
+class MaihemTracing(Maihem):
+
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(Maihem, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
+    def __init__(
+        self,
+        env: Optional[Literal[Environment.__members__.values()]] = None,
+        revision: Optional[str] = None,
+        api_key: Optional[str] = None,
+        store_token: bool = True,
+        target_agent_name: Optional[str] = None,
+    ) -> None:
+        if self._initialized:
+            return
+        super().__init__(api_key=api_key, store_token=store_token)
+        self._initialized = True
+
+        self.target_agent_id = self.get_target_agent(name=target_agent_name).id
+
+        self.environment = env or os.getenv("MAIHEM_ENVIRONMENT") or "DEVELOPMENT"
+
+        revision_name = revision or os.getenv("MAIHEM_REVISION")
+        try:
+            self.revision_id = (
+                self._get_target_agent_revision_id(
+                    target_agent_id=self.target_agent_id,
+                    revision_name=revision_name,
+                )
+                if revision_name
+                else None
+            )
+        except errors.BaseError:
+            try:
+                revision = self._create_agent_target_revision(
+                    target_agent_id=self.target_agent_id,
+                    name=revision_name,
+                )
+                self.revision_id = revision.id
+            except Exception as e:
+                errors.handle_base_error(logger=self._logger, exception=e)
