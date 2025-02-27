@@ -86,19 +86,16 @@ class Client:
     _api_key: str = None
     _base_url: str = "https://api.maihem.ai"
     _base_url_ui: str = "https://cause.maihem.ai"
-    _staging_url: str = "https://api.staging.maihem.ai"
-    _staging_url_ui: str = "https://cause.staging.maihem.ai"
-    _local_url: str = "http://localhost:8000"
-    _local_url_ui: str = "http://localhost:3000"
     _cache_dir: str = None
 
     _maihem_api_client = MaihemHTTPClientSync
 
     def __init__(
         self,
-        env: Optional[Literal["production", "staging", "local"]] = "production",
         api_key: Optional[str] = None,
-        store_token: bool = True,
+        store_token: Optional[bool] = True,
+        _base_url: Optional[str] = None,
+        _base_url_ui: Optional[str] = None,
     ) -> None:
         """Initialize the client.
 
@@ -113,6 +110,9 @@ class Client:
         self._logger = get_logger()
         add_default_logger(self._logger)
 
+        self._base_url = _base_url if _base_url else self._base_url
+        self._base_url_ui = _base_url_ui if _base_url_ui else self._base_url_ui
+
         # Get cache directory and token file path
         cache_dir = self._get_cache_dir()
         token_file = cache_dir / "token"
@@ -120,22 +120,25 @@ class Client:
         # Try to get API key from different sources in order of precedence arg > cache > env
         self._api_key = (
             api_key
-            or self._load_token_from_cache(token_file, env)
-            or self._get_token_from_env(env)
+            or self._load_token_from_cache(token_file)
+            or os.getenv("MAIHEM_API_KEY")
         )
 
         if not self._api_key:
             errors.raise_request_validation_error(
-                logger=self._logger, message=f"No API key found for {env} environment"
+                logger=self._logger, message=f"No API key found"
             )
 
         # Setup and validate client
         try:
-            self._setup_client(env)
+            self._maihem_api_client = MaihemHTTPClientSync(
+                self._base_url, self._api_key
+            )
+            self._maihem_api_client.whoami()
 
             # If validation succeeds and we should store token, save it
             if store_token:
-                self._save_token_to_cache(token_file, self._api_key, env)
+                self._save_token_to_cache(token_file, self._api_key)
 
         except ValueError as e:
             raise ValueError(f"Token validation failed: {str(e)}")
@@ -152,12 +155,11 @@ class Client:
         else:
             return Path.home() / ".maihem" / "cache"
 
-    def _load_token_from_cache(self, token_file: Path, env: str) -> Optional[str]:
+    def _load_token_from_cache(self, token_file: Path) -> Optional[str]:
         """Try to load token from cache file.
 
         Args:
             token_file: Path to the token file
-            env: Current environment
 
         Returns:
             Optional[str]: The token if found and valid for current env, None otherwise
@@ -168,29 +170,12 @@ class Client:
         try:
             with open(token_file, "r") as f:
                 token_data = json.load(f)
-                if token_data.get("env") == env:
-                    return token_data.get("token")
+                return token_data.get("token")
         except Exception as e:
             self._logger.debug(f"Failed to read token from cache: {e}")
         return None
 
-    def _get_token_from_env(self, env: str) -> Optional[str]:
-        """Get token from environment variables.
-
-        Args:
-            env: Current environment
-
-        Returns:
-            Optional[str]: The token if found in environment variables, None otherwise
-        """
-        env_vars = {
-            "production": "MAIHEM_API_KEY",
-            "staging": "MAIHEM_API_KEY_STAGING",
-            "local": "MAIHEM_API_KEY_LOCAL",
-        }
-        return os.getenv(env_vars.get(env, ""))
-
-    def _save_token_to_cache(self, token_file: Path, token: str, env: str) -> None:
+    def _save_token_to_cache(self, token_file: Path, token: str) -> None:
         """Save token to cache file.
 
         Args:
@@ -200,42 +185,21 @@ class Client:
         """
         try:
             token_file.parent.mkdir(parents=True, exist_ok=True)
-            token_data = {"token": token, "env": env}
+            token_data = {"token": token}
             with open(token_file, "w") as f:
                 json.dump(token_data, f)
         except IOError as e:
             self._logger.warning(f"Failed to save token to cache: {e}")
 
-    def _setup_client(self, env: str) -> None:
-        """Setup the API client for the given environment.
-
-        Args:
-            env: Environment to setup client for
-
-        Raises:
-            ValueError: If client setup fails
-        """
+    def _override_base_url(self, base_url: str) -> None:
         try:
-            if env == "production":
-                self._maihem_api_client = MaihemHTTPClientSync(
-                    self._base_url, self._api_key
-                )
-            elif env == "staging":
-                self._override_base_url(self._staging_url)
-                self._override_base_url_ui(self._staging_url_ui)
-            elif env == "local":
-                self._override_base_url(self._local_url)
-                self._override_base_url_ui(self._local_url_ui)
-            else:
-                raise ValueError(f"Invalid environment: {env}")
-            # Validate token by making a test API call
+            self._base_url = base_url
+            self._maihem_api_client = MaihemHTTPClientSync(
+                self._base_url, self._api_key
+            )
             self._maihem_api_client.whoami()
         except Exception as e:
             raise ValueError(f"Failed to setup client: {str(e)}")
-
-    def _override_base_url(self, base_url: str) -> None:
-        self._base_url = base_url
-        self._maihem_api_client = MaihemHTTPClientSync(self._base_url, self._api_key)
 
     def _override_base_url_ui(self, base_url_ui: str) -> None:
         self._base_url_ui = base_url_ui
