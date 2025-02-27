@@ -12,6 +12,7 @@ from maihem.evaluators import (
 import asyncio
 import random
 import time
+from maihem import Maihem, MaihemClient
 
 
 @maihem.workflow_step(
@@ -147,6 +148,13 @@ if __name__ == "__main__":
     # asyncio.run(generate_message(user_input=json.dumps(data)))  # test kwargs
 
     ### MONITORING
+    Maihem(
+        api_key="",
+        target_agent_name="target-deco",
+        env="DEVELOPMENT",
+        revision="test",
+        base_url="http://localhost:8000",
+    )
     asyncio.run(generate_message("What is six times lol"))
     # asyncio.run(intent_recognition("What is six times lol"))
     #### TESTING

@@ -698,7 +698,7 @@ class Client:
         )
 
 
-class Maihem(Client):
+class MaihemClient(Client):
 
     def run_test(
         self,
@@ -1379,27 +1379,32 @@ class Maihem(Client):
             f.write(function_wrapper_str)
 
 
-class MaihemTracing(Maihem):
+class Maihem(MaihemClient):
 
     _instance = None
 
     def __new__(cls, *args, **kwargs):
         if cls._instance is None:
-            cls._instance = super(Maihem, cls).__new__(cls)
+            cls._instance = super(MaihemClient, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
     def __init__(
         self,
+        api_key: Optional[str] = None,
         env: Optional[Literal[Environment.__members__.values()]] = None,
         revision: Optional[str] = None,
-        api_key: Optional[str] = None,
         store_token: bool = True,
         target_agent_name: Optional[str] = None,
+        base_url: Optional[str] = None,
     ) -> None:
         if self._initialized:
             return
-        super().__init__(api_key=api_key, store_token=store_token)
+        super().__init__(
+            api_key=api_key,
+            store_token=store_token,
+            _base_url=base_url,
+        )
         self._initialized = True
 
         self.target_agent_id = self.get_target_agent(name=target_agent_name).id
@@ -1416,7 +1421,7 @@ class MaihemTracing(Maihem):
                 if revision_name
                 else None
             )
-        except errors.BaseError:
+        except Exception:
             try:
                 revision = self._create_agent_target_revision(
                     target_agent_id=self.target_agent_id,

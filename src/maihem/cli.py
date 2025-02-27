@@ -1,6 +1,7 @@
 import click
-from maihem.clients import Maihem
+from maihem.clients import MaihemClient
 from maihem.utils.utils import import_wrapper_function, create_project_folder
+from maihem.api_client.maihem_client.models.environment import Environment
 
 
 # Move login command before main group initialization
@@ -12,21 +13,14 @@ def cli():
 
 @cli.command()
 @click.argument("token")
-@click.option(
-    "--env",
-    type=click.Choice(["local", "staging", "production"]),
-    default="production",
-    help="Environment to use (default: production)",
-)
-def login(token: str, env: str):
+def login(token: str):
     """Log in to Maihem using your API token."""
     try:
-        client = Maihem(api_key=token, env=env)
-        click.echo(f"✨ Successfully logged in to {env} environment")
+        client = MaihemClient(api_key=token)
+        click.echo(f"✨ Successfully logged in")
         click.echo("🔒 Token stored securely in cache")
     except Exception as e:
         click.echo(f"❌ Login failed: {str(e)}")
-        raise click.Abort()
 
 
 @cli.command()
@@ -34,7 +28,7 @@ def login(token: str, env: str):
 @click.option("--env", default="production", help="Environment to use")
 def generate_wrapper(env, test_name):
     """Generate a wrapper function for a test"""
-    client = Maihem(env=env)
+    client = MaihemClient(env=env)
     client.generate_wrapper_function(test_name=test_name)
     click.echo(f"✨ Successfully generated wrapper function for test '{test_name}'")
 
@@ -54,7 +48,7 @@ def target_agent():
 @click.option("--language", default="en", help="Language (default: en). Follow ISO 639")
 def create(env, name, label, role, description, language):
     """Create a target agent"""
-    client = Maihem(env=env)
+    client = MaihemClient(env=env)
     client.add_target_agent(
         name=name, label=label, role=role, description=description, language=language
     )
@@ -119,7 +113,7 @@ def create(
     maihem_population_prompt,
 ):
     """Create a test"""
-    client = Maihem(env=env)
+    client = MaihemClient(env=env)
     module_list = [m.strip() for m in modules.split(",")]
     client.create_test(
         name=name,
@@ -154,7 +148,7 @@ def create(
 )
 def run(env, name, label, test_name, wrapper_function_path, concurrent_conversations):
     """Run a test"""
-    client = Maihem(env=env)
+    client = MaihemClient(env=env)
     wrapper_function = import_wrapper_function(wrapper_function_path)
     client.run_test(
         name=name,
@@ -177,7 +171,7 @@ def test_run():
 @click.option("--test-run-name", required=True, help="Name of the test run")
 def get(test_name, test_run_name):
     """Get test run results"""
-    client = Maihem(env="production")
+    client = MaihemClient(env="production")
     test_run_results = client.get_test_run_result(
         test_name=test_name, test_run_name=test_run_name
     )

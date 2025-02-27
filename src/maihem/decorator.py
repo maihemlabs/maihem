@@ -48,54 +48,6 @@ def safe_serialize_output(data: Any) -> str:
         return repr(data)
 
 
-@lru_cache(maxsize=128)  # Increased cache size since it's now shared
-def get_agent_target_id(
-    target_agent_name: str, api_key: Optional[str] = None
-) -> Optional[str]:
-    """
-    Retrieve the agent's target id (cached for performance).
-
-    If api_key is not provided, picks it from the environment variable.
-    """
-    if not target_agent_name:
-        return None
-    if not api_key:
-        api_key = os.getenv("MAIHEM_API_KEY")
-    client = Maihem(env="local")  # TODO: change env to prod
-    try:
-        agent = client.get_target_agent(name=target_agent_name)
-        return agent.id
-    except Exception:
-        return None
-
-
-@lru_cache(maxsize=128)
-def get_agent_target_revision_id(
-    target_agent_name: str, target_agent_revision_name: str
-) -> Optional[str]:
-    """
-    Retrieve the agent's target id (cached for performance).
-    """
-    if not target_agent_revision_name:
-        return None
-    client = Maihem(env="local")  # TODO: change env to prod
-    try:
-        revision_id = client._get_target_agent_revision_id(
-            target_agent_id=get_agent_target_id(target_agent_name),
-            revision_name=target_agent_revision_name,
-        )
-        return revision_id
-    except Exception:
-        try:
-            revision = client._create_agent_target_revision(
-                target_agent_id=get_agent_target_id(target_agent_name),
-                name=target_agent_revision_name,
-            )
-            return revision.id
-        except Exception:
-            return None
-
-
 def _process_args_and_set_inputs(
     sig: inspect.Signature,
     args: Tuple[Any, ...],
@@ -133,8 +85,13 @@ def _process_args_and_set_inputs(
     span.set_attribute("input_payload", safe_serialize_input(input_payload))
     span.set_attribute("input_payload_raw", safe_serialize_input(filtered_arguments))
 
+    client = Maihem()
+
     if is_parent_span:
         span.set_attribute("workflow_name", span_name)
+        span.set_attribute("agent_target_id", client.target_agent_id)
+        span.set_attribute("environment", client.environment)
+        span.set_attribute("agent_target_revision_id", client.revision_id)
 
         if "query" in input_payload:
             clean_query, ids = extract_ids_from_query(input_payload["query"])
@@ -199,37 +156,11 @@ def workflow_step(
             @wraps(func)
             async def async_wrapper(*args: Any, **kwargs: Any) -> Any:
                 parent_span = trace.get_current_span()
-                if parent_span.get_span_context().is_valid:
-                    # Active span present so treat this as a workflow step
-                    is_parent_span = False
-                    cached_agent_id = None
-                    cached_agent_target_revision_id = None
-                    environment = None
-                else:
-                    # No active span; create a top-level workflow
-                    is_parent_span = True
-                    cached_agent_id = (
-                        get_agent_target_id(target_agent_name, api_key)
-                        if target_agent_name
-                        else None
-                    )
-                    environment = os.getenv("MAIHEM_ENVIRONMENT")
-                    revision_name = os.getenv("MAIHEM_TARGET_AGENT_REVISION")
-                    cached_agent_target_revision_id = get_agent_target_revision_id(
-                        target_agent_name, revision_name
-                    )
+                is_parent_span = not parent_span.get_span_context().is_valid
 
                 tracer = Tracer.get_instance().tracer
                 span_name = name or func.__name__
                 with tracer.start_as_current_span(span_name) as span:
-                    if cached_agent_id:
-                        span.set_attribute("agent_target_id", cached_agent_id)
-                    if environment:
-                        span.set_attribute("environment", environment)
-                    if cached_agent_target_revision_id:
-                        span.set_attribute(
-                            "agent_target_revision_id", cached_agent_target_revision_id
-                        )
 
                     new_args, new_kwargs = _process_args_and_set_inputs(
                         sig,
@@ -251,19 +182,7 @@ def workflow_step(
 
             def sync_wrapper(*args: Any, **kwargs: Any) -> Any:
                 parent_span = trace.get_current_span()
-                if parent_span.get_span_context().is_valid:
-                    # Active span present so treat this as a workflow step
-                    is_parent_span = False
-                    cached_agent_id = None
-                else:
-                    # No active span; create a top-level workflow
-                    is_parent_span = True
-                    cached_agent_id = (
-                        get_agent_target_id(target_agent_name, api_key)
-                        if target_agent_name
-                        else None
-                    )
-
+                is_parent_span = not parent_span.get_span_context().is_valid
                 tracer = Tracer.get_instance().tracer
                 span_name = name or func.__name__
                 with tracer.start_as_current_span(span_name) as span:

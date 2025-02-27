@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from maihem import Maihem
+from maihem import MaihemClient
 
 from data import data_e2e, data_reranking
 
@@ -9,7 +9,7 @@ target_agent_name = "target-deco-names"
 test_name = "test_reranking_2602_2"
 
 
-maihem_client = Maihem(env="local")
+maihem_client = MaihemClient(env="local")
 try:
     target_agent = maihem_client.add_target_agent(
         name=target_agent_name,
